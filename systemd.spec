@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        215
-Release:        13%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -122,6 +122,8 @@ Patch080:       0080-bash-completion-p-option-for-journalctl.patch
 Patch081:       0081-sysusers-fix-selinux-context-of-backup-files.patch
 Patch082:       0082-update-done-set-proper-selinux-context-for-.updated.patch
 Patch083:       0083-Added-arch-tuple-for-PPC64LE.patch
+Patch084:       0084-base_filesystem_create-do-not-try-to-create-root-if-.patch
+Patch085:       0085-initrd-parse-etc.service-ignore-return-code-of-daemo.patch
 
 # Presently not accepted upstream, but we disable systemd-resolved in
 # the presets anyways, and this unbreaks anaconda/lorax/livecd-creator
@@ -874,6 +876,10 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Wed Sep 03 2014 Harald Hoyer <harald@redhat.com> 215-14
+- Fixed booting into a RO NFS root
+Resolves: rhbz#1133814
+
 * Thu Aug 28 2014 Peter Robinson <pbrobinson@fedoraproject.org> 215-13
 - Drop no LTO build option for aarch64/s390 now it's fixed in binutils (RHBZ 1091611)
 
