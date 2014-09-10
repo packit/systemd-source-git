@@ -13,7 +13,7 @@ the initrd.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/units/initrd-parse-etc.service.in b/units/initrd-parse-etc.service.in
-index c0b2543..42c059b 100644
+index c0b25430bc..42c059bbd2 100644
 --- a/units/initrd-parse-etc.service.in
 +++ b/units/initrd-parse-etc.service.in
 @@ -16,7 +16,7 @@ ConditionPathExists=/etc/initrd-release

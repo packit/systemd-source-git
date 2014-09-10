@@ -19,7 +19,7 @@ This patch checks for existance not only in the symlink case.
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/src/shared/base-filesystem.c b/src/shared/base-filesystem.c
-index addd26c..ba8b829 100644
+index addd26ca39..ba8b829ab3 100644
 --- a/src/shared/base-filesystem.c
 +++ b/src/shared/base-filesystem.c
 @@ -62,13 +62,13 @@ int base_filesystem_create(const char *root) {

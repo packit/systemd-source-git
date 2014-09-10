@@ -10,7 +10,7 @@ guys, that this is correct and provided the patch.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/shared/architecture.h b/src/shared/architecture.h
-index 4821d5d..ee50ff4 100644
+index 4821d5d289..ee50ff4bab 100644
 --- a/src/shared/architecture.h
 +++ b/src/shared/architecture.h
 @@ -85,7 +85,7 @@ Architecture uname_architecture(void);

@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        215
-Release:        15%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        16%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -124,6 +124,16 @@ Patch082:       0082-update-done-set-proper-selinux-context-for-.updated.patch
 Patch083:       0083-Added-arch-tuple-for-PPC64LE.patch
 Patch084:       0084-base_filesystem_create-do-not-try-to-create-root-if-.patch
 Patch085:       0085-initrd-parse-etc.service-ignore-return-code-of-daemo.patch
+Patch086:       0086-sd-event-add-support-for-CLOCK_BOOTTIME.patch
+Patch087:       0087-time-util-add-clock_boottime_or_monotonic.patch
+Patch088:       0088-timesyncd-always-use-CLOCK_BOOTTIME-if-we-can.patch
+Patch089:       0089-timesyncd-check-if-stratum-is-valid.patch
+Patch090:       0090-timesyncd-fix-calculation-of-transmit-time.patch
+Patch091:       0091-timesyncd-get-kernel-timestamp-in-nanoseconds.patch
+Patch092:       0092-timesyncd-check-root-distance.patch
+Patch093:       0093-timesyncd-wait-before-reconnecting-to-first-server.patch
+Patch094:       0094-timesyncd-allow-two-missed-replies-before-reselectin.patch
+Patch095:       0095-timesyncd-don-t-reset-polling-interval-when-reselect.patch
 
 # Presently not accepted upstream, but we disable systemd-resolved in
 # the presets anyways, and this unbreaks anaconda/lorax/livecd-creator
@@ -882,6 +892,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Wed Sep 10 2014 Michal Schmidt <mschmidt@redhat.com> - 215-16
+- Update timesyncd with patches to avoid hitting NTP pool too often.
+
 * Tue Sep 09 2014 Michal Schmidt <mschmidt@redhat.com> - 215-15
 - Use common CONFIGURE_OPTS for build2 and build3.
 - Configure timesyncd with NTP servers from Fedora/RHEL vendor zone.
