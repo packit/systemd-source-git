@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        215
-Release:        17%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        18%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -142,9 +142,6 @@ Patch0: 0001-resolved-Move-symlink-creation-from-tmpfiles-to-daem.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
-
-# temporary workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1147910
-Patch1001:      0001-udev-set-default-selinux-label-only-at-add-events.patch
 
 %global num_patches %{lua: c=0; for i,p in ipairs(patches) do c=c+1; end; print(c);}
 
@@ -895,6 +892,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Wed Oct 01 2014 Kay Sievers <kay@redhat.com> - 215-18
+- revert "don't reset selinux context during CHANGE events"
+
 * Wed Oct 01 2014 Lukáš Nykrýn <lnykryn@redhat.com> - 215-17
 - add temporary workaround for #1147910
 - don't reset selinux context during CHANGE events
