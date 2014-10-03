@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        215
-Release:        18%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        19%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -134,6 +134,8 @@ Patch092:       0092-timesyncd-check-root-distance.patch
 Patch093:       0093-timesyncd-wait-before-reconnecting-to-first-server.patch
 Patch094:       0094-timesyncd-allow-two-missed-replies-before-reselectin.patch
 Patch095:       0095-timesyncd-don-t-reset-polling-interval-when-reselect.patch
+Patch096:       0096-backlight-Avoid-error-when-state-restore-is-disabled.patch
+Patch097:       0097-udev-link-config-fix-crash-due-to-missing-hwaddr.patch
 
 # Presently not accepted upstream, but we disable systemd-resolved in
 # the presets anyways, and this unbreaks anaconda/lorax/livecd-creator
@@ -892,6 +894,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Fri Oct 03 2014 Michal Sekletar <msekleta@redhat.com> - 215-19
+- Fix crash due to missing hwaddr (#1126760)
+
 * Wed Oct 01 2014 Kay Sievers <kay@redhat.com> - 215-18
 - revert "don't reset selinux context during CHANGE events"
 
