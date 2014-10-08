@@ -574,7 +574,7 @@ Patch0532:      0532-proc-sys-prefixes-are-not-necessary-for-sysctl-anymo.patch
 Patch0533:      0533-core-don-t-allow-enabling-if-unit-is-masked.patch
 Patch0534:      0534-fedora-disable-resolv.conf-symlink.patch
 Patch0535:      0535-fedora-add-bridge-sysctl-configuration.patch
-
+Patch0536:      0536-Revert-timedated-manage-systemd-timesyncd-directly-i.patch
 
 # kernel-install patch for grubby, drop if grubby is obsolete
 Patch1000:      kernel-install-grubby.patch
@@ -801,6 +801,8 @@ systemd-journal-gatewayd serves journal events over the network using HTTP.
 # Disable link warnings, somehow they cause the link to fail.
 sed -r -i 's/\blibsystemd-(login|journal|id128|daemon).c \\/\\/' Makefile.am
 %endif
+
+echo systemd-timesyncd.service > src/timesync/90-systemd.list
 
 %build
 %if %{defined gitcommit}
@@ -1278,6 +1280,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_prefix}/lib/systemd/network/99-default.link
 %{_prefix}/lib/systemd/network/80-container-host0.network
 %{_prefix}/lib/systemd/network/80-container-ve.network
+%{_prefix}/lib/systemd/ntp-units.d
 
 # Make sure we don't remove runlevel targets from F14 alpha installs,
 # but make sure we don't create then anew.
@@ -1354,9 +1357,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
-* Fri Oct 07 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-2
+* Tue Oct 07 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-2
 - Update to latest git, but without the readahead removal patch
-  (#1114786, #1141137)
+  and without the timedatectl change (#1114786, #1141137).
 
 * Tue Oct 07 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-1
 - New upstream release
