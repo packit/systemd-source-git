@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        4%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        5%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -616,6 +616,11 @@ Patch0574:      0574-man-reference-table-in-systemd-detect-virt-1-from-Co.patch
 Patch0575:      0575-kdbus-fix-buffer-overflow-in-bus_get_owner_kdbus-fun.patch
 Patch0576:      0576-fstab-generator-Honor-mount.usr-on-kernel-command-li.patch
 Patch0577:      0577-mount-setup-skip-relabelling-when-SELinux-and-SMACK-.patch
+Patch0578:      0578-systemd-continue-switch-root-even-if-umount-fails.patch
+Patch0579:      0579-systemd-log-deserialization-errors-as-warnings.patch
+Patch0580:      0580-systemd-try-harder-to-bind-to-notify-socket.patch
+Patch0581:      0581-units-remove-dev-log-to-always-create-symlink.patch
+
 
 Patch0997:      Revert-timedated-manage-systemd-timesyncd-directly-i.patch
 Patch0998:      fedora-disable-resolv.conf-symlink.patch
@@ -1403,6 +1408,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Thu Oct 16 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-5
+- Tentative fix for #1099299.
+
 * Sun Oct 12 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-4
 - Move config files for sd-j-remote/upload to sd-journal-gateway subpackage
 
