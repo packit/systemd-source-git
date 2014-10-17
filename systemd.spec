@@ -1410,6 +1410,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 
 %changelog
 * Sun Nov 02 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-6
+- Drop PackageKit.service from presets (#1154126)
 - Change libgudev1 to only require systemd-libs (#727499), there's
   no need to require full systemd stack.
 
