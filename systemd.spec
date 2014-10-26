@@ -770,7 +770,7 @@ systemd APIs
 Summary:        Libraries for adding libudev support to applications that use glib
 Conflicts:      filesystem < 3
 License:        LGPLv2+
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}-libs = %{version}-%{release}
 
 %description -n libgudev1
 This package contains the libraries that make it easier to use libudev
@@ -1409,6 +1409,10 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Sun Nov 02 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-6
+- Change libgudev1 to only require systemd-libs (#727499), there's
+  no need to require full systemd stack.
+
 * Thu Oct 16 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-5
 - Tentative fix for #1099299.
 
