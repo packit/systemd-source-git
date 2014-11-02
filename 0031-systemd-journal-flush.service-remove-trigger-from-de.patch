@@ -1,4 +1,4 @@
-From b7248e47e1938d9d4a0cc63b78ddd3d0a0861552 Mon Sep 17 00:00:00 2001
+From 309ce8c2537ae72e2c7a07b7e21bee5fd2da0960 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sat, 1 Nov 2014 13:52:14 -0400
 Subject: [PATCH] systemd-journal-flush.service: remove "trigger" from

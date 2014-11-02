@@ -1,4 +1,4 @@
-From 7339a21496c9dd0d3a1fee24172843a522f0bb16 Mon Sep 17 00:00:00 2001
+From 9bbe7b209c31fb3b31f7b0e1a66ae82b4c2768d9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 10:24:58 -0500
 Subject: [PATCH] Revert "service: add missing state table entry"

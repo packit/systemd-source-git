@@ -1,4 +1,4 @@
-From 38d3bea29a7c19a5f41d347b7658fa058c56a942 Mon Sep 17 00:00:00 2001
+From 93871b345b76480e99b9a135006cad47e10acd7f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 10:02:41 -0500
 Subject: [PATCH] Revert "units: define appropriate job timeout actions when

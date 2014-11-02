@@ -1,4 +1,4 @@
-From e268a9380de7c5848e6cd8a92b89d68d7eef2bd4 Mon Sep 17 00:00:00 2001
+From c986f1e5ff7afaa52274ee25a7ba94bec0356d03 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 30 Oct 2014 20:53:23 +0100
 Subject: [PATCH] nspawn: don't make up -1 as error code

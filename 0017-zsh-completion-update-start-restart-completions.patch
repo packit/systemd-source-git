@@ -1,4 +1,4 @@
-From 0f6c8d5bf7f371e39a49e5a932d955f28f25d64f Mon Sep 17 00:00:00 2001
+From 8b2735073009dcb855d65a3aa85eec25d8100a2a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 29 Oct 2014 23:47:55 -0400
 Subject: [PATCH] zsh-completion: update start/restart completions

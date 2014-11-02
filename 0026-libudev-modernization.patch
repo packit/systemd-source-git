@@ -1,4 +1,4 @@
-From 4acc3dbd1fc3326918739d2e898cb4b1ed67c000 Mon Sep 17 00:00:00 2001
+From e63854bf942d6f3364e5e69d5e7bcfd5a2ad8ec8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sat, 1 Nov 2014 11:32:44 -0400
 Subject: [PATCH] libudev: modernization

@@ -1,4 +1,4 @@
-From b456d500bb70e4eb1f42816adac4f1f4a7efffa0 Mon Sep 17 00:00:00 2001
+From 3db8a5d1b39f88981e979ff01afb4a0c7aa9a126 Mon Sep 17 00:00:00 2001
 From: Joe Lawrence <joe.lawrence@stratus.com>
 Date: Sat, 1 Nov 2014 12:18:08 -0400
 Subject: [PATCH] scsi_id: fix usage spelling

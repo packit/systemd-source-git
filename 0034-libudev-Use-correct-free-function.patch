@@ -1,4 +1,4 @@
-From 18a4017bd49458570e8c3058d3e1d6c53fffd246 Mon Sep 17 00:00:00 2001
+From 5a9b149c96f39d8363e6b2dcb45e95056d2799ea Mon Sep 17 00:00:00 2001
 From: Colin Walters <walters@verbum.org>
 Date: Sat, 1 Nov 2014 15:49:53 -0400
 Subject: [PATCH] libudev: Use correct free function

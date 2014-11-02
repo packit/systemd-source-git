@@ -1,4 +1,4 @@
-From 04c7091101c04e0f7baf22980872e77af5ea4577 Mon Sep 17 00:00:00 2001
+From 6bb37d22af95d11df7f487f3e34abc97fa5fa9bf Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 28 Oct 2014 20:36:32 +0100
 Subject: [PATCH] NEWS: well, it's Options= now, not Discard=

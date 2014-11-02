@@ -1,4 +1,4 @@
-From ca1cf37d559b7b155c48285ef9d090ac86f9a965 Mon Sep 17 00:00:00 2001
+From d5cd1a02f0da4de24cce433b1759e3e297df0f5f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 10:25:06 -0500
 Subject: [PATCH] Revert "core: send sigabrt on watchdog timeout to get the

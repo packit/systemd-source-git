@@ -1,4 +1,4 @@
-From 6dc664b38675e2b763fa598e2ef8d466cbc93f43 Mon Sep 17 00:00:00 2001
+From 860e33966a511e008f80bbfa23450dcc33650290 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 31 Oct 2014 16:22:36 +0100
 Subject: [PATCH] units: don't order journal flushing afte remote-fs.target

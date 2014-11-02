@@ -1,4 +1,4 @@
-From 719014b379714744760e5d65a599d100b397d548 Mon Sep 17 00:00:00 2001
+From 8207682d7a40270e6581515e3537adaff885a072 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 29 Oct 2014 17:58:43 +0100
 Subject: [PATCH] sd-bus: properly handle removals of non-existing matches

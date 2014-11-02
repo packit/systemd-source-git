@@ -1,4 +1,4 @@
-From 92fb375921f57472f43cd94c8a86195c38894e98 Mon Sep 17 00:00:00 2001
+From a8caf8eabad9bd51425c649189955c9fe18c9418 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 09:20:39 -0500
 Subject: [PATCH] Revert "timedated: manage systemd-timesyncd directly instead

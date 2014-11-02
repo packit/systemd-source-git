@@ -1,4 +1,4 @@
-From de2315fd8b3e2712b5f5790c24182e2d61eb6116 Mon Sep 17 00:00:00 2001
+From deb58970549681f28a7e38ee0f75664523f5066a Mon Sep 17 00:00:00 2001
 From: Dave Reisner <dreisner@archlinux.org>
 Date: Thu, 30 Oct 2014 20:12:05 -0400
 Subject: [PATCH] shared/install: avoid prematurely rejecting "missing" units

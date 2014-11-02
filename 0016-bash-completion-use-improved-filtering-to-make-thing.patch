@@ -1,4 +1,4 @@
-From dde552b36bcfef618dd45325ebafa73b801ec38f Mon Sep 17 00:00:00 2001
+From fef18888ca215c0600b95cd4dfd9b469c9936043 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 29 Oct 2014 23:06:58 -0400
 Subject: [PATCH] bash-completion: use improved filtering to make things faster

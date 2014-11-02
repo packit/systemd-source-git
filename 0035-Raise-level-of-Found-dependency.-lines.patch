@@ -1,4 +1,4 @@
-From fce17a6ce48d44d99108bb9d14bb0cff6a627f89 Mon Sep 17 00:00:00 2001
+From b5404292de0a4252b4b7447ef45bf3f334cae529 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 12:10:42 -0500
 Subject: [PATCH] Raise level of 'Found dependency...' lines

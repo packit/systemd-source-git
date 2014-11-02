@@ -1,4 +1,4 @@
-From e6407f548fcf093e1553c809036db0594d296a45 Mon Sep 17 00:00:00 2001
+From 2f0a6c615496777ec37f6815b8516f8b3a25e82e Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 10:03:49 -0500
 Subject: [PATCH] Revert "Update NEWS"

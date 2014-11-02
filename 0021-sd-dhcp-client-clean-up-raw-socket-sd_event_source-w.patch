@@ -1,4 +1,4 @@
-From 83b7b5f5db1e251d0ddc6c60bf4b32639ea9f49f Mon Sep 17 00:00:00 2001
+From b994526e7fbc8acc71889120645508ac5f8aca33 Mon Sep 17 00:00:00 2001
 From: Dan Williams <dcbw@redhat.com>
 Date: Thu, 30 Oct 2014 14:23:00 -0500
 Subject: [PATCH] sd-dhcp-client: clean up raw socket sd_event_source when

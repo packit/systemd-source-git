@@ -1,4 +1,4 @@
-From 83b62da30bd9a62bf25847b16bb36bcd1270b5f3 Mon Sep 17 00:00:00 2001
+From 6c2d3f24672aaa806bbd6b4b5741e315566da35c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sat, 1 Nov 2014 12:06:41 -0400
 Subject: [PATCH] libudev: do not accept invalid log levels

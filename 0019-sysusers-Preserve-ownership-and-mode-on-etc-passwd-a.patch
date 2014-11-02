@@ -1,4 +1,4 @@
-From c1cd55e4ea29a31a8420c6461eeec360139301f3 Mon Sep 17 00:00:00 2001
+From c3a8638cf447ae5901dccb89ea766d768febe529 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Wed, 29 Oct 2014 14:03:41 +0000
 Subject: [PATCH] sysusers: Preserve ownership and mode on /etc/passwd and

@@ -1,4 +1,4 @@
-From d3bcf051780f5c294c80a5b1d28d80c00f0da0d6 Mon Sep 17 00:00:00 2001
+From db2241b5259671c2a7435235f5fc560ba4e97077 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 12:19:38 -0500
 Subject: [PATCH] manager: do not print timing when running in test mode

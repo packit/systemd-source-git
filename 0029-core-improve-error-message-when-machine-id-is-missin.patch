@@ -1,4 +1,4 @@
-From 74f80e9a5df498af7c3af1433b406f606d6433a3 Mon Sep 17 00:00:00 2001
+From 896050eeb3acbf4106d71204a5173b4984cf1675 Mon Sep 17 00:00:00 2001
 From: Jan Synacek <jsynacek@redhat.com>
 Date: Fri, 31 Oct 2014 10:16:45 +0100
 Subject: [PATCH] core: improve error message when machine id is missing

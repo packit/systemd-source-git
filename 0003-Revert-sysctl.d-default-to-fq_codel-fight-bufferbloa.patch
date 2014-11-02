@@ -1,4 +1,4 @@
-From 4ff1c91a85b2f4a546dbb2d5afc40b7c3c06e49e Mon Sep 17 00:00:00 2001
+From 2ed2be30664faa7076edd819ea4ae429fab8ac08 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 09:42:01 -0500
 Subject: [PATCH] Revert "sysctl.d: default to fq_codel, fight bufferbloat"

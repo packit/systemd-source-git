@@ -1,4 +1,4 @@
-From 220947cd72a4897fae2f90fd70d3a36db96cd9c9 Mon Sep 17 00:00:00 2001
+From c96c14e1f545e6533c781e33c2238d1433deb30f Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay@vrfy.org>
 Date: Thu, 30 Oct 2014 01:18:34 +0100
 Subject: [PATCH] udev: path_id - update comments

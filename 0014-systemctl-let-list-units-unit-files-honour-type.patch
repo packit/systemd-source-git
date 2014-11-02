@@ -1,4 +1,4 @@
-From e67d6e601aaa380a615bc3dfffcab56d0f4666c0 Mon Sep 17 00:00:00 2001
+From 4ffc2172253c5ac6ad49bee3c87e5740ae520c8a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 29 Oct 2014 22:46:30 -0400
 Subject: [PATCH] systemctl: let list-{units,unit-files } honour --type

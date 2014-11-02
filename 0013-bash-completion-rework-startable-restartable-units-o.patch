@@ -1,4 +1,4 @@
-From c6c61aa02fc16388acdb1a04ab6192d7c749d492 Mon Sep 17 00:00:00 2001
+From 1c7a80d7748ee8c4117ccbb628274413f2c7cb59 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 29 Oct 2014 22:25:33 -0400
 Subject: [PATCH] bash-completion: rework startable/restartable units once more

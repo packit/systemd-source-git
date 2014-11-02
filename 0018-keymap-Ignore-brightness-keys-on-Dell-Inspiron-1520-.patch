@@ -1,4 +1,4 @@
-From cbc2459556c16dca2c76b4c580e4d9d8d78279ea Mon Sep 17 00:00:00 2001
+From b9ae7f976b524c712b7b98062087adaa662f3cf8 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 30 Oct 2014 10:15:54 +0100
 Subject: [PATCH] keymap: Ignore brightness keys on Dell Inspiron 1520 to avoid

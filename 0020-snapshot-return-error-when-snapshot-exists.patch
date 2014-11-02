@@ -1,4 +1,4 @@
-From 514a189346af541c31687dd9285afb997a26313e Mon Sep 17 00:00:00 2001
+From 3db5ad126fcca99e7d341e47f1c2967aa70fc813 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Tue, 28 Oct 2014 12:36:17 -0400
 Subject: [PATCH] snapshot: return error when snapshot exists

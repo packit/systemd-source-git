@@ -1,4 +1,4 @@
-From 873abc6423bf62d9ddfe274aa52a8f2918b070a9 Mon Sep 17 00:00:00 2001
+From 1c5d3c9230d1648413410770d42dcbaf57a78e23 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 09:16:09 -0500
 Subject: [PATCH] Revert "readahead: wipe out readahead"
@@ -39,7 +39,7 @@ Conflicts:
  units/system-update.target                      |   2 +-
  units/systemd-backlight@.service.in             |   2 +-
  units/systemd-binfmt.service.in                 |   2 +-
- units/systemd-firstboot.service.in              |   3 +-
+ units/systemd-firstboot.service.in              |   1 +
  units/systemd-fsck-root.service.in              |   1 +
  units/systemd-fsck@.service.in                  |   2 +-
  units/systemd-journal-catalog-update.service.in |   2 +-
@@ -62,7 +62,7 @@ Conflicts:
  units/systemd-update-done.service.in            |   2 +-
  units/systemd-update-utmp.service.in            |   2 +-
  units/systemd-vconsole-setup.service.in         |   1 +
- 54 files changed, 2677 insertions(+), 24 deletions(-)
+ 54 files changed, 2676 insertions(+), 23 deletions(-)
  create mode 100644 man/sd-readahead.xml
  create mode 100644 man/sd_readahead.xml
  create mode 100644 man/systemd-readahead-replay.service.xml
@@ -2994,19 +2994,17 @@ index 34a5d5237b..02dfe774df 100644
  ConditionPathIsReadWrite=/proc/sys/
  ConditionDirectoryNotEmpty=|/lib/binfmt.d
 diff --git a/units/systemd-firstboot.service.in b/units/systemd-firstboot.service.in
-index 405c6f3fd2..4b85f562af 100644
+index 405c6f3fd2..91b9909093 100644
 --- a/units/systemd-firstboot.service.in
 +++ b/units/systemd-firstboot.service.in
-@@ -10,7 +10,8 @@ Description=First Boot Wizard
+@@ -10,6 +10,7 @@ Description=First Boot Wizard
  Documentation=man:systemd-firstboot(1)
  DefaultDependencies=no
  Conflicts=shutdown.target
--After=systemd-remount-fs.service
 +After=systemd-readahead-collect.service systemd-readahead-replay.service
-+After=systemd-remount-fs.service systemd-sysusers.service
+ After=systemd-remount-fs.service
  Before=systemd-sysusers.service sysinit.target shutdown.target
  ConditionPathIsReadWrite=/etc
- ConditionFirstBoot=yes
 diff --git a/units/systemd-fsck-root.service.in b/units/systemd-fsck-root.service.in
 index 6d7657853e..26cce5131e 100644
 --- a/units/systemd-fsck-root.service.in

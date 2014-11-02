@@ -1,4 +1,4 @@
-From 6dea3619b5493cfdd9f973cb5346ea252ad75c01 Mon Sep 17 00:00:00 2001
+From 32e659e2d7a50ebe19dd82db116518eb150f7317 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 10:05:51 -0500
 Subject: [PATCH] Revert "login: remove multi-seat-x"
