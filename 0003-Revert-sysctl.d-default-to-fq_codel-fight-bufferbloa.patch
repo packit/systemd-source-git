@@ -1,0 +1,41 @@
+From 4ff1c91a85b2f4a546dbb2d5afc40b7c3c06e49e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 2 Nov 2014 09:42:01 -0500
+Subject: [PATCH] Revert "sysctl.d: default to fq_codel, fight bufferbloat"
+
+This reverts commit e6c253e363dee77ef7e5c5f44c4ca55cded3fd47.
+
+Conflicts:
+	NEWS
+---
+ NEWS                     | 2 ++
+ sysctl.d/50-default.conf | 3 ---
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/NEWS b/NEWS
+index 078fabb1e5..c3d28a6394 100644
+--- a/NEWS
++++ b/NEWS
+@@ -100,6 +100,8 @@ CHANGES WITH 217:
+           servers that do not do forwarding, "fq" may perform better.
+           Systems without a good clocksource should use "pfifo_fast".
+ 
++          [ reverted in this branch ]
++
+         * If kdbus is enabled during build a new option BusPolicy= is
+           available for service units, that allows locking all service
+           processes into a stricter bus policy, in order to limit
+diff --git a/sysctl.d/50-default.conf b/sysctl.d/50-default.conf
+index f18923399b..8fc9ab77a9 100644
+--- a/sysctl.d/50-default.conf
++++ b/sysctl.d/50-default.conf
+@@ -25,9 +25,6 @@ net.ipv4.conf.all.accept_source_route = 0
+ net.ipv4.conf.default.promote_secondaries = 1
+ net.ipv4.conf.all.promote_secondaries = 1
+ 
+-# Fair Queue CoDel packet scheduler to fight bufferbloat
+-net.core.default_qdisc = fq_codel
+-
+ # Enable hard and soft link protection
+ fs.protected_hardlinks = 1
+ fs.protected_symlinks = 1

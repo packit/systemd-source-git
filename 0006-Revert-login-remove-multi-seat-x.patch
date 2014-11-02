@@ -1,0 +1,227 @@
+From 6dea3619b5493cfdd9f973cb5346ea252ad75c01 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 2 Nov 2014 10:05:51 -0500
+Subject: [PATCH] Revert "login: remove multi-seat-x"
+
+This reverts commit 3769415e6573da64fb80e31f4bb3f850cd99031e.
+
+Conflicts:
+	NEWS
+---
+ .gitignore               |   1 +
+ Makefile.am              |  14 ++++++
+ NEWS                     |   6 ---
+ TODO                     |   2 +
+ configure.ac             |   9 ++++
+ src/login/multi-seat-x.c | 108 +++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 134 insertions(+), 6 deletions(-)
+ create mode 100644 src/login/multi-seat-x.c
+
+diff --git a/.gitignore b/.gitignore
+index 0b71f0973b..f119b574c7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -93,6 +93,7 @@
+ /systemd-machined
+ /systemd-modeset
+ /systemd-modules-load
++/systemd-multi-seat-x
+ /systemd-networkd
+ /systemd-networkd-wait-online
+ /systemd-notify
+diff --git a/Makefile.am b/Makefile.am
+index 3509665176..11a3033253 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -5461,6 +5461,20 @@ SYSTEM_UNIT_ALIASES += \
+ BUSNAMES_TARGET_WANTS += \
+ 	org.freedesktop.login1.busname
+ 
++if ENABLE_MULTI_SEAT_X
++
++systemd_multi_seat_x_SOURCES = \
++	src/login/multi-seat-x.c
++
++systemd_multi_seat_x_LDADD = \
++	libsystemd-label.la \
++	libsystemd-shared.la
++
++rootlibexec_PROGRAMS += \
++	systemd-multi-seat-x
++
++endif
++
+ dist_udevrules_DATA += \
+ 	src/login/70-uaccess.rules \
+ 	src/login/70-power-switch.rules
+diff --git a/NEWS b/NEWS
+index a590b3101b..c85605f1d6 100644
+--- a/NEWS
++++ b/NEWS
+@@ -127,12 +127,6 @@ CHANGES WITH 217:
+           occur. Again: you need to update util-linux to at least
+           v2.25 when updating systemd to v217.
+ 
+-        * The "multi-seat-x" tool has been removed from systemd, as
+-          its functionality has been integrated into X servers 1.16,
+-          and the tool is hence redundant. It is recommended to update
+-          display managers invoking this tool to simply invoke X
+-          directly from now on, again.
+-
+         * Support for the new ALLOW_INTERACTIVE_AUTHORIZATION D-Bus
+           message flag has been added for all of systemd's PolicyKit
+           authenticated method calls has been added. In particular
+diff --git a/TODO b/TODO
+index b07d664715..64b24c18a7 100644
+--- a/TODO
++++ b/TODO
+@@ -88,6 +88,8 @@ Features:
+ 
+ * maybe introduce AssertXYZ= similar to ConditionXYZ= that causes a unit to fail (instead of skipping it) if some condition is not true...
+ 
++* remove multi-seat-x now
++
+ * refcounting in sd-resolve is borked
+ 
+ * exponential backoff in timesyncd and resolved when we cannot reach a server
+diff --git a/configure.ac b/configure.ac
+index 48e094cd80..e63d3dc809 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1071,6 +1071,14 @@ fi
+ AM_CONDITIONAL(ENABLE_EFI, [test "x$have_efi" = "xyes"])
+ 
+ # ------------------------------------------------------------------------------
++have_multi_seat_x=no
++AC_ARG_ENABLE(multi_seat_x, AS_HELP_STRING([--disable-multi-seat-x], [do not build multi-seat-x]))
++if test "x$enable_multi_seat_x" != "xno"; then
++        have_multi_seat_x=yes
++fi
++AM_CONDITIONAL(ENABLE_MULTI_SEAT_X, [test "$have_multi_seat_x" = "yes"])
++
++# ------------------------------------------------------------------------------
+ have_terminal=no
+ AC_ARG_ENABLE(terminal, AS_HELP_STRING([--enable-terminal], [enable terminal support]))
+ if test "x$enable_terminal" = "xyes"; then
+@@ -1379,6 +1387,7 @@ AC_MSG_RESULT([
+         nss-myhostname:          ${have_myhostname}
+         gudev:                   ${enable_gudev}
+         gintrospection:          ${enable_introspection}
++        multi-seat-x:            ${have_multi_seat_x}
+         terminal:                ${have_terminal}
+         kdbus:                   ${have_kdbus}
+         Python:                  ${have_python}
+diff --git a/src/login/multi-seat-x.c b/src/login/multi-seat-x.c
+new file mode 100644
+index 0000000000..83760d4191
+--- /dev/null
++++ b/src/login/multi-seat-x.c
+@@ -0,0 +1,108 @@
++/*-*- Mode: C; c-basic-offset: 8; indent-tabs-mode: nil -*-*/
++
++/***
++  This file is part of systemd.
++
++  Copyright 2011 Lennart Poettering
++
++  systemd is free software; you can redistribute it and/or modify it
++  under the terms of the GNU Lesser General Public License as published by
++  the Free Software Foundation; either version 2.1 of the License, or
++  (at your option) any later version.
++
++  systemd is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  Lesser General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with systemd; If not, see <http://www.gnu.org/licenses/>.
++***/
++
++#include <string.h>
++#include <unistd.h>
++
++#include "util.h"
++#include "mkdir.h"
++
++int main(int argc, char *argv[]) {
++
++        int i;
++        const char *seat = NULL;
++        char **new_argv;
++        _cleanup_free_ char *path = NULL;
++        int r;
++        _cleanup_fclose_ FILE *f = NULL;
++
++        /* This binary will go away as soon as X natively takes the
++         * arguments in question as command line parameters, instead
++         * of requiring them in the configuration file. */
++
++        /* If this file is removed, don't forget to remove the code
++         * that invokes this in gdm and other display managers. */
++
++        for (i = 1; i < argc; i++)
++                if (streq(argv[i], "-seat"))
++                        seat = argv[i+1];
++
++        if (isempty(seat) || streq(seat, "seat0")) {
++                argv[0] = (char*) X_SERVER;
++                execv(X_SERVER, argv);
++                log_error("Failed to execute real X server: %m");
++                goto fail;
++        }
++
++        r = mkdir_safe_label("/run/systemd/multi-session-x", 0755, 0, 0);
++        if (r < 0) {
++                log_error("Failed to create directory: %s", strerror(-r));
++                goto fail;
++        }
++
++        path = strappend("/run/systemd/multi-session-x/", seat);
++        if (!path) {
++                log_oom();
++                goto fail;
++        }
++
++        f = fopen(path, "we");
++        if (!f) {
++                log_error("Failed to write configuration file: %m");
++                goto fail;
++        }
++
++        fprintf(f,
++                "Section \"ServerFlags\"\n"
++                "        Option \"AutoAddDevices\" \"True\"\n"
++                "        Option \"AllowEmptyInput\" \"True\"\n"
++                "        Option \"DontVTSwitch\" \"True\"\n"
++                "EndSection\n"
++                "Section \"InputClass\"\n"
++                "        Identifier \"Force Input Devices to Seat\"\n"
++                "        Option \"GrabDevice\" \"True\"\n"
++                "EndSection\n");
++
++        fflush(f);
++
++        if (ferror(f)) {
++                log_error("Failed to write configuration file: %m");
++                goto fail;
++        }
++
++        fclose(f);
++        f = NULL;
++
++        new_argv = newa(char*, argc + 3 + 1);
++        memcpy(new_argv, argv, sizeof(char*) * (argc + 2 + 1));
++
++        new_argv[0] = (char*) X_SERVER;
++        new_argv[argc+0] = (char*) "-config";
++        new_argv[argc+1] = path;
++        new_argv[argc+2] = (char*) "-sharevts";
++        new_argv[argc+3] = NULL;
++
++        execv(X_SERVER, new_argv);
++        log_error("Failed to execute real X server: %m");
++
++fail:
++        return EXIT_FAILURE;
++}

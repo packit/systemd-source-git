@@ -1,0 +1,38 @@
+From e6407f548fcf093e1553c809036db0594d296a45 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 2 Nov 2014 10:03:49 -0500
+Subject: [PATCH] Revert "Update NEWS"
+
+This reverts commit 4ffd29fda1a2621d8f1711ccaad723d327fef93a.
+---
+ NEWS | 17 -----------------
+ 1 file changed, 17 deletions(-)
+
+diff --git a/NEWS b/NEWS
+index c3d28a6394..a590b3101b 100644
+--- a/NEWS
++++ b/NEWS
+@@ -22,23 +22,6 @@ CHANGES WITH 217:
+           /run/systemd/user directory that was already previously
+           supported, but is under the control of the user.
+ 
+-        * Job timeouts (i.e. time-outs on the time a job that is
+-          queued stays in the run queue) can now optionally result in
+-          immediate reboot or power-off actions (JobTimeoutAction= and
+-          JobTimeoutRebootArgument=). This is useful on ".target"
+-          units, to limit the maximum time a target remains
+-          undispatched in the run queue, and to trigger an emergency
+-          operation in such a case. This is now used by default to
+-          turn off the system if boot-up (as defined by everything in
+-          basic.target) hangs and does not complete for at least
+-          15min. Also, if power-off or reboot hang for at least 30min
+-          an immediate power-off/reboot operation is triggered. This
+-          functionality is particularly useful to increase reliability
+-          on embedded devices, but also on laptops which might
+-          accidentally get powered on when carried in a backpack and
+-          whose boot stays stuck in a hard disk encryption passphrase
+-          question.
+-
+         * systemd-logind can be configured to also handle lid switch
+           events even when the machine is docked or multiple displays
+           are attached (HandleLidSwitchDocked= option).

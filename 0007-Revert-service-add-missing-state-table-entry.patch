@@ -1,0 +1,22 @@
+From 7339a21496c9dd0d3a1fee24172843a522f0bb16 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 2 Nov 2014 10:24:58 -0500
+Subject: [PATCH] Revert "service: add missing state table entry"
+
+This reverts commit 1378a3b5a10444e6c9a17084c65032b4e1061c8e.
+---
+ src/core/service.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/core/service.c b/src/core/service.c
+index f27e63eb9a..2b16778731 100644
+--- a/src/core/service.c
++++ b/src/core/service.c
+@@ -2830,7 +2830,6 @@ static const char* const service_state_table[_SERVICE_STATE_MAX] = {
+         [SERVICE_EXITED] = "exited",
+         [SERVICE_RELOAD] = "reload",
+         [SERVICE_STOP] = "stop",
+-        [SERVICE_STOP_SIGABRT] = "stop-sigabrt",
+         [SERVICE_STOP_SIGTERM] = "stop-sigterm",
+         [SERVICE_STOP_SIGKILL] = "stop-sigkill",
+         [SERVICE_STOP_POST] = "stop-post",
