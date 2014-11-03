@@ -144,7 +144,7 @@ Requires(pre):  /usr/bin/getent
 Requires(pre):  /usr/sbin/groupadd
 Requires:       dbus
 Requires:       %{name}-libs = %{version}-%{release}
-Requires:       kmod >= 15
+Requires:       kmod >= 18-4
 Requires:       diffutils
 Requires:       util-linux >= 2.25
 Provides:       /bin/systemctl
