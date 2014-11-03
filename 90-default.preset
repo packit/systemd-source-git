@@ -118,3 +118,4 @@ enable upower.service
 enable udisks2.service
 enable polkit.service
 enable packagekit-offline-update.service
+enable PackageKit.service
