@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        6%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        7%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -77,8 +77,10 @@ Patch0033:      0033-scsi_id-fix-usage-spelling.patch
 Patch0034:      0034-libudev-Use-correct-free-function.patch
 Patch0035:      0035-Raise-level-of-Found-dependency.-lines.patch
 Patch0036:      0036-manager-do-not-print-timing-when-running-in-test-mod.patch
+Patch0037:      0037-unit-do-not-order-timers.target-before-basic.target.patch
+Patch0038:      0038-units-order-sd-journal-flush-after-sd-remount-fs.patch
 
-Patch0996:      unit-do-not-order-timers.target-before-basic.target.patch
+Patch0996:      Accept-StartTimeout-options-for-compatibility.patch
 Patch0997:      units-remove-dev-log-to-always-create-symlink.patch
 Patch0998:      fedora-disable-resolv.conf-symlink.patch
 Patch0999:      fedora-add-bridge-sysctl-configuration.patch
@@ -866,7 +868,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
-* Sun Nov 02 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-6
+* Sun Nov 02 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-7
 - Drop PackageKit.service from presets (#1154126)
 - Change libgudev1 to only require systemd-libs (#727499), there's
   no need to require full systemd stack.
@@ -879,7 +881,8 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 - /dev/disk/by-path changes are pulled from upstream (#1157847)
 - boot and shutdown timeouts are disabled (#1154768, #1159641)
 - timers.target is not scheduled before basic.target (#1158206)
-- Obsolete Finnish keymap is dropped (#1151958).
+- Obsolete Finnish keymap is dropped (#1151958)
+- StartTimeout* options are ignored to avoid warnings.
 
 * Thu Oct 16 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-5
 - Tentative fix for #1099299.
