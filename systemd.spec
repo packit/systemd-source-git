@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        9%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        10%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -79,6 +79,7 @@ Patch0035:      0035-Raise-level-of-Found-dependency.-lines.patch
 Patch0036:      0036-manager-do-not-print-timing-when-running-in-test-mod.patch
 Patch0037:      0037-unit-do-not-order-timers.target-before-basic.target.patch
 Patch0038:      0038-units-order-sd-journal-flush-after-sd-remount-fs.patch
+Patch0039:      0039-units-make-systemd-journald.service-Type-notify.patch
 
 Patch0996:      Accept-StartTimeout-options-for-compatibility.patch
 Patch0997:      units-remove-dev-log-to-always-create-symlink.patch
@@ -868,6 +869,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Tue Nov 04 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-10
+- Fix for #1159641.
+
 * Mon Nov 03 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-9
 - Drop PackageKit.service from presets (#1154126)
 - Pull more changes from upstream, including post-217 bugfixes. This
