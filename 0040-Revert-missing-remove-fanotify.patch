@@ -1,0 +1,229 @@
+From a48190c9f9b07f735d14743878955511e66206c4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 6 Nov 2014 16:44:06 -0500
+Subject: [PATCH] Revert "missing: remove fanotify"
+
+This reverts commit c7e4a7bece7a5c4484d229dd5e8ff01a5d49c62e.
+---
+ Makefile.am                 |  1 +
+ configure.ac                |  1 +
+ src/shared/linux/fanotify.h | 98 +++++++++++++++++++++++++++++++++++++++++++++
+ src/shared/missing.h        | 59 +++++++++++++++++++++++++++
+ 4 files changed, 159 insertions(+)
+ create mode 100644 src/shared/linux/fanotify.h
+
+diff --git a/Makefile.am b/Makefile.am
+index 11a3033253..6d869c12ad 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -741,6 +741,7 @@ noinst_LTLIBRARIES += \
+ 
+ libsystemd_shared_la_SOURCES = \
+ 	src/shared/linux/auto_dev-ioctl.h \
++	src/shared/linux/fanotify.h \
+ 	src/shared/ioprio.h \
+ 	src/shared/missing.h \
+ 	src/shared/initreq.h \
+diff --git a/configure.ac b/configure.ac
+index e63d3dc809..c2f8f7a548 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -306,6 +306,7 @@ RT_LIBS="$LIBS"
+ AC_SUBST(RT_LIBS)
+ LIBS="$save_LIBS"
+ 
++AC_CHECK_FUNCS([fanotify_init fanotify_mark])
+ AC_CHECK_FUNCS([memfd_create])
+ AC_CHECK_FUNCS([__secure_getenv secure_getenv])
+ AC_CHECK_DECLS([gettid, pivot_root, name_to_handle_at, setns, LO_FLAGS_PARTSCAN],
+diff --git a/src/shared/linux/fanotify.h b/src/shared/linux/fanotify.h
+new file mode 100644
+index 0000000000..63531a6b4d
+--- /dev/null
++++ b/src/shared/linux/fanotify.h
+@@ -0,0 +1,98 @@
++#ifndef _LINUX_FANOTIFY_H
++#define _LINUX_FANOTIFY_H
++
++#include <linux/types.h>
++
++/* the following events that user-space can register for */
++#define FAN_ACCESS		0x00000001	/* File was accessed */
++#define FAN_MODIFY		0x00000002	/* File was modified */
++#define FAN_CLOSE_WRITE		0x00000008	/* Unwrittable file closed */
++#define FAN_CLOSE_NOWRITE	0x00000010	/* Writtable file closed */
++#define FAN_OPEN		0x00000020	/* File was opened */
++
++#define FAN_EVENT_ON_CHILD	0x08000000	/* interested in child events */
++
++/* FIXME currently Q's have no limit.... */
++#define FAN_Q_OVERFLOW		0x00004000	/* Event queued overflowed */
++
++#define FAN_OPEN_PERM		0x00010000	/* File open in perm check */
++#define FAN_ACCESS_PERM		0x00020000	/* File accessed in perm check */
++
++/* helper events */
++#define FAN_CLOSE		(FAN_CLOSE_WRITE | FAN_CLOSE_NOWRITE) /* close */
++
++/* flags used for fanotify_init() */
++#define FAN_CLOEXEC		0x00000001
++#define FAN_NONBLOCK		0x00000002
++
++#define FAN_ALL_INIT_FLAGS	(FAN_CLOEXEC | FAN_NONBLOCK)
++
++/* flags used for fanotify_modify_mark() */
++#define FAN_MARK_ADD		0x00000001
++#define FAN_MARK_REMOVE		0x00000002
++#define FAN_MARK_DONT_FOLLOW	0x00000004
++#define FAN_MARK_ONLYDIR	0x00000008
++#define FAN_MARK_MOUNT		0x00000010
++#define FAN_MARK_IGNORED_MASK	0x00000020
++#define FAN_MARK_IGNORED_SURV_MODIFY	0x00000040
++#define FAN_MARK_FLUSH		0x00000080
++
++#define FAN_ALL_MARK_FLAGS	(FAN_MARK_ADD |\
++				 FAN_MARK_REMOVE |\
++				 FAN_MARK_DONT_FOLLOW |\
++				 FAN_MARK_ONLYDIR |\
++				 FAN_MARK_MOUNT |\
++				 FAN_MARK_IGNORED_MASK |\
++				 FAN_MARK_IGNORED_SURV_MODIFY)
++
++/*
++ * All of the events - we build the list by hand so that we can add flags in
++ * the future and not break backward compatibility.  Apps will get only the
++ * events that they originally wanted.  Be sure to add new events here!
++ */
++#define FAN_ALL_EVENTS (FAN_ACCESS |\
++			FAN_MODIFY |\
++			FAN_CLOSE |\
++			FAN_OPEN)
++
++/*
++ * All events which require a permission response from userspace
++ */
++#define FAN_ALL_PERM_EVENTS (FAN_OPEN_PERM |\
++			     FAN_ACCESS_PERM)
++
++#define FAN_ALL_OUTGOING_EVENTS	(FAN_ALL_EVENTS |\
++				 FAN_ALL_PERM_EVENTS |\
++				 FAN_Q_OVERFLOW)
++
++#define FANOTIFY_METADATA_VERSION	2
++
++struct fanotify_event_metadata {
++	__u32 event_len;
++	__u32 vers;
++	__u64 mask;
++	__s32 fd;
++	__s32 pid;
++} __attribute__ ((packed));
++
++struct fanotify_response {
++	__s32 fd;
++	__u32 response;
++} __attribute__ ((packed));
++
++/* Legit userspace responses to a _PERM event */
++#define FAN_ALLOW	0x01
++#define FAN_DENY	0x02
++
++/* Helper functions to deal with fanotify_event_metadata buffers */
++#define FAN_EVENT_METADATA_LEN (sizeof(struct fanotify_event_metadata))
++
++#define FAN_EVENT_NEXT(meta, len) ((len) -= (meta)->event_len, \
++				   (struct fanotify_event_metadata*)(((char *)(meta)) + \
++				   (meta)->event_len))
++
++#define FAN_EVENT_OK(meta, len)	((long)(len) >= (long)FAN_EVENT_METADATA_LEN && \
++				(long)(meta)->event_len >= (long)FAN_EVENT_METADATA_LEN && \
++				(long)(meta)->event_len <= (long)(len))
++
++#endif /* _LINUX_FANOTIFY_H */
+diff --git a/src/shared/missing.h b/src/shared/missing.h
+index bb4f8f23a8..c98d0273a3 100644
+--- a/src/shared/missing.h
++++ b/src/shared/missing.h
+@@ -116,6 +116,12 @@ static inline int pivot_root(const char *new_root, const char *put_old) {
+ #endif
+ 
+ #ifdef __x86_64__
++#  ifndef __NR_fanotify_init
++#    define __NR_fanotify_init 300
++#  endif
++#  ifndef __NR_fanotify_mark
++#    define __NR_fanotify_mark 301
++#  endif
+ #  ifndef __NR_memfd_create
+ #    define __NR_memfd_create 319
+ #  endif
+@@ -124,16 +130,69 @@ static inline int pivot_root(const char *new_root, const char *put_old) {
+ #    define __NR_memfd_create 385
+ #  endif
+ #elif defined _MIPS_SIM
++#  if _MIPS_SIM == _MIPS_SIM_ABI32
++#    ifndef __NR_fanotify_init
++#      define __NR_fanotify_init 4336
++#    endif
++#    ifndef __NR_fanotify_mark
++#      define __NR_fanotify_mark 4337
++#    endif
++#  elif _MIPS_SIM == _MIPS_SIM_NABI32
++#    ifndef __NR_fanotify_init
++#      define __NR_fanotify_init 6300
++#    endif
++#    ifndef __NR_fanotify_mark
++#      define __NR_fanotify_mark 6301
++#    endif
++#  elif _MIPS_SIM == _MIPS_SIM_ABI64
++#    ifndef __NR_fanotify_init
++#      define __NR_fanotify_init 5295
++#    endif
++#    ifndef __NR_fanotify_mark
++#      define __NR_fanotify_mark 5296
++#    endif
++#  endif
+ #  ifndef __NR_memfd_create
+ #    warning "__NR_memfd_create not yet defined for MIPS"
+ #    define __NR_memfd_create 0xffffffff
+ #  endif
+ #else
++#  ifndef __NR_fanotify_init
++#    define __NR_fanotify_init 338
++#  endif
++#  ifndef __NR_fanotify_mark
++#    define __NR_fanotify_mark 339
++#  endif
+ #  ifndef __NR_memfd_create
+ #    define __NR_memfd_create 356
+ #  endif
+ #endif
+ 
++#ifndef HAVE_FANOTIFY_INIT
++static inline int fanotify_init(unsigned int flags, unsigned int event_f_flags) {
++        return syscall(__NR_fanotify_init, flags, event_f_flags);
++}
++#endif
++
++#ifndef HAVE_FANOTIFY_MARK
++static inline int fanotify_mark(int fanotify_fd, unsigned int flags, uint64_t mask,
++                                int dfd, const char *pathname) {
++#if defined _MIPS_SIM && _MIPS_SIM == _MIPS_SIM_ABI32 || defined __powerpc__ && !defined __powerpc64__ \
++    || defined __arm__ && !defined __aarch64__
++        union {
++                uint64_t _64;
++                uint32_t _32[2];
++        } _mask;
++        _mask._64 = mask;
++
++        return syscall(__NR_fanotify_mark, fanotify_fd, flags,
++                       _mask._32[0], _mask._32[1], dfd, pathname);
++#else
++        return syscall(__NR_fanotify_mark, fanotify_fd, flags, mask, dfd, pathname);
++#endif
++}
++#endif
++
+ #ifndef HAVE_MEMFD_CREATE
+ static inline int memfd_create(const char *name, unsigned int flags) {
+         return syscall(__NR_memfd_create, name, flags);

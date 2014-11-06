@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        10%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        11%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -80,6 +80,14 @@ Patch0036:      0036-manager-do-not-print-timing-when-running-in-test-mod.patch
 Patch0037:      0037-unit-do-not-order-timers.target-before-basic.target.patch
 Patch0038:      0038-units-order-sd-journal-flush-after-sd-remount-fs.patch
 Patch0039:      0039-units-make-systemd-journald.service-Type-notify.patch
+Patch0040:      0040-Revert-missing-remove-fanotify.patch
+Patch0041:      0041-udev-Fix-parsing-of-udev.event-timeout-kernel-parame.patch
+Patch0042:      0042-manager-Ensure-user-s-systemd-runtime-directory-exis.patch
+Patch0043:      0043-udev-hwdb-Change-error-message-regarding-missing-hwd.patch
+Patch0044:      0044-systemctl-when-invokes-as-reboot-f-sync.patch
+Patch0045:      0045-shared-create-files-even-if-the-SELinux-policy-has-n.patch
+Patch0046:      0046-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
+
 
 Patch0996:      Accept-StartTimeout-options-for-compatibility.patch
 Patch0997:      units-remove-dev-log-to-always-create-symlink.patch
@@ -869,6 +877,11 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Tue Nov 04 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-11
+- Fixes for #1161100, #986667.
+- Fix udev timeout parsing.
+- Use sync before reboot -f.
+
 * Tue Nov 04 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-10
 - Fix for #1159641.
 
