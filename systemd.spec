@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        11%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        12%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -87,6 +87,7 @@ Patch0043:      0043-udev-hwdb-Change-error-message-regarding-missing-hwd.patch
 Patch0044:      0044-systemctl-when-invokes-as-reboot-f-sync.patch
 Patch0045:      0045-shared-create-files-even-if-the-SELinux-policy-has-n.patch
 Patch0046:      0046-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
+Patch0047:      0047-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
 
 
 Patch0996:      Accept-StartTimeout-options-for-compatibility.patch
@@ -877,6 +878,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Thu Nov 27 2014 Jan Synáček <jsynacek@redhat.com> - 216-12
+- unicode_start is not started on boot (#1150384)
+
 * Tue Nov 04 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-11
 - Fixes for #1161100, #986667.
 - Fix udev timeout parsing.
