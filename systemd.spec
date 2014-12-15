@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        12%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        13%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -157,6 +157,7 @@ Requires:       %{name}-libs = %{version}-%{release}
 Requires:       kmod >= 18-4
 Requires:       diffutils
 Requires:       util-linux >= 2.25
+Requires:       grubby
 Provides:       /bin/systemctl
 Provides:       /sbin/shutdown
 Provides:       syslog
@@ -878,6 +879,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Mon Dec 15 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-13
+- Require grubby (#1173919).
+
 * Thu Nov 27 2014 Jan Synáček <jsynacek@redhat.com> - 216-12
 - unicode_start is not started on boot (#1150384)
 
