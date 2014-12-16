@@ -88,7 +88,7 @@ Patch0044:      0044-systemctl-when-invokes-as-reboot-f-sync.patch
 Patch0045:      0045-shared-create-files-even-if-the-SELinux-policy-has-n.patch
 Patch0046:      0046-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
 Patch0047:      0047-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
-Patch0048:	0048-systemctl-fix-argument-handling-when-invoked-as-shut.patch
+Patch0048:      0048-systemctl-fix-argument-handling-when-invoked-as-shut.patch
 
 
 Patch0996:      Accept-StartTimeout-options-for-compatibility.patch
@@ -882,6 +882,7 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %changelog
 * Tue Dec 16 2014 Jan Synáček <jsynacek@redhat.com> - 216-13
 - [abrt] systemd: log_assert_failed_unreachable(): systemctl killed by SIGABRT (#1173100)
+- Cleanup whitespace and confusing patch subject.
 
 * Mon Dec 15 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-13
 - Require grubby (#1173919).

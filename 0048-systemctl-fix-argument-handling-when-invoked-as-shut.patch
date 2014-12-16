@@ -1,7 +1,7 @@
 From 75836b9d2071aab978ee78d7d797126a18a32052 Mon Sep 17 00:00:00 2001
 From: Jan Synacek <jsynacek@redhat.com>
 Date: Mon, 15 Dec 2014 10:39:00 +0100
-Subject: [PATCH 1/2] systemctl: fix argument handling when invoked as
+Subject: [PATCH] systemctl: fix argument handling when invoked as
  "shutdown"
 
 ---
