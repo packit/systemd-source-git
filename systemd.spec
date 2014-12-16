@@ -158,7 +158,6 @@ Requires:       %{name}-libs = %{version}-%{release}
 Requires:       kmod >= 18-4
 Requires:       diffutils
 Requires:       util-linux >= 2.25
-Requires:       grubby
 Provides:       /bin/systemctl
 Provides:       /sbin/shutdown
 Provides:       syslog
@@ -883,9 +882,6 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 * Tue Dec 16 2014 Jan Synáček <jsynacek@redhat.com> - 216-13
 - [abrt] systemd: log_assert_failed_unreachable(): systemctl killed by SIGABRT (#1173100)
 - Cleanup whitespace and confusing patch subject.
-
-* Mon Dec 15 2014 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-13
-- Require grubby (#1173919).
 
 * Thu Nov 27 2014 Jan Synáček <jsynacek@redhat.com> - 216-12
 - unicode_start is not started on boot (#1150384)
