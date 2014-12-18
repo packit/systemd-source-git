@@ -89,6 +89,7 @@ Patch0045:      0045-shared-create-files-even-if-the-SELinux-policy-has-n.patch
 Patch0046:      0046-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
 Patch0047:      0047-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
 Patch0048:      0048-systemctl-fix-argument-handling-when-invoked-as-shut.patch
+Patch0049:      0049-nspawn-fix-invocation-of-the-raw-clone-system-call-o.patch
 
 
 Patch0996:      Accept-StartTimeout-options-for-compatibility.patch
@@ -879,6 +880,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Fri Dec 19 2014 Jan Synáček <jsynacek@redhat.com> - 216-13
+- systemd-nspawn doesn't work on s390/s390x (#1175394)
+
 * Tue Dec 16 2014 Jan Synáček <jsynacek@redhat.com> - 216-13
 - [abrt] systemd: log_assert_failed_unreachable(): systemctl killed by SIGABRT (#1173100)
 - Cleanup whitespace and confusing patch subject.
