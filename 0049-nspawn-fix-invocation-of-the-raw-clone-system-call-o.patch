@@ -47,7 +47,7 @@ index c98d027..4b4c6df 100644
 +#else
 +        return syscall(__NR_clone, flags, child_stack);
 +#endif
-++}
++}
 -- 
 2.2.0
 
