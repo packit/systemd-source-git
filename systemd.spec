@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        13%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -90,6 +90,7 @@ Patch0046:      0046-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
 Patch0047:      0047-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
 Patch0048:      0048-systemctl-fix-argument-handling-when-invoked-as-shut.patch
 Patch0049:      0049-nspawn-fix-invocation-of-the-raw-clone-system-call-o.patch
+Patch0050:      0050-manager-print-fatal-errors-on-the-console-too.patch
 
 
 Patch0996:      Accept-StartTimeout-options-for-compatibility.patch
@@ -880,6 +881,9 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Tue Jan  6 2015 Jan Synáček <jsynacek@redhat.com> - 216-14
+- systemd does not properly report errors when booting fails because it cannot load selinux policy (#1155468)
+
 * Fri Dec 19 2014 Jan Synáček <jsynacek@redhat.com> - 216-13
 - systemd-nspawn doesn't work on s390/s390x (#1175394)
 

@@ -1,0 +1,261 @@
+From 66b8a5665a964e05ab9b365ffceb840351990c03 Mon Sep 17 00:00:00 2001
+From: Fedora systemd team <systemd-maint@redhat.com>
+Date: Tue, 6 Jan 2015 12:22:52 +0100
+Subject: [PATCH] manager: print fatal errors on the console too
+
+When booting in quiet mode, fatal messages would not be shown at all to the user.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1155468
+
+(cherry-picked from cb6531bee6e6f66c3a9d85b24fed68fae7fad6ad)
+---
+ src/core/main.c          | 62 ++++++++++++++++++++++++++++++++++++++----------
+ src/core/manager.c       |  6 +++--
+ src/core/selinux-setup.c |  2 +-
+ 3 files changed, 54 insertions(+), 16 deletions(-)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index a9ca34d..2f856c0 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -1245,6 +1245,7 @@ int main(int argc, char *argv[]) {
+         bool empty_etc = false;
+         char *switch_root_dir = NULL, *switch_root_init = NULL;
+         static struct rlimit saved_rlimit_nofile = { 0, 0 };
++        const char *error_message = NULL;
+ 
+ #ifdef HAVE_SYSV_COMPAT
+         if (getpid() != 1 && strstr(program_invocation_short_name, "init")) {
+@@ -1303,17 +1304,23 @@ int main(int argc, char *argv[]) {
+                 if (!skip_setup) {
+                         mount_setup_early();
+                         dual_timestamp_get(&security_start_timestamp);
+-                        if (mac_selinux_setup(&loaded_policy) < 0)
++                        if (mac_selinux_setup(&loaded_policy) < 0) {
++                                error_message = "Failed to load SELinux policy";
+                                 goto finish;
+-                        if (ima_setup() < 0)
++                        } else if (ima_setup() < 0) {
++                                error_message = "Failed to load IMA policy";
+                                 goto finish;
+-                        if (mac_smack_setup(&loaded_policy) < 0)
++                        } else if (mac_smack_setup(&loaded_policy) < 0) {
++                                error_message = "Failed to load SMACK policy";
+                                 goto finish;
++                        }
+                         dual_timestamp_get(&security_finish_timestamp);
+                 }
+ 
+-                if (mac_selinux_init(NULL) < 0)
++                if (mac_selinux_init(NULL) < 0) {
++                        error_message = "Failed to initialize SELinux policy";
+                         goto finish;
++                }
+ 
+                 if (!skip_setup) {
+                         if (clock_is_localtime() > 0) {
+@@ -1389,19 +1396,23 @@ int main(int argc, char *argv[]) {
+         r = set_default_unit(SPECIAL_DEFAULT_TARGET);
+         if (r < 0) {
+                 log_error("Failed to set default unit %s: %s", SPECIAL_DEFAULT_TARGET, strerror(-r));
++                error_message = "Failed to set default unit";
+                 goto finish;
+         }
+ 
+         r = initialize_join_controllers();
+-        if (r < 0)
++        if (r < 0) {
++                error_message = "Failed to initalize cgroup controllers";
+                 goto finish;
+-
++        }
+         /* Mount /proc, /sys and friends, so that /proc/cmdline and
+          * /proc/$PID/fd is available. */
+         if (getpid() == 1) {
+                 r = mount_setup(loaded_policy);
+-                if (r < 0)
++                if (r < 0) {
++                        error_message = "Failed to mount API filesystems";
+                         goto finish;
++                }
+         }
+ 
+         /* Reset all signal handlers. */
+@@ -1409,8 +1420,10 @@ int main(int argc, char *argv[]) {
+ 
+         ignore_signals(SIGNALS_IGNORE, -1);
+ 
+-        if (parse_config_file() < 0)
++        if (parse_config_file() < 0) {
++                error_message = "Failed to parse config file";
+                 goto finish;
++        }
+ 
+         if (arg_running_as == SYSTEMD_SYSTEM)
+                 if (parse_proc_cmdline(parse_proc_cmdline_item) < 0)
+@@ -1420,8 +1433,10 @@ int main(int argc, char *argv[]) {
+          * line, including "debug". */
+         log_parse_environment();
+ 
+-        if (parse_argv(argc, argv) < 0)
++        if (parse_argv(argc, argv) < 0) {
++                error_message = "Failed to parse commandline arguments";
+                 goto finish;
++        }
+ 
+         if (arg_action == ACTION_TEST &&
+             geteuid() == 0) {
+@@ -1478,6 +1493,7 @@ int main(int argc, char *argv[]) {
+         r = fdset_new_fill(&fds);
+         if (r < 0) {
+                 log_error("Failed to allocate fd set: %s", strerror(-r));
++                error_message = "Failed to allocate fd set";
+                 goto finish;
+         } else
+                 fdset_cloexec(fds, true);
+@@ -1583,19 +1599,23 @@ int main(int argc, char *argv[]) {
+                 r = capability_bounding_set_drop_usermode(arg_capability_bounding_set_drop);
+                 if (r < 0) {
+                         log_error("Failed to drop capability bounding set of usermode helpers: %s", strerror(-r));
++                        error_message = "Failed to drop capability bounding set of usermode helpers";
+                         goto finish;
+                 }
+                 r = capability_bounding_set_drop(arg_capability_bounding_set_drop, true);
+                 if (r < 0) {
+                         log_error("Failed to drop capability bounding set: %s", strerror(-r));
++                        error_message = "Failed to drop capability bounding set";
+                         goto finish;
+                 }
+         }
+ 
+         if (arg_syscall_archs) {
+                 r = enforce_syscall_archs(arg_syscall_archs);
+-                if (r < 0)
++                if (r < 0) {
++                        error_message = "Failed to set syscall architectures";
+                         goto finish;
++                }
+         }
+ 
+         if (arg_running_as == SYSTEMD_USER) {
+@@ -1622,6 +1642,7 @@ int main(int argc, char *argv[]) {
+         r = manager_new(arg_running_as, arg_action == ACTION_TEST, &m);
+         if (r < 0) {
+                 log_error("Failed to allocate manager object: %s", strerror(-r));
++                error_message = "Failed to allocate manager object";
+                 goto finish;
+         }
+ 
+@@ -1691,12 +1712,15 @@ int main(int argc, char *argv[]) {
+                         r = manager_load_unit(m, SPECIAL_RESCUE_TARGET, NULL, &error, &target);
+                         if (r < 0) {
+                                 log_error("Failed to load rescue target: %s", bus_error_message(&error, r));
++                                 error_message = "Failed to load rescue target";
+                                 goto finish;
+                         } else if (target->load_state == UNIT_ERROR || target->load_state == UNIT_NOT_FOUND) {
+                                 log_error("Failed to load rescue target: %s", strerror(-target->load_error));
++                                 error_message = "Failed to load rescue target";
+                                 goto finish;
+                         } else if (target->load_state == UNIT_MASKED) {
+                                 log_error("Rescue target masked.");
++                                error_message = "Rescue target masked";
+                                 goto finish;
+                         }
+                 }
+@@ -1715,10 +1739,12 @@ int main(int argc, char *argv[]) {
+                         r = manager_add_job(m, JOB_START, target, JOB_REPLACE, false, &error, &default_unit_job);
+                         if (r < 0) {
+                                 log_error("Failed to start default target: %s", bus_error_message(&error, r));
++                                error_message = "Failed to start default target";
+                                 goto finish;
+                         }
+                 } else if (r < 0) {
+                         log_error("Failed to isolate default target: %s", bus_error_message(&error, r));
++                        error_message = "Failed to isolate default target";
+                         goto finish;
+                 }
+ 
+@@ -1741,6 +1767,7 @@ int main(int argc, char *argv[]) {
+                 r = manager_loop(m);
+                 if (r < 0) {
+                         log_error("Failed to run mainloop: %s", strerror(-r));
++                        error_message = "Failed to run main loop";
+                         goto finish;
+                 }
+ 
+@@ -1760,8 +1787,10 @@ int main(int argc, char *argv[]) {
+ 
+                 case MANAGER_REEXECUTE:
+ 
+-                        if (prepare_reexecute(m, &arg_serialization, &fds, false) < 0)
++                        if (prepare_reexecute(m, &arg_serialization, &fds, false) < 0) {
++                                error_message = "Failed to prepare for reexection";
+                                 goto finish;
++                        }
+ 
+                         reexecute = true;
+                         log_notice("Reexecuting.");
+@@ -1774,8 +1803,10 @@ int main(int argc, char *argv[]) {
+                         m->switch_root = m->switch_root_init = NULL;
+ 
+                         if (!switch_root_init)
+-                                if (prepare_reexecute(m, &arg_serialization, &fds, true) < 0)
++                                if (prepare_reexecute(m, &arg_serialization, &fds, true) < 0) {
++                                        error_message = "Failed to prepare for reexection";
+                                         goto finish;
++                                }
+ 
+                         reexecute = true;
+                         log_notice("Switching root.");
+@@ -2023,8 +2054,13 @@ finish:
+                           getpid() == 1 ? "freezing" : "quitting");
+         }
+ 
+-        if (getpid() == 1)
++        if (getpid() == 1) {
++                if (error_message)
++                        manager_status_printf(NULL, STATUS_TYPE_EMERGENCY,
++                                              ANSI_HIGHLIGHT_RED_ON "!!!!!!" ANSI_HIGHLIGHT_OFF,
++                                              "%s, freezing.", error_message);
+                 freeze();
++        }
+ 
+         return retval;
+ }
+diff --git a/src/core/manager.c b/src/core/manager.c
+index 47e23ba..b50df23 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -2984,12 +2984,14 @@ void manager_set_first_boot(Manager *m, bool b) {
+ void manager_status_printf(Manager *m, StatusType type, const char *status, const char *format, ...) {
+         va_list ap;
+ 
+-        if (!manager_get_show_status(m, type))
++        /* If m is NULL, assume we're after shutdown and let the messages through. */
++
++        if (m && !manager_get_show_status(m, type))
+                 return;
+ 
+         /* XXX We should totally drop the check for ephemeral here
+          * and thus effectively make 'Type=idle' pointless. */
+-        if (type == STATUS_TYPE_EPHEMERAL && m->n_on_console > 0)
++        if (type == STATUS_TYPE_EPHEMERAL && m && m->n_on_console > 0)
+                 return;
+ 
+         va_start(ap, format);
+diff --git a/src/core/selinux-setup.c b/src/core/selinux-setup.c
+index 25e22b6..cf3c145 100644
+--- a/src/core/selinux-setup.c
++++ b/src/core/selinux-setup.c
+@@ -113,7 +113,7 @@ int mac_selinux_setup(bool *loaded_policy) {
+ 
+                 if (enforce > 0) {
+                         if (!initialized) {
+-                                log_error("Failed to load SELinux policy. Freezing.");
++                                log_error("Failed to load SELinux policy.");
+                                 return -EIO;
+                         }
+ 
+-- 
+2.2.0
+
