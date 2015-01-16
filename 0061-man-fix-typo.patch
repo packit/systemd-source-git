@@ -1,0 +1,25 @@
+From b47ddceb5f479273ed40c454b25167eb857b7008 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 12 Nov 2014 23:44:21 +0100
+Subject: [PATCH] man: fix typo
+
+(cherry picked from commit 174299e35fb8386f7b1d6e57ed42c205dcd92447)
+---
+ man/sd_bus_open_user.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/man/sd_bus_open_user.xml b/man/sd_bus_open_user.xml
+index 47f8361486..76e3ce8bd3 100644
+--- a/man/sd_bus_open_user.xml
++++ b/man/sd_bus_open_user.xml
+@@ -121,8 +121,8 @@ along with systemd; If not, see <http://www.gnu.org/licenses/>.
+     followed by the <literal>@</literal> symbol, and the hostname.
+     </para>
+ 
+-    <para><function>sd_bus_open_system_remote()</function> connects to
+-    the system bus in the specified <parameter>machine</parameter>,
++    <para><function>sd_bus_open_system_container()</function> connects
++    to the system bus in the specified <parameter>machine</parameter>,
+     where <parameter>machine</parameter> is the name of a container.
+     See
+     <citerefentry><refentrytitle>machinectl</refentrytitle><manvolnum>1</manvolnum></citerefentry>

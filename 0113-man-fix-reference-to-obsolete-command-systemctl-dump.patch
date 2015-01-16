@@ -1,0 +1,24 @@
+From 82cf6e4a7bb21a612d5fd8b5776baddcf61be2de Mon Sep 17 00:00:00 2001
+From: Felipe Sateler <fsateler@gmail.com>
+Date: Fri, 5 Dec 2014 14:08:38 +0100
+Subject: [PATCH] man: fix reference to obsolete command "systemctl dump"
+
+https://bugs.freedesktop.org/show_bug.cgi?id=87020
+(cherry picked from commit 030512b2449921517d04bbd9357c0700cb0b4290)
+---
+ man/systemd.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/systemd.xml b/man/systemd.xml
+index bf7a7a6f67..736f5b7bcb 100644
+--- a/man/systemd.xml
++++ b/man/systemd.xml
+@@ -679,7 +679,7 @@
+                                 received the systemd manager will log
+                                 its complete state in human readable
+                                 form. The data logged is the same as
+-                                printed by <command>systemctl
++                                printed by <command>systemd-analyze
+                                 dump</command>.</para></listitem>
+                         </varlistentry>
+ 

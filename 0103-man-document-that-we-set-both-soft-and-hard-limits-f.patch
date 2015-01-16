@@ -1,0 +1,31 @@
+From b34aa60fd0b9027bc940fa1f5d3eec76d10bab47 Mon Sep 17 00:00:00 2001
+From: Ronny Chevalier <chevalier.ronny@gmail.com>
+Date: Sun, 30 Nov 2014 20:28:36 +0100
+Subject: [PATCH] man: document that we set both soft and hard limits for Limit
+ directives
+
+See
+http://cgit.freedesktop.org/systemd/systemd/tree/src/core/load-fragment.c#n1100
+
+(cherry picked from commit 6067b34a1f770f845157f15b0c85b2f1140a2351)
+---
+ man/systemd.exec.xml | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/man/systemd.exec.xml b/man/systemd.exec.xml
+index fe4fde8c58..62a690adab 100644
+--- a/man/systemd.exec.xml
++++ b/man/systemd.exec.xml
+@@ -708,9 +708,9 @@
+                                 <term><varname>LimitNICE=</varname></term>
+                                 <term><varname>LimitRTPRIO=</varname></term>
+                                 <term><varname>LimitRTTIME=</varname></term>
+-                                <listitem><para>These settings control
+-                                various resource limits for executed
+-                                processes. See
++                                <listitem><para>These settings set both
++                                soft and hard limits of various resources for
++                                executed processes. See
+                                 <citerefentry><refentrytitle>setrlimit</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+                                 for details. Use the string
+                                 <varname>infinity</varname> to

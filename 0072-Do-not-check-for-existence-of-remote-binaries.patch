@@ -1,0 +1,134 @@
+From f9837309c5996cc754cbab878f657966a1767978 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sat, 22 Nov 2014 18:00:07 -0500
+Subject: [PATCH] Do not check for existence of remote binaries
+
+systemd-run would fail when run with -M or -H and an absolute path,
+if this path did not exists locally. Allow it to continue, since we
+don't have a nice way of checking if the binary exists remotely.
+
+The case where -M or -H is used and a local path is unchanged, and we
+still iterate over $PATH to find the binary. We need to convert to an
+absolute path, and we don't have a nice mechanism to check remotely,
+so we assume that the binary will be located in the same place locally
+and remotely.
+
+http://lists.freedesktop.org/archives/systemd-devel/2014-November/025418.html
+(cherry picked from commit b63bd1090bf6ce79b6757c3f8f4172a367854577)
+---
+ src/run/run.c             |  7 +++++--
+ src/shared/path-util.c    |  6 +++---
+ src/shared/path-util.h    |  2 +-
+ src/test/test-path-util.c | 16 +++++++++-------
+ 4 files changed, 18 insertions(+), 13 deletions(-)
+
+diff --git a/src/run/run.c b/src/run/run.c
+index e3b62939c7..dcefb5c376 100644
+--- a/src/run/run.c
++++ b/src/run/run.c
+@@ -573,9 +573,12 @@ int main(int argc, char* argv[]) {
+         if (r <= 0)
+                 goto finish;
+ 
+-        r = find_binary(argv[optind], &command);
++        r = find_binary(argv[optind], arg_transport == BUS_TRANSPORT_LOCAL, &command);
+         if (r < 0) {
+-                log_error("Failed to find executable %s: %s", argv[optind], strerror(-r));
++                log_error("Failed to find executable %s%s: %s",
++                          argv[optind],
++                          arg_transport == BUS_TRANSPORT_LOCAL ? "" : " on local system",
++                          strerror(-r));
+                 goto finish;
+         }
+         argv[optind] = command;
+diff --git a/src/shared/path-util.c b/src/shared/path-util.c
+index 67566bc76b..be03695cf8 100644
+--- a/src/shared/path-util.c
++++ b/src/shared/path-util.c
+@@ -563,11 +563,11 @@ int path_is_os_tree(const char *path) {
+         return r >= 0;
+ }
+ 
+-int find_binary(const char *name, char **filename) {
++int find_binary(const char *name, bool local, char **filename) {
+         assert(name);
+ 
+         if (is_path(name)) {
+-                if (access(name, X_OK) < 0)
++                if (local && access(name, X_OK) < 0)
+                         return -errno;
+ 
+                 if (filename) {
+@@ -657,7 +657,7 @@ int fsck_exists(const char *fstype) {
+ 
+         checker = strappenda("fsck.", fstype);
+ 
+-        r = find_binary(checker, &p);
++        r = find_binary(checker, true, &p);
+         if (r < 0)
+                 return r;
+ 
+diff --git a/src/shared/path-util.h b/src/shared/path-util.h
+index 8d171a57ec..bd0d32473f 100644
+--- a/src/shared/path-util.h
++++ b/src/shared/path-util.h
+@@ -55,7 +55,7 @@ int path_is_mount_point(const char *path, bool allow_symlink);
+ int path_is_read_only_fs(const char *path);
+ int path_is_os_tree(const char *path);
+ 
+-int find_binary(const char *name, char **filename);
++int find_binary(const char *name, bool local, char **filename);
+ 
+ bool paths_check_timestamp(const char* const* paths, usec_t *paths_ts_usec, bool update);
+ 
+diff --git a/src/test/test-path-util.c b/src/test/test-path-util.c
+index 63d64b28b0..57264de5b9 100644
+--- a/src/test/test-path-util.c
++++ b/src/test/test-path-util.c
+@@ -85,29 +85,30 @@ static void test_path(void) {
+         }
+ }
+ 
+-static void test_find_binary(const char *self) {
++static void test_find_binary(const char *self, bool local) {
+         char *p;
+ 
+-        assert_se(find_binary("/bin/sh", &p) == 0);
++        assert_se(find_binary("/bin/sh", local, &p) == 0);
+         puts(p);
+         assert_se(streq(p, "/bin/sh"));
+         free(p);
+ 
+-        assert_se(find_binary(self, &p) == 0);
++        assert_se(find_binary(self, local, &p) == 0);
+         puts(p);
+         assert_se(endswith(p, "/test-path-util"));
+         assert_se(path_is_absolute(p));
+         free(p);
+ 
+-        assert_se(find_binary("sh", &p) == 0);
++        assert_se(find_binary("sh", local, &p) == 0);
+         puts(p);
+         assert_se(endswith(p, "/sh"));
+         assert_se(path_is_absolute(p));
+         free(p);
+ 
+-        assert_se(find_binary("xxxx-xxxx", &p) == -ENOENT);
++        assert_se(find_binary("xxxx-xxxx", local, &p) == -ENOENT);
+ 
+-        assert_se(find_binary("/some/dir/xxxx-xxxx", &p) == -ENOENT);
++        assert_se(find_binary("/some/dir/xxxx-xxxx", local, &p) ==
++                  (local ? -ENOENT : 0));
+ }
+ 
+ static void test_prefixes(void) {
+@@ -244,7 +245,8 @@ static void test_strv_resolve(void) {
+ 
+ int main(int argc, char **argv) {
+         test_path();
+-        test_find_binary(argv[0]);
++        test_find_binary(argv[0], true);
++        test_find_binary(argv[0], false);
+         test_prefixes();
+         test_path_join();
+         test_fsck_exists();

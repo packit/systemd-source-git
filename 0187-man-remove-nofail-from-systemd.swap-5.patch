@@ -1,0 +1,33 @@
+From 3828abe47c6367e05754eb48cca668e5b7de8407 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 13 Jan 2015 20:05:42 -0500
+Subject: [PATCH] man: remove "nofail" from systemd.swap(5)
+
+As suggested by Marcos Felipe Rasia de Mello <marcosfrm@gmail.com>.
+
+(cherry picked from commit b50191c23f4cb6bac1180491b52e1df1e6c79a0f)
+---
+ man/systemd.swap.xml | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/man/systemd.swap.xml b/man/systemd.swap.xml
+index 1155758e28..9cc3b80bb9 100644
+--- a/man/systemd.swap.xml
++++ b/man/systemd.swap.xml
+@@ -139,15 +139,12 @@
+ 
+                   <varlistentry>
+                     <term><option>nofail</option></term>
+-                    <term><option>fail</option></term>
+ 
+                     <listitem><para>With <option>nofail</option> the
+                     swap unit will be only wanted, not required by
+                     <filename>swap.target</filename>. This means that
+                     the boot will continue even if this swap device is
+-                    not activated successfully. Option
+-                    <option>fail</option> has the opposite meaning and
+-                    is the default.</para>
++                    not activated successfully.</para>
+                     </listitem>
+                   </varlistentry>
+                 </variablelist>

@@ -1,0 +1,32 @@
+From 01be77928f0e453bc3fdbefb5a8f354dc264af55 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 12 Nov 2014 23:31:08 +0100
+Subject: [PATCH] keymap: Fix special keys on ThinkPad X60/X61 Tablet
+
+KEY_DIRECTION is mapped to XF86RotateWindows, to rotate the display:
+http://cgit.freedesktop.org/xkeyboard-config/commit/symbols/inet?id=ec875f6f9b7c4028e11d32b071989c682e6502bd
+
+And F13 is mapped to XF86Tools, which is closest to the original toolbox
+usage:
+http://cgit.freedesktop.org/xkeyboard-config/tree/symbols/inet?id=7a2c4bed212ebbcc05f3c959aef659ce7dd31fd8#n221
+
+(cherry picked from commit b4c72e52d2109fe7f0ac3440c81ae3e1ce64a143)
+---
+ hwdb/60-keyboard.hwdb | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hwdb/60-keyboard.hwdb b/hwdb/60-keyboard.hwdb
+index 56a4009a2c..533ad5b05a 100644
+--- a/hwdb/60-keyboard.hwdb
++++ b/hwdb/60-keyboard.hwdb
+@@ -585,8 +585,8 @@ keyboard:dmi:bvn*:bvr*:bd*:svnLENOVO*:pn*:pvrThinkPad*X2*Tablet*
+ 
+ # ThinkPad X6 Tablet
+ keyboard:dmi:bvn*:bvr*:bd*:svnLENOVO*:pnThinkPad*X6*:pvr*
+- KEYBOARD_KEY_6c=f21                                    # rotate
+- KEYBOARD_KEY_68=screenlock                             # screenlock
++ KEYBOARD_KEY_6c=direction                              # rotate
++ KEYBOARD_KEY_68=f13                                    # toolbox
+  KEYBOARD_KEY_6b=esc                                    # escape
+  KEYBOARD_KEY_6d=right                                  # right on d-pad
+  KEYBOARD_KEY_6e=left                                   # left on d-pad

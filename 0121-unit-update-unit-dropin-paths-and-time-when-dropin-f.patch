@@ -1,0 +1,56 @@
+From 94b9640cc14a71c6df32da4e218c0b3cfb9b8795 Mon Sep 17 00:00:00 2001
+From: WaLyong Cho <walyong.cho@samsung.com>
+Date: Tue, 9 Dec 2014 21:46:30 +0900
+Subject: [PATCH] unit: update unit dropin paths and time when dropin file is
+ written.
+
+If a unit is set property by "systemctl set-property", a new dropin
+file is generated. But the unit's dropin_paths and dropin_mtime are
+not updated. So the unit is shown as need daemon reload.
+Update unit dropin_paths and dropin_mtime also when dropin file is
+written.
+
+(cherry picked from commit adb76a701d870b980f7949bcfece2c1547b4976d)
+---
+ src/core/unit.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/src/core/unit.c b/src/core/unit.c
+index 489ea1e502..8bf026f11c 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -3172,7 +3172,7 @@ static int unit_drop_in_file(Unit *u,
+ 
+ int unit_write_drop_in(Unit *u, UnitSetPropertiesMode mode, const char *name, const char *data) {
+ 
+-        _cleanup_free_ char *dir = NULL;
++        _cleanup_free_ char *dir = NULL, *p = NULL, *q = NULL;
+         int r;
+ 
+         assert(u);
+@@ -3184,7 +3184,24 @@ int unit_write_drop_in(Unit *u, UnitSetPropertiesMode mode, const char *name, co
+         if (r < 0)
+                 return r;
+ 
+-        return write_drop_in(dir, u->id, 50, name, data);
++        r = write_drop_in(dir, u->id, 50, name, data);
++        if (r < 0)
++                return r;
++
++        r = drop_in_file(dir, u->id, 50, name, &p, &q);
++        if (r < 0)
++                return r;
++
++        r = strv_extend(&u->dropin_paths, q);
++        if (r < 0)
++                return r;
++
++        strv_sort(u->dropin_paths);
++        strv_uniq(u->dropin_paths);
++
++        u->dropin_mtime = now(CLOCK_REALTIME);
++
++        return 0;
+ }
+ 
+ int unit_write_drop_in_format(Unit *u, UnitSetPropertiesMode mode, const char *name, const char *format, ...) {

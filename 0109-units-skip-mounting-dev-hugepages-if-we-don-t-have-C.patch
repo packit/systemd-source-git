@@ -1,0 +1,26 @@
+From 4ca9e1500fb5648570b06e4d912f58b79370984c Mon Sep 17 00:00:00 2001
+From: Michal Sekletar <msekleta@redhat.com>
+Date: Wed, 12 Nov 2014 15:19:42 +0100
+Subject: [PATCH] units: skip mounting /dev/hugepages if we don't have
+ CAP_SYS_ADMIN
+
+Preparation for allowing systemd to run gracefully in containers lacking
+CAP_SYS_ADMIN.
+
+(cherry picked from commit fe0b9cd3ba25fb5063b6782983dde0a0c9915660)
+---
+ units/dev-hugepages.mount | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/units/dev-hugepages.mount b/units/dev-hugepages.mount
+index d711faed55..882adb4545 100644
+--- a/units/dev-hugepages.mount
++++ b/units/dev-hugepages.mount
+@@ -12,6 +12,7 @@ Documentation=http://www.freedesktop.org/wiki/Software/systemd/APIFileSystems
+ DefaultDependencies=no
+ Before=sysinit.target
+ ConditionPathExists=/sys/kernel/mm/hugepages
++ConditionCapability=CAP_SYS_ADMIN
+ 
+ [Mount]
+ What=hugetlbfs

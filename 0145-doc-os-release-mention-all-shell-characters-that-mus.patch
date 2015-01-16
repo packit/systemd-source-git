@@ -1,0 +1,45 @@
+From 5fee0309d72c702351a8fae7a4be40cb54459449 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mantas=20Mikul=C4=97nas?= <grawity@gmail.com>
+Date: Wed, 24 Dec 2014 14:46:20 +0200
+Subject: [PATCH] doc: os-release: mention all shell characters that must be
+ escaped
+
+Since the manpage already talks about shell-compatibility, it should be
+more accurate about what needs to be escaped and how.
+
+(cherry picked from commit 321a3f5133a415ad9c95e15e95e46556c08973aa)
+---
+ man/os-release.xml | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+diff --git a/man/os-release.xml b/man/os-release.xml
+index b298304943..b4cbeba395 100644
+--- a/man/os-release.xml
++++ b/man/os-release.xml
+@@ -68,17 +68,16 @@
+                 (this means variable expansion is explicitly not
+                 supported), allowing applications to read the file
+                 without implementing a shell compatible execution
+-                engine. Variable assignment values should be enclosed
+-                in double or single quotes if they include spaces,
++                engine. Variable assignment values must be enclosed in
++                double or single quotes if they include spaces,
+                 semicolons or other special characters outside of A-Z,
+-                a-z, 0-9. All strings should be in UTF-8 format, and
+-                non-printable characters should not be used. If double
+-                or single quotes or backslashes are to be used within
+-                variable assignments, they should be escaped with
+-                backslashes, following shell style. It is not
+-                supported to concatenate multiple individually quoted
+-                strings. Lines beginning with "#" shall be ignored as
+-                comments.</para>
++                a-z, 0-9.  Shell special characters ("$", quotes,
++                backslash, backtick) must be escaped with backslashes,
++                following shell style.  All strings should be in UTF-8
++                format, and non-printable characters should not be used.
++                It is not supported to concatenate multiple individually
++                quoted strings. Lines beginning with "#" shall be
++                ignored as comments.</para>
+ 
+                 <para>The file <filename>/etc/os-release</filename>
+                 takes precedence over

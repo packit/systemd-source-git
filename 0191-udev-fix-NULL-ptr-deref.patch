@@ -1,0 +1,44 @@
+From 0486a437c223e965a07923f34e9fb8d72338b2f8 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Thu, 15 Jan 2015 12:38:57 +0100
+Subject: [PATCH] udev: fix NULL-ptr deref
+
+Make sure we properly validate the return value of
+udev_device_get_sysattr_value(). It might be NULL for several reasons.
+
+(cherry picked from commit 975a900782528b57deafadc10457c7ffab0b9791)
+---
+ src/udev/udev-builtin-input_id.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/udev/udev-builtin-input_id.c b/src/udev/udev-builtin-input_id.c
+index 1a1121ef94..8acd74200a 100644
+--- a/src/udev/udev-builtin-input_id.c
++++ b/src/udev/udev-builtin-input_id.c
+@@ -4,6 +4,7 @@
+  * Copyright (C) 2009 Martin Pitt <martin.pitt@ubuntu.com>
+  * Portions Copyright (C) 2004 David Zeuthen, <david@fubar.dk>
+  * Copyright (C) 2011 Kay Sievers <kay@vrfy.org>
++ * Copyright (C) 2014 David Herrmann <dh.herrmann@gmail.com>
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -48,12 +49,17 @@ static void get_cap_mask(struct udev_device *dev,
+                          struct udev_device *pdev, const char* attr,
+                          unsigned long *bitmask, size_t bitmask_size,
+                          bool test) {
++        const char *v;
+         char text[4096];
+         unsigned i;
+         char* word;
+         unsigned long val;
+ 
+-        snprintf(text, sizeof(text), "%s", udev_device_get_sysattr_value(pdev, attr));
++        v = udev_device_get_sysattr_value(pdev, attr);
++        if (!v)
++                v = "";
++
++        snprintf(text, sizeof(text), "%s", v);
+         log_debug("%s raw kernel attribute: %s", attr, text);
+ 
+         memzero(bitmask, bitmask_size);

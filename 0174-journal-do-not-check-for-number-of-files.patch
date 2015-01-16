@@ -1,0 +1,39 @@
+From 4497e5b3a666b2ec72890f693bf6cde204af03e5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 9 Jan 2015 09:09:59 -0500
+Subject: [PATCH] journal: do not check for number of files
+
+Now that we bump rlimit, we do not really know how many files
+we can open. Remove the check.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1179980
+(cherry picked from commit b914ea8d379b446c4c9fac4ba181771676ef38cd)
+---
+ src/journal/sd-journal.c | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/src/journal/sd-journal.c b/src/journal/sd-journal.c
+index 32c6976826..b2b4032290 100644
+--- a/src/journal/sd-journal.c
++++ b/src/journal/sd-journal.c
+@@ -43,8 +43,6 @@
+ #include "replace-var.h"
+ #include "fileio.h"
+ 
+-#define JOURNAL_FILES_MAX 1024
+-
+ #define JOURNAL_FILES_RECHECK_USEC (2 * USEC_PER_SEC)
+ 
+ #define REPLACE_VAR_MAX 256
+@@ -1338,11 +1336,6 @@ static int add_any_file(sd_journal *j, const char *path) {
+         if (ordered_hashmap_get(j->files, path))
+                 return 0;
+ 
+-        if (ordered_hashmap_size(j->files) >= JOURNAL_FILES_MAX) {
+-                log_warning("Too many open journal files, not adding %s.", path);
+-                return set_put_error(j, -ETOOMANYREFS);
+-        }
+-
+         r = journal_file_open(path, O_RDONLY, 0, false, false, NULL, j->mmap, NULL, &f);
+         if (r < 0)
+                 return r;

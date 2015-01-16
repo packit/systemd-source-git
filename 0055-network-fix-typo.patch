@@ -1,0 +1,25 @@
+From 995ebb3fe302c8022460909f1e360bb3ebe4ef29 Mon Sep 17 00:00:00 2001
+From: Rami Rosen <ramirose@gmail.com>
+Date: Sat, 8 Nov 2014 12:59:01 +0200
+Subject: [PATCH] network: fix typo
+
+IFLA_IPTUN_LINK -> VETH_INFO_PEER
+
+(cherry picked from commit ed7fb9cb235d2aedb755dcb8a5a5d9cdffba1519)
+---
+ src/network/networkd-netdev-veth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/network/networkd-netdev-veth.c b/src/network/networkd-netdev-veth.c
+index da09ef908f..ca2bb0718a 100644
+--- a/src/network/networkd-netdev-veth.c
++++ b/src/network/networkd-netdev-veth.c
+@@ -39,7 +39,7 @@ static int netdev_veth_fill_message_create(NetDev *netdev, Link *link, sd_rtnl_m
+         r = sd_rtnl_message_open_container(m, VETH_INFO_PEER);
+         if (r < 0) {
+                 log_error_netdev(netdev,
+-                                 "Could not append IFLA_IPTUN_LINK attribute: %s",
++                                 "Could not append VETH_INFO_PEER attribute: %s",
+                                  strerror(-r));
+                 return r;
+         }

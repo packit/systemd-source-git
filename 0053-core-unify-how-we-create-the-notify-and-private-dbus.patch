@@ -1,0 +1,65 @@
+From ee26013e6cc81e0622458e3d973c0d1d1534c462 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 7 Nov 2014 16:32:06 +0100
+Subject: [PATCH] core: unify how we create the notify and private dbus socket
+
+Use the same robust logic of mkdir + unlink of any existing AF_UNIX
+socket, ignoring the return value, right before bind().
+
+(cherry picked from commit f0e62e89970b8c38eb07a9beebd277ce13a5fcc2)
+---
+ src/core/dbus.c    |  5 ++---
+ src/core/manager.c | 17 ++---------------
+ 2 files changed, 4 insertions(+), 18 deletions(-)
+
+diff --git a/src/core/dbus.c b/src/core/dbus.c
+index 185057b624..9cb198a13a 100644
+--- a/src/core/dbus.c
++++ b/src/core/dbus.c
+@@ -974,11 +974,10 @@ static int bus_init_private(Manager *m) {
+                 left = strpcpy(&p, left, "/systemd/private");
+ 
+                 salen = sizeof(sa.un) - left;
+-
+-                mkdir_parents_label(sa.un.sun_path, 0755);
+         }
+ 
+-        unlink(sa.un.sun_path);
++        (void) mkdir_parents_label(sa.un.sun_path, 0755);
++        (void) unlink(sa.un.sun_path);
+ 
+         fd = socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0);
+         if (fd < 0) {
+diff --git a/src/core/manager.c b/src/core/manager.c
+index 31f9ed54a7..751e3fb0d6 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -679,26 +679,13 @@ static int manager_setup_notify(Manager *m) {
+                         return log_oom();
+ 
+                 (void) mkdir_parents_label(m->notify_socket, 0755);
++                (void) unlink(m->notify_socket);
+ 
+                 strncpy(sa.un.sun_path, m->notify_socket, sizeof(sa.un.sun_path)-1);
+                 r = bind(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + strlen(sa.un.sun_path));
+                 if (r < 0) {
+                         log_error("bind(%s) failed: %m", sa.un.sun_path);
+-                        if (errno == EADDRINUSE) {
+-                                log_notice("Removing %s socket and trying again.", m->notify_socket);
+-                                r = unlink(m->notify_socket);
+-                                if (r < 0) {
+-                                        log_error("Failed to remove %s: %m", m->notify_socket);
+-                                        return -EADDRINUSE;
+-                                }
+-
+-                                r = bind(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + strlen(sa.un.sun_path));
+-                                if (r < 0) {
+-                                        log_error("bind(%s) failed: %m", sa.un.sun_path);
+-                                        return -errno;
+-                                }
+-                        } else
+-                                return -errno;
++                        return -errno;
+                 }
+ 
+                 r = setsockopt(fd, SOL_SOCKET, SO_PASSCRED, &one, sizeof(one));

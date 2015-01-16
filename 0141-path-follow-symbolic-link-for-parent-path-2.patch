@@ -1,0 +1,26 @@
+From f0c232bb1c497a8eb99428cfc70eaa4fdcc6c5b0 Mon Sep 17 00:00:00 2001
+From: Umut Tezduyar Lindskog <umut.tezduyar@axis.com>
+Date: Wed, 17 Dec 2014 19:43:58 -0500
+Subject: [PATCH] path: follow symbolic link for parent path (2)
+
+c0e57ba9e22ee937722958d8b912ade2a37f206d fixed the fallback path.
+We should do the same for name_to_handle_at().
+
+(cherry picked from commit b890bf6a81acfc989743ef7a66ba5710aec66411)
+---
+ src/shared/path-util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/shared/path-util.c b/src/shared/path-util.c
+index e1ab6d2db0..0ca2d332eb 100644
+--- a/src/shared/path-util.c
++++ b/src/shared/path-util.c
+@@ -489,7 +489,7 @@ int path_is_mount_point(const char *t, bool allow_symlink) {
+                 return r;
+ 
+         h.handle.handle_bytes = MAX_HANDLE_SZ;
+-        r = name_to_handle_at(AT_FDCWD, parent, &h.handle, &mount_id_parent, 0);
++        r = name_to_handle_at(AT_FDCWD, parent, &h.handle, &mount_id_parent, AT_SYMLINK_FOLLOW);
+         if (r < 0) {
+                 /* The parent can't do name_to_handle_at() but the
+                  * directory we are interested in can? If so, it must

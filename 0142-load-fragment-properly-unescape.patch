@@ -1,0 +1,27 @@
+From b90371e2ae09344aa372388aabbb02059fef54b8 Mon Sep 17 00:00:00 2001
+From: tomsod-m ya ru <tomsod-m@ya.ru>
+Date: Wed, 17 Dec 2014 23:01:06 -0500
+Subject: [PATCH] load-fragment: properly unescape \;
+
+https://bugs.freedesktop.org/show_bug.cgi?id=87393
+(cherry picked from commit 3851c51ad1dae6a1266896e7e364e424dc82467a)
+---
+ src/core/load-fragment.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
+index e193a67dcd..e31263ec75 100644
+--- a/src/core/load-fragment.c
++++ b/src/core/load-fragment.c
+@@ -589,8 +589,10 @@ int config_parse_exec(const char *unit,
+                 FOREACH_WORD_QUOTED(word, l, rvalue, state) {
+                         if (strneq(word, ";", MAX(l, 1U)))
+                                 break;
+-                        else if (strneq(word, "\\;", MAX(l, 1U)))
++                        else if (strneq(word, "\\;", MAX(l, 1U))) {
+                                 word ++;
++                                l --;
++                        }
+ 
+                         if (honour_argv0 && word == rvalue) {
+                                 assert(!path);

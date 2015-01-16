@@ -1,0 +1,81 @@
+From 14e4d410b2606ff5f1e1aa5766a0c2a4f8284072 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 9 Dec 2014 20:27:19 +0100
+Subject: [PATCH] journal: optimize iteration: skip whole files behind current
+ location
+
+Interleaving of entries from many journal files is expensive. But there
+is room for optimization.
+
+We can skip looking into journal files whose entries all lie before the
+current iterating location. We can tell if that's the case from looking
+at the journal file header. This saves a huge amount of work if one has
+many of mostly not interleaved journal files.
+
+On my workstation with 90 journal files in /var/log/journal/ID/
+totalling 3.4 GB I get these results:
+
+Before:
+$ time ./journalctl --since=2014-06-01 --until=2014-07-01 > /dev/null
+
+real    5m54.258s
+user    2m4.263s
+sys     3m48.965s
+
+After:
+$ time ./journalctl --since=2014-06-01 --until=2014-07-01 > /dev/null
+
+real    0m20.518s
+user    0m19.989s
+sys     0m0.328s
+
+The high "sys" time in the original was caused by putting more stress on
+the mmap-cache than it could handle. With the patch the working set
+now consists of fewer mmap windows and mmap-cache is not thrashing.
+
+(cherry picked from commit b7c88ab8cc7d55a43450bf3dea750f95f2e910d6)
+---
+ src/journal/sd-journal.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/src/journal/sd-journal.c b/src/journal/sd-journal.c
+index cf21c4d899..2df147c02a 100644
+--- a/src/journal/sd-journal.c
++++ b/src/journal/sd-journal.c
+@@ -497,6 +497,26 @@ static int compare_entry_order(JournalFile *af, Object *_ao,
+         return 0;
+ }
+ 
++static bool whole_file_precedes_location(JournalFile *f, Location *l, direction_t direction) {
++        assert(f);
++        assert(l);
++
++        if (l->type != LOCATION_DISCRETE && l->type != LOCATION_SEEK)
++                return false;
++
++        if (l->seqnum_set && sd_id128_equal(l->seqnum_id, f->header->seqnum_id))
++                return direction == DIRECTION_DOWN ?
++                        l->seqnum > le64toh(f->header->tail_entry_seqnum) :
++                        l->seqnum < le64toh(f->header->head_entry_seqnum);
++
++        if (l->realtime_set)
++                return direction == DIRECTION_DOWN ?
++                        l->realtime > le64toh(f->header->tail_entry_realtime) :
++                        l->realtime < le64toh(f->header->head_entry_realtime);
++
++        return false;
++}
++
+ _pure_ static int compare_with_location(JournalFile *af, Object *ao, Location *l) {
+         uint64_t a;
+ 
+@@ -882,6 +902,9 @@ static int real_journal_next(sd_journal *j, direction_t direction) {
+         ORDERED_HASHMAP_FOREACH(f, j->files, i) {
+                 bool found;
+ 
++                if (whole_file_precedes_location(f, &j->current_location, direction))
++                        continue;
++
+                 r = next_beyond_location(j, f, direction, &o, &p);
+                 if (r < 0) {
+                         log_debug("Can't iterate through %s, ignoring: %s", f->path, strerror(-r));

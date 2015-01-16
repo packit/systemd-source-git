@@ -1,0 +1,31 @@
+From 497f9feaf3a11bd34df9a9acc78a1857f5d57277 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 7 Nov 2014 16:34:00 +0100
+Subject: [PATCH] utf8: when looking at the next unichar, honour the size
+ parameter, in utf8_is_printable_newline()
+
+(cherry picked from commit 144b3d9e093dd9310cd9590bec039dc43a7e2ad6)
+---
+ src/shared/utf8.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/shared/utf8.c b/src/shared/utf8.c
+index 9353559b76..8702ceb1b2 100644
+--- a/src/shared/utf8.c
++++ b/src/shared/utf8.c
+@@ -150,10 +150,12 @@ bool utf8_is_printable_newline(const char* str, size_t length, bool newline) {
+                 int encoded_len, val;
+ 
+                 encoded_len = utf8_encoded_valid_unichar((const char *) p);
+-                val = utf8_encoded_to_unichar((const char*) p);
+-
+                 if (encoded_len < 0 ||
+-                    val < 0 ||
++                    (size_t) encoded_len > length)
++                        return false;
++
++                val = utf8_encoded_to_unichar((const char*) p);
++                if (val < 0 ||
+                     is_unicode_control(val) ||
+                     (!newline && val == '\n'))
+                         return false;

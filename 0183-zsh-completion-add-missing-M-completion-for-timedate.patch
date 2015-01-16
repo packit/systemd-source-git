@@ -1,0 +1,20 @@
+From aeda35467fd4bbc45f595de1ffa41b2916f13b1a Mon Sep 17 00:00:00 2001
+From: Ronny Chevalier <chevalier.ronny@gmail.com>
+Date: Mon, 12 Jan 2015 21:31:45 +0100
+Subject: [PATCH] zsh-completion: add missing -M completion for timedatectl
+
+(cherry picked from commit c285cb5c559638689e3d9e9894a81574ed69d560)
+---
+ shell-completion/zsh/_timedatectl | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/shell-completion/zsh/_timedatectl b/shell-completion/zsh/_timedatectl
+index 987c2de88d..dfdcfebb3c 100644
+--- a/shell-completion/zsh/_timedatectl
++++ b/shell-completion/zsh/_timedatectl
+@@ -62,4 +62,5 @@ _arguments -s \
+     '--no-pager[Do not pipe output into a pager]' \
+     '--no-ask-password[Do not prompt for password]' \
+     {-H+,--host=}'[Operate on remote host]:userathost:_sd_hosts_or_user_at_host' \
++    {-M+,--machine=}'[Operate on local container]:machines:_sd_machines' \
+     '*::timedatectl commands:_timedatectl_command'

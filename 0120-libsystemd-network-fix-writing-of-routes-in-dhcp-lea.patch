@@ -1,0 +1,33 @@
+From 80a3e077864441c3d20a327516c645f04d6b847b Mon Sep 17 00:00:00 2001
+From: Dan Winship <danw@redhat.com>
+Date: Tue, 18 Nov 2014 08:59:42 -0500
+Subject: [PATCH] libsystemd-network: fix writing of routes in dhcp lease file
+
+inet_ntoa() uses a static buffer, so you can't call it twice in the
+same fprintf() call.
+
+(cherry picked from commit fbf7dcb5886f4077ee0dea618447ab488ff148fc)
+---
+ src/libsystemd-network/network-internal.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/libsystemd-network/network-internal.c b/src/libsystemd-network/network-internal.c
+index 372f3ed371..d56ee510dc 100644
+--- a/src/libsystemd-network/network-internal.c
++++ b/src/libsystemd-network/network-internal.c
+@@ -392,10 +392,12 @@ void serialize_dhcp_routes(FILE *f, const char *key, struct sd_dhcp_route *route
+ 
+         fprintf(f, "%s=", key);
+ 
+-        for (i = 0; i < size; i++)
+-                fprintf(f, "%s/%" PRIu8 ",%s%s", inet_ntoa(routes[i].dst_addr),
+-                        routes[i].dst_prefixlen, inet_ntoa(routes[i].gw_addr),
++        for (i = 0; i < size; i++) {
++                fprintf(f, "%s/%" PRIu8, inet_ntoa(routes[i].dst_addr),
++                        routes[i].dst_prefixlen);
++                fprintf(f, ",%s%s", inet_ntoa(routes[i].gw_addr),
+                         (i < (size - 1)) ? " ": "");
++        }
+ 
+         fputs("\n", f);
+ }

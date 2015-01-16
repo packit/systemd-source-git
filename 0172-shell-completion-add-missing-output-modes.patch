@@ -1,0 +1,36 @@
+From 25ec79575b1b6f78b632e722edfcd876862ad71f Mon Sep 17 00:00:00 2001
+From: Ronny Chevalier <chevalier.ronny@gmail.com>
+Date: Fri, 9 Jan 2015 13:53:23 +0100
+Subject: [PATCH] shell-completion: add missing output modes
+
+https://bugs.freedesktop.org/show_bug.cgi?id=88216
+(cherry picked from commit e4e5a85f34db9b18a5ae84a659fcdaf7e494dec1)
+---
+ shell-completion/bash/journalctl     | 2 +-
+ shell-completion/zsh/_sd_outputmodes | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/shell-completion/bash/journalctl b/shell-completion/bash/journalctl
+index 14dcd223b3..2efa1000e2 100644
+--- a/shell-completion/bash/journalctl
++++ b/shell-completion/bash/journalctl
+@@ -65,7 +65,7 @@ _journalctl() {
+                                 compopt -o filenames
+                         ;;
+                         --output|-o)
+-                                comps='short short-monotonic verbose export json cat'
++                                comps='short short-iso short-precise short-monotonic verbose export json json-pretty json-sse cat'
+                         ;;
+                         --field|-F)
+                                 comps=${__journal_fields[*]}
+diff --git a/shell-completion/zsh/_sd_outputmodes b/shell-completion/zsh/_sd_outputmodes
+index dae8a5c0dd..2ce84a79a1 100644
+--- a/shell-completion/zsh/_sd_outputmodes
++++ b/shell-completion/zsh/_sd_outputmodes
+@@ -1,5 +1,5 @@
+ #autoload
+ 
+ local -a _output_opts
+-_output_opts=(short short-monotonic verbose export json json-pretty json-see cat)
++_output_opts=(short short-iso short-precise short-monotonic verbose export json json-pretty json-see cat)
+ _describe -t output 'output mode' _output_opts || compadd "$@"

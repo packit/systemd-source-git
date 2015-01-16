@@ -1,0 +1,59 @@
+From a092cdfe1f59689c4ee54f3ef4cf6f014c117843 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 11 Jan 2015 00:27:37 -0500
+Subject: [PATCH] core/mount: filter out noauto,auto,nofail,fail options
+
+We passed the full option string from fstab to /bin/mount. It would in
+turn pass the full option string to its helper, if it needed to invoke
+one. Some helpers would ignore things like "nofail", but others would
+be confused. We could try to get all helpers to ignore those
+"meta-options", but it seems better to simply filter them out.
+
+In our model, /bin/mount simply has no business in knowing whether the
+mount was configured as fail or nofail, auto or noauto, in the
+fstab. If systemd tells invokes a command to mount something, and it
+fails, it should always return an error. It seems cleaner to filter
+out the option, since then there's no doubt how the command should
+behave.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1177823
+(cherry picked from commit 17a1c597c5f9be1c25431a764155cd50c0d074b7)
+
+Conflicts:
+	src/core/mount.c
+---
+ src/core/mount.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/mount.c b/src/core/mount.c
+index 6ca389bc03..5414572a66 100644
+--- a/src/core/mount.c
++++ b/src/core/mount.c
+@@ -897,7 +897,14 @@ static void mount_enter_mounting(Mount *m) {
+         if (r < 0)
+                 goto fail;
+ 
+-        if (m->from_fragment)
++        if (m->from_fragment) {
++                _cleanup_free_ char *opts = NULL;
++
++                r = fstab_filter_options(m->parameters_fragment.options,
++                                         "nofail\0" "fail\0" "noauto\0" "auto\0", NULL, NULL, &opts);
++                if (r < 0)
++                        goto fail;
++
+                 r = exec_command_set(
+                                 m->control_command,
+                                 "/bin/mount",
+@@ -905,9 +912,9 @@ static void mount_enter_mounting(Mount *m) {
+                                 m->parameters_fragment.what,
+                                 m->where,
+                                 "-t", m->parameters_fragment.fstype ? m->parameters_fragment.fstype : "auto",
+-                                m->parameters_fragment.options ? "-o" : NULL, m->parameters_fragment.options,
++                                isempty(opts) ? "-o" : NULL, isempty(opts) ? m->parameters_fragment.options : NULL,
+                                 NULL);
+-        else
++        } else
+                 r = -ENOENT;
+ 
+         if (r < 0)

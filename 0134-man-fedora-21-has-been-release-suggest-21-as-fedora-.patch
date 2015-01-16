@@ -1,0 +1,24 @@
+From e0321c104604d4940fdc40aaa85503573863e781 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 12 Dec 2014 17:29:12 +0100
+Subject: [PATCH] man: fedora 21 has been release, suggest 21 as fedora version
+ in example yum command line
+
+(cherry picked from commit 667993e88eb7519c6674fe9a9e985619817465e0)
+---
+ man/systemd-nspawn.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/systemd-nspawn.xml b/man/systemd-nspawn.xml
+index b3a2d32855..c2fd664c37 100644
+--- a/man/systemd-nspawn.xml
++++ b/man/systemd-nspawn.xml
+@@ -698,7 +698,7 @@
+                 <example>
+                         <title>Boot a minimal Fedora distribution in a container</title>
+ 
+-                        <programlisting># yum -y --releasever=19 --nogpg --installroot=/srv/mycontainer --disablerepo='*' --enablerepo=fedora install systemd passwd yum fedora-release vim-minimal
++                        <programlisting># yum -y --releasever=21 --nogpg --installroot=/srv/mycontainer --disablerepo='*' --enablerepo=fedora install systemd passwd yum fedora-release vim-minimal
+ # systemd-nspawn -bD /srv/mycontainer</programlisting>
+ 
+                         <para>This installs a minimal Fedora distribution into

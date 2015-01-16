@@ -1,0 +1,25 @@
+From 167deb40adf8e35b9967f56c6648c8204ace859d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 11 Jan 2015 17:35:31 -0500
+Subject: [PATCH] .gitignore: add new tests and sort tests alphabetically
+
+(cherry picked from commit 266fd0eabca6b7f10b013c7e4b5c06adc43e1b73)
+
+Conflicts:
+	.gitignore
+---
+ .gitignore | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/.gitignore b/.gitignore
+index f119b574c7..65842e2466 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -212,6 +212,7 @@
+ /test-network-tables
+ /test-ns
+ /test-path-util
++/test-fstab-util
+ /test-prioq
+ /test-ratelimit
+ /test-pty

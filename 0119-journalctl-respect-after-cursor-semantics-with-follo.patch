@@ -1,0 +1,35 @@
+From 2d1f19f2615f73eba8a95765a982492b385699b7 Mon Sep 17 00:00:00 2001
+From: Wesley Dawson <whd@mozilla.com>
+Date: Sun, 30 Nov 2014 23:27:00 -0800
+Subject: [PATCH] journalctl: respect --after-cursor semantics with --follow in
+ all cases
+
+In the case where no entries have been added to the journal after the specified
+cursor, set need_seek before the main loop to prevent display of the entry at
+said cursor.
+
+(cherry picked from commit 8ee8e53648bf45854d92b60e1e70c17a0cec3c3d)
+---
+ src/journal/journalctl.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index 03579fde09..03a3caec7c 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -1918,9 +1918,13 @@ int main(int argc, char *argv[]) {
+                 else
+                         r = sd_journal_previous_skip(j, 1 + !!arg_after_cursor);
+ 
+-                if (arg_after_cursor && r < 2 && !arg_follow)
++                if (arg_after_cursor && r < 2) {
+                         /* We couldn't find the next entry after the cursor. */
+-                        arg_lines = 0;
++                        if (arg_follow)
++                                need_seek = true;
++                        else
++                                arg_lines = 0;
++                }
+ 
+         } else if (arg_since_set && !arg_reverse) {
+                 r = sd_journal_seek_realtime_usec(j, arg_since);

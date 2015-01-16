@@ -1,0 +1,27 @@
+From 19f3560483af65e61e35ef670ad058a459fcb0de Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Richard=20Sch=C3=BCtz?= <rschuetz@uni-koblenz.de>
+Date: Fri, 21 Nov 2014 21:44:48 +0100
+Subject: [PATCH] nspawn: ignore EEXIST when mounting tmpfs
+
+commit 79d80fc1466512d0ca211f4bfcd9de5f2f816a5a introduced a regression that
+prevents mounting a tmpfs if the mount point already exits in the container's
+root file system. This commit fixes the problem by ignoring EEXIST.
+
+(cherry picked from commit 6c2d07020f752547a8a45b6f03546a61a5e1672d)
+---
+ src/nspawn/nspawn.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
+index f332ade03e..712c0ea332 100644
+--- a/src/nspawn/nspawn.c
++++ b/src/nspawn/nspawn.c
+@@ -818,7 +818,7 @@ static int mount_tmpfs(const char *dest) {
+                         return log_oom();
+ 
+                 r = mkdir_label(where, 0755);
+-                if (r < 0) {
++                if (r < 0 && errno != EEXIST) {
+                         log_error("creating mount point for tmpfs %s failed: %s", where, strerror(-r));
+ 
+                         return r;

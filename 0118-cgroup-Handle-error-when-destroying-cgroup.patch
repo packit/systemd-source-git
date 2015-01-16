@@ -1,0 +1,36 @@
+From b17c418f4b03e70c9fedec61f2d9036d1a48d901 Mon Sep 17 00:00:00 2001
+From: Ross Lagerwall <rosslagerwall@gmail.com>
+Date: Sat, 29 Nov 2014 15:27:14 +0000
+Subject: [PATCH] cgroup: Handle error when destroying cgroup
+
+If a cgroup fails to be destroyed (most likely because there are still
+processes running as part of a service after the main pid exits), don't
+free and remove the cgroup unit from the manager.  This fixes a
+regression introduced by the cgroup rework in v205 where systemd would
+forget about processes still running after the unit becomes inactive.
+(This can happen when the main pid exits and KillMode=process or none).
+
+(cherry picked from commit dab5bf859900c0abdbf78c584e4aed42a19768cd)
+
+Conflicts:
+	src/core/cgroup.c
+---
+ src/core/cgroup.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/cgroup.c b/src/core/cgroup.c
+index e604c3cbc6..b19e442dfa 100644
+--- a/src/core/cgroup.c
++++ b/src/core/cgroup.c
+@@ -781,8 +781,10 @@ void unit_destroy_cgroup(Unit *u) {
+                 return;
+ 
+         r = cg_trim_everywhere(u->manager->cgroup_supported, u->cgroup_path, !unit_has_name(u, SPECIAL_ROOT_SLICE));
+-        if (r < 0)
++        if (r < 0) {
+                 log_debug("Failed to destroy cgroup %s: %s", u->cgroup_path, strerror(-r));
++                return;
++        }
+ 
+         hashmap_remove(u->manager->cgroup_unit, u->cgroup_path);
+ 

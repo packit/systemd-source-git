@@ -1,0 +1,32 @@
+From b77ff3c5290d9177e216b994fb2e0a60568382ae Mon Sep 17 00:00:00 2001
+From: Ronny Chevalier <chevalier.ronny@gmail.com>
+Date: Mon, 12 Jan 2015 21:26:27 +0100
+Subject: [PATCH] zsh-completion: add missing completions for coredumpctl
+
+(cherry picked from commit 720e0be0f00f4a7fee808d1cf60db43970900588)
+---
+ shell-completion/zsh/_coredumpctl | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/shell-completion/zsh/_coredumpctl b/shell-completion/zsh/_coredumpctl
+index d13bc703a8..833c7e2bb1 100644
+--- a/shell-completion/zsh/_coredumpctl
++++ b/shell-completion/zsh/_coredumpctl
+@@ -4,6 +4,7 @@ _coredumpctl_command(){
+     local -a _coredumpctl_cmds
+     _coredumpctl_cmds=(
+             'list:List available coredumps'
++            'info:Show detailed information about one or more coredumps'
+             'dump:Print coredump to stdout'
+             'gdb:Start gdb on a coredump'
+     )
+@@ -30,7 +31,9 @@ _coredumpctl_command(){
+ _arguments \
+     {-o+,--output=}'[Write output to FILE]:output file:_files' \
+     {-F+,--field=}'[Show field in list output]:field' \
++    '-1[Show information about most recent entry only]' \
+     '--no-pager[Do not pipe output into a pager]' \
++    '--no-legend[Do not print the column headers]' \
+     {-h,--help}'[Show this help]' \
+     '--version[Show package version]' \
+     '*::coredumpctl commands:_coredumpctl_command'

@@ -1,0 +1,43 @@
+From 16f571dcd3897c4805ba7d2981d16cbae2c4cd28 Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Thu, 20 Nov 2014 16:06:18 +0100
+Subject: [PATCH] dbus: return non-zero return value in the case that prefix
+ won't match
+
+strv_extend returns 0 in the case of success which means that
+else if (bus_track_deserialize_item(&m->deserialized_subscribed, l) == 0)
+        log_warning("Unknown serialization item '%s'", l);
+will be printed when value is added correctly.
+
+(cherry picked from commit f44b9efcec4594eb8f843325ee3079b44fb8f24a)
+---
+ src/core/dbus.c    | 2 +-
+ src/core/manager.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/core/dbus.c b/src/core/dbus.c
+index 9cb198a13a..ec1c0d4336 100644
+--- a/src/core/dbus.c
++++ b/src/core/dbus.c
+@@ -1180,7 +1180,7 @@ int bus_track_deserialize_item(char ***l, const char *line) {
+ 
+         e = startswith(line, "subscribed=");
+         if (!e)
+-                return 0;
++                return -EINVAL;
+ 
+         return strv_extend(l, e);
+ }
+diff --git a/src/core/manager.c b/src/core/manager.c
+index 751e3fb0d6..a48ad63178 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -2423,7 +2423,7 @@ int manager_deserialize(Manager *m, FILE *f, FDSet *fds) {
+                                 m->kdbus_fd = fdset_remove(fds, fd);
+                         }
+ 
+-                } else if (bus_track_deserialize_item(&m->deserialized_subscribed, l) == 0)
++                } else if (bus_track_deserialize_item(&m->deserialized_subscribed, l) < 0)
+                         log_warning("Unknown serialization item '%s'", l);
+         }
+ 

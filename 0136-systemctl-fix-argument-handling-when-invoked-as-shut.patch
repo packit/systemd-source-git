@@ -1,18 +1,18 @@
-From 75836b9d2071aab978ee78d7d797126a18a32052 Mon Sep 17 00:00:00 2001
+From 46ae5b64312b6fd240235aa4cbcfdd1a187069e9 Mon Sep 17 00:00:00 2001
 From: Jan Synacek <jsynacek@redhat.com>
 Date: Mon, 15 Dec 2014 10:39:00 +0100
-Subject: [PATCH] systemctl: fix argument handling when invoked as
- "shutdown"
+Subject: [PATCH] systemctl: fix argument handling when invoked as "shutdown"
 
+(cherry picked from commit 75836b9d2071aab978ee78d7d797126a18a32052)
 ---
  src/systemctl/systemctl.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
-index 649fb5c..4c4648f 100644
+index 86b923b170..acd980489d 100644
 --- a/src/systemctl/systemctl.c
 +++ b/src/systemctl/systemctl.c
-@@ -6926,7 +6926,7 @@ static int shutdown_parse_argv(int argc, char *argv[]) {
+@@ -6387,7 +6387,7 @@ static int shutdown_parse_argv(int argc, char *argv[]) {
          assert(argc >= 0);
          assert(argv);
  
@@ -21,7 +21,7 @@ index 649fb5c..4c4648f 100644
                  switch (c) {
  
                  case ARG_HELP:
-@@ -6967,6 +6967,8 @@ static int shutdown_parse_argv(int argc, char *argv[]) {
+@@ -6428,6 +6428,8 @@ static int shutdown_parse_argv(int argc, char *argv[]) {
  
                  case 't':
                  case 'a':
@@ -30,6 +30,3 @@ index 649fb5c..4c4648f 100644
                          /* Compatibility nops */
                          break;
  
--- 
-2.2.0
-

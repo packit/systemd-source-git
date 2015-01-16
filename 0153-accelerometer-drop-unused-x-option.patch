@@ -1,0 +1,23 @@
+From 1d513552457c318af68cd8a1e6cc25deae63230f Mon Sep 17 00:00:00 2001
+From: Robert Milasan <rmilasan@suse.com>
+Date: Tue, 30 Dec 2014 18:58:05 +0100
+Subject: [PATCH] accelerometer: drop unused -x option
+
+(cherry picked from commit 7fcf5779b4e5bcfab246a6d5d9c75d6775c20873)
+---
+ src/udev/accelerometer/accelerometer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/udev/accelerometer/accelerometer.c b/src/udev/accelerometer/accelerometer.c
+index 4513bc63c2..18513bf3ad 100644
+--- a/src/udev/accelerometer/accelerometer.c
++++ b/src/udev/accelerometer/accelerometer.c
+@@ -239,7 +239,7 @@ int main (int argc, char** argv)
+         while (1) {
+                 int option;
+ 
+-                option = getopt_long(argc, argv, "dxh", options, NULL);
++                option = getopt_long(argc, argv, "dh", options, NULL);
+                 if (option == -1)
+                         break;
+ 

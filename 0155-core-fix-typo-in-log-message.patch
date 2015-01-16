@@ -1,0 +1,23 @@
+From 373b065b3359c48f2cb240c511ef7ff0db3d47b7 Mon Sep 17 00:00:00 2001
+From: Michael Biebl <biebl@debian.org>
+Date: Mon, 5 Jan 2015 14:12:47 +0100
+Subject: [PATCH] core: fix typo in log message
+
+(cherry picked from commit 8b173b5e8ccbf946ee88af456792d8e720292d9b)
+---
+ src/core/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index a9ca34d8cb..912b3ff761 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -1123,7 +1123,7 @@ static void test_usr(void) {
+         if (dir_is_empty("/usr") <= 0)
+                 return;
+ 
+-        log_warning("/usr appears to be on its own filesytem and is not already mounted. This is not a supported setup. "
++        log_warning("/usr appears to be on its own filesystem and is not already mounted. This is not a supported setup. "
+                     "Some things will probably break (sometimes even silently) in mysterious ways. "
+                     "Consult http://freedesktop.org/wiki/Software/systemd/separate-usr-is-broken for more information.");
+ }

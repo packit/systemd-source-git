@@ -1,0 +1,28 @@
+From 421c413c2e8a99f442a26b794f9569b01ff89bb9 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 3 Dec 2014 17:52:51 +0100
+Subject: [PATCH] nspawn: correct EEXIST check when creating directory to mount
+ /tmp in
+
+https://bugs.freedesktop.org/show_bug.cgi?id=86309
+(cherry picked from commit 04a919394069cf024559f78eb46692a3739641eb)
+
+Conflicts:
+	src/nspawn/nspawn.c
+---
+ src/nspawn/nspawn.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
+index 4e0fbb610e..27e533cd9b 100644
+--- a/src/nspawn/nspawn.c
++++ b/src/nspawn/nspawn.c
+@@ -818,7 +818,7 @@ static int mount_tmpfs(const char *dest) {
+                         return log_oom();
+ 
+                 r = mkdir_label(where, 0755);
+-                if (r < 0 && errno != EEXIST) {
++                if (r < 0 && r != EEXIST) {
+                         log_error("creating mount point for tmpfs %s failed: %s", where, strerror(-r));
+ 
+                         return r;

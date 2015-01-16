@@ -1,0 +1,46 @@
+From be8ab46b27ff3208988a732265dcfa333867a214 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mantas=20Mikul=C4=97nas?= <grawity@gmail.com>
+Date: Fri, 7 Nov 2014 16:45:53 +0200
+Subject: [PATCH] inhibit: allow filtering --list by mode
+
+Usually there are a few delay inhibitors all the time (NetworkManager,
+Telepathy, etc.), but I'm only interested in the block ones.
+
+(cherry picked from commit ca5447c082347d611c52b22a0115d4efe2d2e0e8)
+---
+ src/login/inhibit.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/login/inhibit.c b/src/login/inhibit.c
+index d5ea1d913c..122c69d7a1 100644
+--- a/src/login/inhibit.c
++++ b/src/login/inhibit.c
+@@ -36,7 +36,7 @@
+ static const char* arg_what = "idle:sleep:shutdown";
+ static const char* arg_who = NULL;
+ static const char* arg_why = "Unknown reason";
+-static const char* arg_mode = "block";
++static const char* arg_mode = NULL;
+ 
+ static enum {
+         ACTION_INHIBIT,
+@@ -97,6 +97,9 @@ static int print_inhibitors(sd_bus *bus, sd_bus_error *error) {
+         while ((r = sd_bus_message_read(reply, "(ssssuu)", &what, &who, &why, &mode, &uid, &pid)) > 0) {
+                 _cleanup_free_ char *comm = NULL, *u = NULL;
+ 
++                if (arg_mode && !streq(mode, arg_mode))
++                        continue;
++
+                 get_process_comm(pid, &comm);
+                 u = uid_to_name(uid);
+ 
+@@ -252,6 +255,9 @@ int main(int argc, char *argv[]) {
+                 if (!arg_who)
+                         arg_who = w = strv_join(argv + optind, " ");
+ 
++                if (!arg_mode)
++                        arg_mode = "block";
++
+                 fd = inhibit(bus, &error);
+                 if (fd < 0) {
+                         log_error("Failed to inhibit: %s", bus_error_message(&error, -r));

@@ -1,4 +1,4 @@
-From 3da3e6e3eb1453a9f2ddf4a1455d1ca9dfe9ec49 Mon Sep 17 00:00:00 2001
+From 5c10861b9ec841727723b31b9bb21fd3f7e9f985 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 19:08:06 -0500
 Subject: [PATCH] Accept StartTimeout* options for compatibility

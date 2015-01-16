@@ -1,0 +1,27 @@
+From 9f9052e9c85a5bbb00c14bf2a22b4bc9e49f9ccf Mon Sep 17 00:00:00 2001
+From: Umut Tezduyar Lindskog <umut.tezduyar@axis.com>
+Date: Tue, 16 Dec 2014 21:58:39 +0100
+Subject: [PATCH] path: follow symbolic link for parent path
+
+[zj: When we lstat the target path, symlinks above the last component
+     will be followed by both stat and lstat. So when we look at the
+     parent, we should follow symlinks.]
+
+(cherry picked from commit c0e57ba9e22ee937722958d8b912ade2a37f206d)
+---
+ src/shared/path-util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/shared/path-util.c b/src/shared/path-util.c
+index acbce9727a..e1ab6d2db0 100644
+--- a/src/shared/path-util.c
++++ b/src/shared/path-util.c
+@@ -519,7 +519,7 @@ fallback:
+         if (r < 0)
+                 return r;
+ 
+-        r = lstat(parent, &b);
++        r = stat(parent, &b);
+         if (r < 0)
+                 return -errno;
+ 

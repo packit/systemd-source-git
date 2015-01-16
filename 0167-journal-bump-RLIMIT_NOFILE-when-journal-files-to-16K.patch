@@ -1,0 +1,110 @@
+From d366a3148143faf131117e0bfc31851cc1e35aa8 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 8 Jan 2015 03:17:50 +0100
+Subject: [PATCH] journal: bump RLIMIT_NOFILE when journal files to 16K (if
+ possible)
+
+When there are a lot of split out journal files, we might run out of fds
+quicker then we want. Hence: bump RLIMIT_NOFILE to 16K if possible.
+
+Do these even for journalctl. On Fedora the soft RLIMIT_NOFILE is at 1K,
+the hard at 4K by default for normal user processes, this code hence
+bumps this up for users to 4K.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1179980
+(cherry picked from commit de45d726034f33afdb0a185e62fc61bf10a0acd2)
+
+Conflicts:
+	src/shared/util.h
+---
+ src/journal/journalctl.c                  | 5 +++++
+ src/shared/util.h                         | 2 ++
+ src/systemctl/systemctl.c                 | 5 +++++
+ units/systemd-journal-gatewayd.service.in | 4 ++++
+ units/systemd-journal-upload.service.in   | 4 ++++
+ units/systemd-journald.service.in         | 4 +++-
+ 6 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index 03a3caec7c..1ade4ed670 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -1729,6 +1729,11 @@ int main(int argc, char *argv[]) {
+ 
+         signal(SIGWINCH, columns_lines_cache_reset);
+ 
++        /* Increase max number of open files to 16K if we can, we
++         * might needs this when browsing journal files, which might
++         * be split up into many files. */
++        setrlimit_closest(RLIMIT_NOFILE, &RLIMIT_MAKE_CONST(16384));
++
+         if (arg_action == ACTION_NEW_ID128) {
+                 r = generate_new_id128();
+                 goto finish;
+diff --git a/src/shared/util.h b/src/shared/util.h
+index cde38a5559..20712c7fdb 100644
+--- a/src/shared/util.h
++++ b/src/shared/util.h
+@@ -999,3 +999,5 @@ int unquote_many_words(const char **p, ...) _sentinel_;
+ int free_and_strdup(char **p, const char *s);
+ 
+ int sethostname_idempotent(const char *s);
++
++#define RLIMIT_MAKE_CONST(lim) ((struct rlimit) { lim, lim })
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index acd980489d..af80f1d942 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -7103,6 +7103,11 @@ int main(int argc, char*argv[]) {
+                 goto finish;
+         }
+ 
++        /* Increase max number of open files to 16K if we can, we
++         * might needs this when browsing journal files, which might
++         * be split up into many files. */
++        setrlimit_closest(RLIMIT_NOFILE, &RLIMIT_MAKE_CONST(16384));
++
+         if (!avoid_bus())
+                 r = bus_open_transport_systemd(arg_transport, arg_host, arg_scope != UNIT_FILE_SYSTEM, &bus);
+ 
+diff --git a/units/systemd-journal-gatewayd.service.in b/units/systemd-journal-gatewayd.service.in
+index 5bd8e4b341..987220e554 100644
+--- a/units/systemd-journal-gatewayd.service.in
++++ b/units/systemd-journal-gatewayd.service.in
+@@ -20,5 +20,9 @@ PrivateNetwork=yes
+ ProtectSystem=full
+ ProtectHome=yes
+ 
++# If there are many split upjournal files we need a lot of fds to
++# access them all and combine
++LimitNOFILE=16384
++
+ [Install]
+ Also=systemd-journal-gatewayd.socket
+diff --git a/units/systemd-journal-upload.service.in b/units/systemd-journal-upload.service.in
+index 359ff10e25..b2e3c769cc 100644
+--- a/units/systemd-journal-upload.service.in
++++ b/units/systemd-journal-upload.service.in
+@@ -17,5 +17,9 @@ PrivateTmp=yes
+ PrivateDevices=yes
+ WatchdogSec=20min
+ 
++# If there are many split up journal files we need a lot of fds to
++# access them all and combine
++LimitNOFILE=16384
++
+ [Install]
+ WantedBy=multi-user.target
+diff --git a/units/systemd-journald.service.in b/units/systemd-journald.service.in
+index 441d5b1f96..41bebbefa6 100644
+--- a/units/systemd-journald.service.in
++++ b/units/systemd-journald.service.in
+@@ -25,5 +25,7 @@ CapabilityBoundingSet=CAP_SYS_ADMIN CAP_DAC_OVERRIDE CAP_SYS_PTRACE CAP_SYSLOG C
+ WatchdogSec=1min
+ 
+ # Increase the default a bit in order to allow many simultaneous
+-# services being run since we keep one fd open per service.
++# services being run since we keep one fd open per service. Also, when
++# flushing journal files to disk, we might need a lot of fds when many
++# journal files are combined.
+ LimitNOFILE=16384

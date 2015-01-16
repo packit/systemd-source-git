@@ -1,0 +1,33 @@
+From 79c7d714b22f004841089be3c9444bbfa57ccef3 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 5 Dec 2014 00:47:38 +0100
+Subject: [PATCH] man: there's actually no "fail" fstab option, but only
+ "nofail"
+
+(cherry picked from commit deb6120920e6341b1c16f5f088ab057358bb8fc4)
+---
+ man/systemd.mount.xml | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/man/systemd.mount.xml b/man/systemd.mount.xml
+index 6d8eae6a93..8527386594 100644
+--- a/man/systemd.mount.xml
++++ b/man/systemd.mount.xml
+@@ -196,16 +196,13 @@
+ 
+                   <varlistentry>
+                     <term><option>nofail</option></term>
+-                    <term><option>fail</option></term>
+ 
+                     <listitem><para>With <option>nofail</option> this
+                     mount will be only wanted, not required, by
+                     <filename>local-fs.target</filename> or
+                     <filename>remote-fs.target</filename>. This means
+                     that the boot will continue even if this mount
+-                    point is not mounted successfully. Option
+-                    <option>fail</option> has the opposite meaning and
+-                    is the default.</para>
++                    point is not mounted successfully.</para>
+                     </listitem>
+                   </varlistentry>
+ 

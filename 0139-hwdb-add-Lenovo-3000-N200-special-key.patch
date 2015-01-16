@@ -1,0 +1,26 @@
+From 1c06a92987e14e8bf8c07a7fc479ed4542fdb63e Mon Sep 17 00:00:00 2001
+From: Marc Schmitzer <marc@marc-schmitzer.de>
+Date: Tue, 16 Dec 2014 22:14:40 -0500
+Subject: [PATCH] hwdb: add Lenovo 3000 N200 special key
+
+https://bugs.freedesktop.org/show_bug.cgi?id=87377
+(cherry picked from commit ef686ae230c55124e3efdc7d756fb1931e10aef4)
+---
+ hwdb/60-keyboard.hwdb | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/hwdb/60-keyboard.hwdb b/hwdb/60-keyboard.hwdb
+index 533ad5b05a..f27eb7e81b 100644
+--- a/hwdb/60-keyboard.hwdb
++++ b/hwdb/60-keyboard.hwdb
+@@ -562,6 +562,10 @@ keyboard:dmi:bvn*:bvr*:bd*:svnLENOVO*:pn*3000*:pvr*
+  KEYBOARD_KEY_98=suspend                                # Fn+F12 hibernate
+  KEYBOARD_KEY_b4=prog1                                  # Lenovo Care
+ 
++# "Lenovo Care" Key of the 3000 N200
++keyboard:dmi:bvn*:bvr*:bd*:svnLENOVO:pn0769AP2:pvr3000N200:*
++ KEYBOARD_KEY_b4=prog1
++
+ # lenovo-ideapad
+ keyboard:dmi:bvn*:bvr*:bd*:svnLENOVO*:pn*IdeaPad*:pvr*
+ keyboard:dmi:bvn*:bvr*:bd*:svnLENOVO*:pnS10-*:pvr*

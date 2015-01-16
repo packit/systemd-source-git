@@ -1,0 +1,113 @@
+From afc1142c0fbbc869d2047ab9f29215849ba8761c Mon Sep 17 00:00:00 2001
+From: Michal Sekletar <msekleta@redhat.com>
+Date: Wed, 12 Nov 2014 13:53:27 +0100
+Subject: [PATCH] selinux: figure out selinux context applied on exec() before
+ closing all fds
+
+We need original socket_fd around otherwise mac_selinux_get_child_mls_label
+fails with -EINVAL return code. Also don't call setexeccon twice but rather pass
+context value of SELinuxContext option as an extra argument.
+
+(cherry picked from commit 9008e1ac925afcdef7b45042c03fa5444f1c52c2)
+---
+ src/core/execute.c        | 31 ++++++++++++++-----------------
+ src/shared/selinux-util.c |  8 ++------
+ src/shared/selinux-util.h |  2 +-
+ 3 files changed, 17 insertions(+), 24 deletions(-)
+
+diff --git a/src/core/execute.c b/src/core/execute.c
+index c41aec222d..f45f1c1410 100644
+--- a/src/core/execute.c
++++ b/src/core/execute.c
+@@ -1236,6 +1236,7 @@ static int exec_child(ExecCommand *command,
+                       int *error) {
+ 
+         _cleanup_strv_free_ char **our_env = NULL, **pam_env = NULL, **final_env = NULL, **final_argv = NULL;
++        _cleanup_free_ char *mac_selinux_context_net = NULL;
+         const char *username = NULL, *home = NULL, *shell = NULL;
+         unsigned n_dont_close = 0;
+         int dont_close[n_fds + 4];
+@@ -1581,6 +1582,16 @@ static int exec_child(ExecCommand *command,
+                 }
+         }
+ 
++#ifdef HAVE_SELINUX
++        if (params->apply_permissions && mac_selinux_use() && params->selinux_context_net && socket_fd >= 0) {
++                err = mac_selinux_get_child_mls_label(socket_fd, command->path, context->selinux_context, &mac_selinux_context_net);
++                if (err < 0) {
++                        *error = EXIT_SELINUX_CONTEXT;
++                        return err;
++                }
++        }
++#endif
++
+         /* We repeat the fd closing here, to make sure that
+          * nothing is leaked from the PAM modules. Note that
+          * we are more aggressive this time since socket_fd
+@@ -1670,24 +1681,10 @@ static int exec_child(ExecCommand *command,
+ 
+ #ifdef HAVE_SELINUX
+                 if (mac_selinux_use()) {
+-                        if (context->selinux_context) {
+-                                err = setexeccon(context->selinux_context);
+-                                if (err < 0 && !context->selinux_context_ignore) {
+-                                        *error = EXIT_SELINUX_CONTEXT;
+-                                        return err;
+-                                }
+-                        }
+-
+-                        if (params->selinux_context_net && socket_fd >= 0) {
+-                                _cleanup_free_ char *label = NULL;
+-
+-                                err = mac_selinux_get_child_mls_label(socket_fd, command->path, &label);
+-                                if (err < 0) {
+-                                        *error = EXIT_SELINUX_CONTEXT;
+-                                        return err;
+-                                }
++                        char *exec_context = mac_selinux_context_net ?: context->selinux_context;
+ 
+-                                err = setexeccon(label);
++                        if (exec_context) {
++                                err = setexeccon(exec_context);
+                                 if (err < 0) {
+                                         *error = EXIT_SELINUX_CONTEXT;
+                                         return err;
+diff --git a/src/shared/selinux-util.c b/src/shared/selinux-util.c
+index 6bd3bf1c80..a2233e0cfb 100644
+--- a/src/shared/selinux-util.c
++++ b/src/shared/selinux-util.c
+@@ -233,7 +233,7 @@ int mac_selinux_get_our_label(char **label) {
+         return r;
+ }
+ 
+-int mac_selinux_get_child_mls_label(int socket_fd, const char *exe, char **label) {
++int mac_selinux_get_child_mls_label(int socket_fd, const char *exe, const char *exec_label, char **label) {
+         int r = -EOPNOTSUPP;
+ 
+ #ifdef HAVE_SELINUX
+@@ -257,11 +257,7 @@ int mac_selinux_get_child_mls_label(int socket_fd, const char *exe, char **label
+         if (r < 0)
+                 return -errno;
+ 
+-        r = getexeccon(&fcon);
+-        if (r < 0)
+-                return -errno;
+-
+-        if (!fcon) {
++        if (!exec_label) {
+                 /* If there is no context set for next exec let's use context
+                    of target executable */
+                 r = getfilecon(exe, &fcon);
+diff --git a/src/shared/selinux-util.h b/src/shared/selinux-util.h
+index 7ff8c607b4..a694441000 100644
+--- a/src/shared/selinux-util.h
++++ b/src/shared/selinux-util.h
+@@ -36,7 +36,7 @@ int mac_selinux_apply(const char *path, const char *label);
+ 
+ int mac_selinux_get_create_label_from_exe(const char *exe, char **label);
+ int mac_selinux_get_our_label(char **label);
+-int mac_selinux_get_child_mls_label(int socket_fd, const char *exec, char **label);
++int mac_selinux_get_child_mls_label(int socket_fd, const char *exe, const char *exec_label, char **label);
+ void mac_selinux_free(char *label);
+ 
+ int mac_selinux_create_file_prepare(const char *path, mode_t mode);

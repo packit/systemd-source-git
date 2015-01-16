@@ -1,0 +1,23 @@
+From e1b6ecea5649bc66926f00a1acc289b2d6e0ebc3 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Tue, 25 Nov 2014 22:30:29 +0100
+Subject: [PATCH] resolved: fix typo in sd_notify() call
+
+(cherry picked from commit b37d45c9ab5f645502695e47d268af1a54216e0e)
+---
+ src/resolve/resolved.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/resolve/resolved.c b/src/resolve/resolved.c
+index 7d258c9470..6dd4cade05 100644
+--- a/src/resolve/resolved.c
++++ b/src/resolve/resolved.c
+@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
+ 
+ finish:
+         sd_notify(false,
+-                  "STOPPIN=1\n"
++                  "STOPPING=1\n"
+                   "STATUS=Shutting down...");
+ 
+         return r < 0 ? EXIT_FAILURE : EXIT_SUCCESS;

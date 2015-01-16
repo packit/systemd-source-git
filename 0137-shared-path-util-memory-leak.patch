@@ -1,0 +1,22 @@
+From 731051b469872b76f9412ee9504e4d2922fca5a3 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Tue, 16 Dec 2014 22:24:54 +0100
+Subject: [PATCH] shared: path-util - memory leak
+
+(cherry picked from commit 3542eac7f98e74ca106ac6df81b3b3cb158b35be)
+---
+ src/shared/path-util.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/shared/path-util.c b/src/shared/path-util.c
+index be03695cf8..acbce9727a 100644
+--- a/src/shared/path-util.c
++++ b/src/shared/path-util.c
+@@ -306,6 +306,7 @@ char **path_strv_resolve(char **l, const char *prefix) {
+                         } else {
+                                 /* canonicalized path goes outside of
+                                  * prefix, keep the original path instead */
++                                free(u);
+                                 u = orig;
+                                 orig = NULL;
+                         }

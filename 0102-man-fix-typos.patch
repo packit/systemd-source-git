@@ -1,0 +1,41 @@
+From b2f8aff2557dbb48f28dbafe37c34aee6a993020 Mon Sep 17 00:00:00 2001
+From: Ronny Chevalier <chevalier.ronny@gmail.com>
+Date: Sun, 30 Nov 2014 20:20:59 +0100
+Subject: [PATCH] man: fix typos
+
+(cherry picked from commit 536256fc913f20ab09809fac7fdea96577704191)
+---
+ man/systemd.exec.xml | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/man/systemd.exec.xml b/man/systemd.exec.xml
+index 179130e4aa..fe4fde8c58 100644
+--- a/man/systemd.exec.xml
++++ b/man/systemd.exec.xml
+@@ -250,7 +250,7 @@
+                                 processes. Takes a space-separated
+                                 list of CPU indices. This option may
+                                 be specified more than once in which
+-                                case the specificed CPU affinity masks
++                                case the specified CPU affinity masks
+                                 are merged. If the empty string is
+                                 assigned, the mask is reset, all
+                                 assignments prior to this will have no
+@@ -1196,7 +1196,7 @@
+                                 process. If set, this will override
+                                 the automated domain
+                                 transition. However, the policy still
+-                                needs to autorize the transition. This
++                                needs to authorize the transition. This
+                                 directive is ignored if SELinux is
+                                 disabled. If prefixed by
+                                 <literal>-</literal>, all errors will
+@@ -1492,7 +1492,7 @@
+                                 <term><varname>$PATH</varname></term>
+ 
+                                 <listitem><para>Colon-separated list
+-                                of directiories to use when launching
++                                of directories to use when launching
+                                 executables. Systemd uses a fixed
+                                 value of
+                                 <filename>/usr/local/sbin</filename>:<filename>/usr/local/bin</filename>:<filename>/usr/sbin</filename>:<filename>/usr/bin</filename>:<filename>/sbin</filename>:<filename>/bin</filename>.

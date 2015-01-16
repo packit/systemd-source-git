@@ -1,0 +1,150 @@
+From c45ae4421172fd4b0f91290a9564f57c8bd69a45 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 27 Nov 2014 17:13:12 -0500
+Subject: [PATCH] man: add systemd-sysv-generator(8)
+
+In principle SysV stuff is only for compatibility, but we are stuck
+with it for the forseeable future, so documentation might as well
+be provided.
+
+https://bugs.debian.org/771172
+(cherry picked from commit f509443af5974dd6e7a816c4c7f806bfd01d629b)
+---
+ Makefile-man.am                | 10 +++++
+ man/systemd-sysv-generator.xml | 99 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 109 insertions(+)
+ create mode 100644 man/systemd-sysv-generator.xml
+
+diff --git a/Makefile-man.am b/Makefile-man.am
+index e5d5859147..8ee0c9271b 100644
+--- a/Makefile-man.am
++++ b/Makefile-man.am
+@@ -1543,6 +1543,15 @@ MANPAGES_ALIAS += \
+ 
+ endif
+ 
++if HAVE_SYSV_COMPAT
++MANPAGES += \
++	man/systemd-sysv-generator.8
++MANPAGES_ALIAS += \
++	#
++
++
++endif
++
+ if HAVE_UTMP
+ MANPAGES += \
+ 	man/runlevel.8 \
+@@ -1717,6 +1726,7 @@ EXTRA_DIST += \
+ 	man/systemd-system-update-generator.xml \
+ 	man/systemd-system.conf.xml \
+ 	man/systemd-sysusers.xml \
++	man/systemd-sysv-generator.xml \
+ 	man/systemd-timedated.service.xml \
+ 	man/systemd-timesyncd.service.xml \
+ 	man/systemd-tmpfiles.xml \
+diff --git a/man/systemd-sysv-generator.xml b/man/systemd-sysv-generator.xml
+new file mode 100644
+index 0000000000..e619b1bc2e
+--- /dev/null
++++ b/man/systemd-sysv-generator.xml
+@@ -0,0 +1,99 @@
++<?xml version="1.0"?>
++<!--*-nxml-*-->
++<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
++<!--
++  This file is part of systemd.
++
++  Copyright 2014 Zbigniew Jędrzejewski-Szmek
++
++  systemd is free software; you can redistribute it and/or modify it
++  under the terms of the GNU Lesser General Public License as published by
++  the Free Software Foundation; either version 2.1 of the License, or
++  (at your option) any later version.
++
++  systemd is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  Lesser General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with systemd; If not, see <http://www.gnu.org/licenses/>.
++-->
++<refentry id="systemd-sysv-generator" conditional="HAVE_SYSV_COMPAT">
++
++  <refentryinfo>
++    <title>systemd-sysv-generator</title>
++    <productname>systemd</productname>
++
++    <authorgroup>
++      <author>
++        <contrib>Documentation</contrib>
++        <firstname>Zbigniew</firstname>
++        <surname>Jędrzejewski-Szmek</surname>
++        <email>zbyszek@in.waw.pl</email>
++      </author>
++    </authorgroup>
++  </refentryinfo>
++
++  <refmeta>
++    <refentrytitle>systemd-sysv-generator</refentrytitle>
++    <manvolnum>8</manvolnum>
++  </refmeta>
++
++  <refnamediv>
++    <refname>systemd-sysv-generator</refname>
++    <refpurpose>Unit generator for SysV init scripts</refpurpose>
++  </refnamediv>
++
++  <refsynopsisdiv>
++    <para><filename>/usr/lib/systemd/system-generators/systemd-sysv-generator</filename></para>
++  </refsynopsisdiv>
++
++  <refsect1>
++    <title>Description</title>
++
++    <para><filename>systemd-sysv-generator</filename> is a generator
++    that creates wrapper .service units for
++    <ulink url="https://savannah.nongnu.org/projects/sysvinit">SysV init</ulink>
++    scripts in <filename>/etc/init.d/*</filename> at boot and when
++    configuration of the system manager is reloaded. This will allow
++    <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>
++    to support them similarly to native units.</para>
++
++    <para><ulink url="http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html">LSB headers</ulink>
++    in SysV init scripts are interpreted, and the ordering specified
++    in the header is turned into dependencies between the generated
++    unit and other units. LSB facilities
++    <literal>$remote_fs</literal>, <literal>$network</literal>,
++    <literal>$named</literal>, <literal>$portmap</literal>,
++    <literal>$time</literal> are supported and will be turned into
++    dependencies on specific native systemd targets.  See
++    <citerefentry><refentrytitle>systemd.special</refentrytitle><manvolnum>5</manvolnum></citerefentry>
++    for more details.</para>
++
++    <para>SysV runlevels have corresponding systemd targets
++    (<filename>runlevel<replaceable>X</replaceable>.target</filename>).
++    Wrapper unit that is generated will be wanted by those targets
++    which correspond to runlevels for which the script is
++    enabled.</para>
++
++    <para><command>systemd</command> does not supports SysV scripts as
++    part of early boot, so all wrapper units are ordered after
++    <filename>basic.target</filename>.</para>
++
++    <para><filename>systemd-sysv-generator</filename>
++    implements the <ulink
++    url="http://www.freedesktop.org/wiki/Software/systemd/Generators">generator
++    specification</ulink>.</para>
++  </refsect1>
++
++  <refsect1>
++    <title>See Also</title>
++    <para>
++      <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
++      <citerefentry><refentrytitle>systemd.service</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
++      <citerefentry><refentrytitle>systemd.target</refentrytitle><manvolnum>5</manvolnum></citerefentry>
++    </para>
++  </refsect1>
++
++</refentry>

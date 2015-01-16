@@ -1,0 +1,103 @@
+From 72dec8120893e76d51e430b4ee5a263e885d0974 Mon Sep 17 00:00:00 2001
+From: Dan Williams <dcbw@redhat.com>
+Date: Tue, 4 Nov 2014 11:20:43 -0600
+Subject: [PATCH] sd-dhcp-client: fix REBOOT state handling
+
+client->secs wasn't getting set in the REBOOT state, causing
+an assertion.  REBOOT should work the same way as INIT, per
+RFC 2131:
+
+ secs   2  Filled in by client, seconds elapsed since client
+           began address acquisition or renewal process.
+
+REBOOT is necessary because some DHCP servers (eg on
+home routers) do not hand back the same IP address unless the
+'ciaddr' field is filled with that address, which DISCOVER
+cannot do per the RFCs.  This leads to multiple leases
+on machine reboot or DHCP client restart.
+
+(cherry picked from commit d8d74ef06fa0ccf39084a6177e70e4c2297cca57)
+---
+ src/libsystemd-network/sd-dhcp-client.c | 31 +++++++++++++------------------
+ 1 file changed, 13 insertions(+), 18 deletions(-)
+
+diff --git a/src/libsystemd-network/sd-dhcp-client.c b/src/libsystemd-network/sd-dhcp-client.c
+index 1f7f238ca0..9986b5257b 100644
+--- a/src/libsystemd-network/sd-dhcp-client.c
++++ b/src/libsystemd-network/sd-dhcp-client.c
+@@ -68,7 +68,6 @@ struct sd_dhcp_client {
+         uint32_t mtu;
+         uint32_t xid;
+         usec_t start_time;
+-        uint16_t secs;
+         unsigned int attempt;
+         usec_t request_sent;
+         sd_event_source *timeout_t1;
+@@ -321,10 +320,12 @@ static int client_message_init(sd_dhcp_client *client, DHCPPacket **ret,
+         _cleanup_free_ DHCPPacket *packet;
+         size_t optlen, optoffset, size;
+         be16_t max_size;
++        usec_t time_now;
++        uint16_t secs;
+         int r;
+ 
+         assert(client);
+-        assert(client->secs);
++        assert(client->start_time);
+         assert(ret);
+         assert(_optlen);
+         assert(_optoffset);
+@@ -344,7 +345,15 @@ static int client_message_init(sd_dhcp_client *client, DHCPPacket **ret,
+ 
+         /* Although 'secs' field is a SHOULD in RFC 2131, certain DHCP servers
+            refuse to issue an DHCP lease if 'secs' is set to zero */
+-        packet->dhcp.secs = htobe16(client->secs);
++        r = sd_event_now(client->event, clock_boottime_or_monotonic(), &time_now);
++        if (r < 0)
++                return r;
++        assert(time_now >= client->start_time);
++
++        /* seconds between sending first and last DISCOVER
++         * must always be strictly positive to deal with broken servers */
++        secs = ((time_now - client->start_time) / USEC_PER_SEC) ? : 1;
++        packet->dhcp.secs = htobe16(secs);
+ 
+         /* RFC2132 section 4.1
+            A client that cannot receive unicast IP datagrams until its protocol
+@@ -441,24 +450,12 @@ static int dhcp_client_send_raw(sd_dhcp_client *client, DHCPPacket *packet,
+ static int client_send_discover(sd_dhcp_client *client) {
+         _cleanup_free_ DHCPPacket *discover = NULL;
+         size_t optoffset, optlen;
+-        usec_t time_now;
+         int r;
+ 
+         assert(client);
+         assert(client->state == DHCP_STATE_INIT ||
+                client->state == DHCP_STATE_SELECTING);
+ 
+-        /* See RFC2131 section 4.4.1 */
+-
+-        r = sd_event_now(client->event, clock_boottime_or_monotonic(), &time_now);
+-        if (r < 0)
+-                return r;
+-        assert(time_now >= client->start_time);
+-
+-        /* seconds between sending first and last DISCOVER
+-         * must always be strictly positive to deal with broken servers */
+-        client->secs = ((time_now - client->start_time) / USEC_PER_SEC) ? : 1;
+-
+         r = client_message_init(client, &discover, DHCP_DISCOVER,
+                                 &optlen, &optoffset);
+         if (r < 0)
+@@ -875,10 +872,8 @@ static int client_start(sd_dhcp_client *client) {
+         }
+         client->fd = r;
+ 
+-        if (client->state == DHCP_STATE_INIT) {
++        if (client->state == DHCP_STATE_INIT || client->state == DHCP_STATE_INIT_REBOOT)
+                 client->start_time = now(clock_boottime_or_monotonic());
+-                client->secs = 0;
+-        }
+ 
+         return client_initialize_events(client, client_receive_message_raw);
+ }

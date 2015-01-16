@@ -1,0 +1,62 @@
+From 4292ae2f599ec57084e1a7cee00fc0c8ac856a03 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 10 Nov 2014 14:44:35 +0100
+Subject: [PATCH] man: don't document systemctl --failed
+
+This effectively reverts 599b6322f19ec619ddc294d0e7880b669040cf66, which
+in turn partially reverted 4dc5b821ae737914499119e29811fc3346e3d97c.
+
+The --failed switch is not documented on purpose, since it is redundant
+due to --state=failed, which it predates. Due to that it's not
+documented in --help either.
+
+We generally try to avoid redundant interfaces, but if we need to keep
+them for compatibility we do so, however remove them from documentation
+to ensure they are not used in future.
+
+The man page is now changed to include a comment about the fact that
+--failed is not documented on purpose. Also, explicitly mention
+--state=failed as example for --state.
+
+(cherry picked from commit 036359ba8d0aba7db7eac75d10073a849a033fd1)
+---
+ man/systemctl.xml | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/man/systemctl.xml b/man/systemctl.xml
+index ebee2bf9e9..8a4cff8833 100644
+--- a/man/systemctl.xml
++++ b/man/systemctl.xml
+@@ -98,9 +98,10 @@ along with systemd; If not, see <http://www.gnu.org/licenses/>.
+         <term><option>--state=</option></term>
+ 
+         <listitem>
+-        <para>The argument should be a comma-separated list of unit LOAD,
+-        SUB, or ACTIVE states. When listing units, show only those
+-        in specified states.</para>
++        <para>The argument should be a comma-separated list of unit
++        LOAD, SUB, or ACTIVE states. When listing units, show only
++        those in specified states. Use <option>--state=failed</option>
++        to show only failed units.</para>
+         </listitem>
+       </varlistentry>
+ 
+@@ -321,14 +322,10 @@ along with systemd; If not, see <http://www.gnu.org/licenses/>.
+       <xi:include href="user-system-options.xml" xpointer="user" />
+       <xi:include href="user-system-options.xml" xpointer="system" />
+ 
+-      <varlistentry>
+-        <term><option>--failed</option></term>
+-
+-        <listitem>
+-          <para>List units in failed state. This is equivalent to
+-          <option>--state=failed</option>.</para>
+-        </listitem>
+-      </varlistentry>
++      <!-- we do not document -failed here, as it has been made
++           redundant by -state=failed, which it predates. To keep
++           things simple we only document the new switch, while
++           keeping the old one around for compatibility only. -->
+ 
+       <varlistentry>
+         <term><option>--no-wall</option></term>

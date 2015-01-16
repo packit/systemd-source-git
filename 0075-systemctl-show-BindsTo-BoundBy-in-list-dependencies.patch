@@ -1,0 +1,33 @@
+From 18fc235c18e6736e0b406a5381503b0fdfaa9a94 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sat, 22 Nov 2014 20:21:56 -0500
+Subject: [PATCH] systemctl: show BindsTo/BoundBy in list-dependencies
+
+Suggested-by: Peter Mattern <matternp@arcor.de>
+
+http://lists.freedesktop.org/archives/systemd-devel/2014-November/025437.html
+(cherry picked from commit c469089cf647ac740c7dcf09c463d2907b6d00eb)
+---
+ src/systemctl/systemctl.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 207a5e78dc..409693e8f7 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -1479,11 +1479,13 @@ static int list_dependencies_get_dependencies(sd_bus *bus, const char *name, cha
+                                        "RequiresOverridable\0"
+                                        "Requisite\0"
+                                        "RequisiteOverridable\0"
+-                                       "Wants\0",
++                                       "Wants\0"
++                                       "BindsTo\0",
+                 [DEPENDENCY_REVERSE] = "RequiredBy\0"
+                                        "RequiredByOverridable\0"
+                                        "WantedBy\0"
+-                                       "PartOf\0",
++                                       "PartOf\0"
++                                       "BoundBy\0",
+                 [DEPENDENCY_AFTER]   = "After\0",
+                 [DEPENDENCY_BEFORE]  = "Before\0",
+         };

@@ -1,0 +1,746 @@
+From 96bd16efac0e2c7248446d644ff2ade687a23de0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 9 Jan 2015 16:58:29 -0500
+Subject: [PATCH] Add new function to filter fstab options
+
+This fixes parsing of options in shared/generator.c. Existing code
+had some issues:
+
+- it would treate whitespace and semicolons as seperators. fstab(5)
+  is pretty clear that only commas matter. And the syntax does
+  not allow for spaces to be inserted in the field in fstab.
+  Whitespace might be escaped, but then it should not seperate
+  options. Treat whitespace and semicolons as any other character.
+- it assumed that x-systemd.device-timeout would always be followed
+  by "=". But this is not guaranteed, hasmntopt will return this
+  option even if there's no value. Uninitialized memory could be read.
+- some error paths would log, and inconsistently, some would just
+  return an error code.
+
+Filtering is split out to a separate function and tests are added.
+
+Similar code paths in other places are adjusted to use the new function.
+
+(cherry picked from commit d15d0333be6a1ca7fdd99a1881d967b6be8f387a)
+
+Conflicts:
+	src/core/mount.c
+---
+ Makefile.am                           |   9 +++
+ src/core/mount.c                      |  24 ++----
+ src/core/swap.c                       |  71 +----------------
+ src/fstab-generator/fstab-generator.c |  38 ++-------
+ src/shared/fstab-util.c               | 145 ++++++++++++++++++++++++++++++++++
+ src/shared/fstab-util.h               |  34 ++++++++
+ src/shared/generator.c                |  41 ++--------
+ src/shared/util.c                     |  17 ----
+ src/shared/util.h                     |   2 -
+ src/test/test-fstab-util.c            | 112 ++++++++++++++++++++++++++
+ 10 files changed, 325 insertions(+), 168 deletions(-)
+ create mode 100644 src/shared/fstab-util.c
+ create mode 100644 src/shared/fstab-util.h
+ create mode 100644 src/test/test-fstab-util.c
+
+diff --git a/Makefile.am b/Makefile.am
+index d88a27ea65..410194957d 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -764,6 +764,8 @@ libsystemd_shared_la_SOURCES = \
+ 	src/shared/architecture.h \
+ 	src/shared/efivars.c \
+ 	src/shared/efivars.h \
++	src/shared/fstab-util.c \
++	src/shared/fstab-util.h \
+ 	src/shared/path-util.c \
+ 	src/shared/path-util.h \
+ 	src/shared/time-util.c \
+@@ -1343,6 +1345,7 @@ tests += \
+ 	test-calendarspec \
+ 	test-strip-tab-ansi \
+ 	test-cgroup-util \
++	test-fstab-util \
+ 	test-prioq \
+ 	test-fileio \
+ 	test-time \
+@@ -1519,6 +1522,12 @@ test_fdset_SOURCES = \
+ test_fdset_LDADD = \
+ 	libsystemd-core.la
+ 
++test_fstab_util_SOURCES = \
++	src/test/test-fstab-util.c
++
++test_fstab_util_LDADD = \
++	libsystemd-shared.la
++
+ test_ratelimit_SOURCES = \
+ 	src/test/test-ratelimit.c
+ 
+diff --git a/src/core/mount.c b/src/core/mount.c
+index 95d22a6575..6ca389bc03 100644
+--- a/src/core/mount.c
++++ b/src/core/mount.c
+@@ -42,6 +42,7 @@
+ #include "bus-errors.h"
+ #include "exit-status.h"
+ #include "def.h"
++#include "fstab-util.h"
+ 
+ static const UnitActiveState state_translation_table[_MOUNT_STATE_MAX] = {
+         [MOUNT_DEAD] = UNIT_INACTIVE,
+@@ -65,7 +66,7 @@ static int mount_dispatch_io(sd_event_source *source, int fd, uint32_t revents,
+ static bool mount_is_network(MountParameters *p) {
+         assert(p);
+ 
+-        if (mount_test_option(p->options, "_netdev"))
++        if (fstab_test_option(p->options, "_netdev\0"))
+                 return true;
+ 
+         if (p->fstype && fstype_is_network(p->fstype))
+@@ -77,16 +78,10 @@ static bool mount_is_network(MountParameters *p) {
+ static bool mount_is_bind(MountParameters *p) {
+         assert(p);
+ 
+-        if (mount_test_option(p->options, "bind"))
++        if (fstab_test_option(p->options, "bind\0" "rbind\0"))
+                 return true;
+ 
+-        if (p->fstype && streq(p->fstype, "bind"))
+-                return true;
+-
+-        if (mount_test_option(p->options, "rbind"))
+-                return true;
+-
+-        if (p->fstype && streq(p->fstype, "rbind"))
++        if (p->fstype && STR_IN_SET(p->fstype, "bind", "rbind"))
+                 return true;
+ 
+         return false;
+@@ -95,7 +90,7 @@ static bool mount_is_bind(MountParameters *p) {
+ static bool mount_is_auto(MountParameters *p) {
+         assert(p);
+ 
+-        return !mount_test_option(p->options, "noauto");
++        return !fstab_test_option(p->options, "noauto\0");
+ }
+ 
+ static bool needs_quota(MountParameters *p) {
+@@ -107,11 +102,8 @@ static bool needs_quota(MountParameters *p) {
+         if (mount_is_bind(p))
+                 return false;
+ 
+-        return mount_test_option(p->options, "usrquota") ||
+-                mount_test_option(p->options, "grpquota") ||
+-                mount_test_option(p->options, "quota") ||
+-                mount_test_option(p->options, "usrjquota") ||
+-                mount_test_option(p->options, "grpjquota");
++        return fstab_test_option(p->options,
++                                 "usrquota\0" "grpquota\0" "quota\0" "usrjquota\0" "grpjquota\0");
+ }
+ 
+ static void mount_init(Unit *u) {
+@@ -358,7 +350,7 @@ static bool should_umount(Mount *m) {
+                 return false;
+ 
+         p = get_mount_parameters(m);
+-        if (p && mount_test_option(p->options, "x-initrd.mount") &&
++        if (p && fstab_test_option(p->options, "x-initrd.mount\0") &&
+             !in_initrd())
+                 return false;
+ 
+diff --git a/src/core/swap.c b/src/core/swap.c
+index ecd96752b3..d8bde95601 100644
+--- a/src/core/swap.c
++++ b/src/core/swap.c
+@@ -41,6 +41,7 @@
+ #include "path-util.h"
+ #include "virt.h"
+ #include "udev-util.h"
++#include "fstab-util.h"
+ 
+ static const UnitActiveState state_translation_table[_SWAP_STATE_MAX] = {
+         [SWAP_DEAD] = UNIT_INACTIVE,
+@@ -702,71 +703,6 @@ fail:
+         swap_enter_dead(s, SWAP_FAILURE_RESOURCES);
+ }
+ 
+-static int mount_find_pri(const char *options, int *ret) {
+-        const char *opt;
+-        char *end;
+-        unsigned long r;
+-
+-        assert(ret);
+-
+-        if (!options)
+-                return 0;
+-
+-        opt = mount_test_option(options, "pri");
+-        if (!opt)
+-                return 0;
+-
+-        opt += strlen("pri");
+-        if (*opt != '=')
+-                return -EINVAL;
+-
+-        errno = 0;
+-        r = strtoul(opt + 1, &end, 10);
+-        if (errno > 0)
+-                return -errno;
+-
+-        if (end == opt + 1 || (*end != ',' && *end != 0))
+-                return -EINVAL;
+-
+-        *ret = (int) r;
+-        return 1;
+-}
+-
+-static int mount_find_discard(const char *options, char **ret) {
+-        const char *opt;
+-        char *ans;
+-        size_t len;
+-
+-        assert(ret);
+-
+-        if (!options)
+-                return 0;
+-
+-        opt = mount_test_option(options, "discard");
+-        if (!opt)
+-                return 0;
+-
+-        opt += strlen("discard");
+-        if (*opt == ',' || *opt == '\0')
+-                ans = strdup("all");
+-        else {
+-                if (*opt != '=')
+-                        return -EINVAL;
+-
+-                len = strcspn(opt + 1, ",");
+-                if (len == 0)
+-                        return -EINVAL;
+-
+-                ans = strndup(opt + 1, len);
+-        }
+-
+-        if (!ans)
+-                return -ENOMEM;
+-
+-        *ret = ans;
+-        return 1;
+-}
+-
+ static void swap_enter_activating(Swap *s) {
+         _cleanup_free_ char *discard = NULL;
+         int r, priority = -1;
+@@ -777,11 +713,12 @@ static void swap_enter_activating(Swap *s) {
+         s->control_command = s->exec_command + SWAP_EXEC_ACTIVATE;
+ 
+         if (s->from_fragment) {
+-                mount_find_discard(s->parameters_fragment.options, &discard);
++                fstab_filter_options(s->parameters_fragment.options, "discard\0",
++                                     NULL, &discard, NULL);
+ 
+                 priority = s->parameters_fragment.priority;
+                 if (priority < 0)
+-                        mount_find_pri(s->parameters_fragment.options, &priority);
++                        fstab_find_pri(s->parameters_fragment.options, &priority);
+         }
+ 
+         r = exec_command_set(s->control_command, "/sbin/swapon", NULL);
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index 46c7667f27..e9e0e97c18 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -29,6 +29,7 @@
+ #include "util.h"
+ #include "unit-name.h"
+ #include "path-util.h"
++#include "fstab-util.h"
+ #include "mount-setup.h"
+ #include "special.h"
+ #include "mkdir.h"
+@@ -47,33 +48,6 @@ static char *arg_usr_what = NULL;
+ static char *arg_usr_fstype = NULL;
+ static char *arg_usr_options = NULL;
+ 
+-static int mount_find_pri(struct mntent *me, int *ret) {
+-        char *end, *opt;
+-        unsigned long r;
+-
+-        assert(me);
+-        assert(ret);
+-
+-        opt = hasmntopt(me, "pri");
+-        if (!opt)
+-                return 0;
+-
+-        opt += strlen("pri");
+-        if (*opt != '=')
+-                return -EINVAL;
+-
+-        errno = 0;
+-        r = strtoul(opt + 1, &end, 10);
+-        if (errno > 0)
+-                return -errno;
+-
+-        if (end == opt + 1 || (*end != ',' && *end != 0))
+-                return -EINVAL;
+-
+-        *ret = (int) r;
+-        return 1;
+-}
+-
+ static int add_swap(
+                 const char *what,
+                 struct mntent *me,
+@@ -92,9 +66,9 @@ static int add_swap(
+                 return 0;
+         }
+ 
+-        r = mount_find_pri(me, &pri);
++        r = fstab_find_pri(me->mnt_opts, &pri);
+         if (r < 0) {
+-                log_error("Failed to parse priority");
++                log_error("Failed to parse priority: %s", strerror(-r));
+                 return r;
+         }
+ 
+@@ -443,8 +417,7 @@ static int add_root_mount(void) {
+         if (!arg_root_options)
+                 opts = arg_root_rw > 0 ? "rw" : "ro";
+         else if (arg_root_rw >= 0 ||
+-                 (!mount_test_option(arg_root_options, "ro") &&
+-                  !mount_test_option(arg_root_options, "rw")))
++                 !fstab_test_option(arg_root_options, "ro\0" "rw\0"))
+                 opts = strappenda(arg_root_options, ",", arg_root_rw > 0 ? "rw" : "ro");
+         else
+                 opts = arg_root_options;
+@@ -501,8 +474,7 @@ static int add_usr_mount(void) {
+ 
+         if (!arg_usr_options)
+                 opts = arg_root_rw > 0 ? "rw" : "ro";
+-        else if (!mount_test_option(arg_usr_options, "ro") &&
+-                 !mount_test_option(arg_usr_options, "rw"))
++        else if (!fstab_test_option(arg_usr_options, "ro\0" "rw\0"))
+                 opts = strappenda(arg_usr_options, ",", arg_root_rw > 0 ? "rw" : "ro");
+         else
+                 opts = arg_usr_options;
+diff --git a/src/shared/fstab-util.c b/src/shared/fstab-util.c
+new file mode 100644
+index 0000000000..546c81b80f
+--- /dev/null
++++ b/src/shared/fstab-util.c
+@@ -0,0 +1,145 @@
++/*-*- Mode: C; c-basic-offset: 8; indent-tabs-mode: nil -*-*/
++
++/***
++  This file is part of systemd.
++
++  Copyright 2015 Zbigniew Jędrzejewski-Szmek
++
++  systemd is free software; you can redistribute it and/or modify it
++  under the terms of the GNU Lesser General Public License as published by
++  the Free Software Foundation; either version 2.1 of the License, or
++  (at your option) any later version.
++
++  systemd is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  Lesser General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with systemd; If not, see <http://www.gnu.org/licenses/>.
++***/
++
++#include "fstab-util.h"
++#include "strv.h"
++#include "util.h"
++
++int fstab_filter_options(const char *opts, const char *names,
++                         const char **namefound, char **value, char **filtered) {
++        const char *name, *n = NULL, *x;
++        _cleanup_strv_free_ char **stor = NULL;
++        _cleanup_free_ char *v = NULL, **strv = NULL;
++
++        assert(names && *names);
++
++        if (!opts)
++                goto answer;
++
++        /* If !value and !filtered, this function is not allowed to fail. */
++
++        if (!filtered) {
++                const char *word, *state;
++                size_t l;
++
++                FOREACH_WORD_SEPARATOR(word, l, opts, ",", state)
++                        NULSTR_FOREACH(name, names) {
++                                if (l < strlen(name))
++                                        continue;
++                                if (!strneq(word, name, strlen(name)))
++                                        continue;
++
++                                /* we know that the string is NUL
++                                 * terminated, so *x is valid */
++                                x = word + strlen(name);
++                                if (IN_SET(*x, '\0', '=', ',')) {
++                                        n = name;
++                                        if (value) {
++                                                free(v);
++                                                if (IN_SET(*x, '\0', ','))
++                                                        v = NULL;
++                                                else {
++                                                        assert(*x == '=');
++                                                        x++;
++                                                        v = strndup(x, l - strlen(name) - 1);
++                                                        if (!v)
++                                                                return -ENOMEM;
++                                                }
++                                        }
++                                }
++                        }
++        } else {
++                char **t, **s;
++
++                stor = strv_split(opts, ",");
++                if (!stor)
++                        return -ENOMEM;
++                strv = memdup(stor, sizeof(char*) * (strv_length(stor) + 1));
++                if (!strv)
++                        return -ENOMEM;
++
++                for (s = t = strv; *s; s++) {
++                        NULSTR_FOREACH(name, names) {
++                                x = startswith(*s, name);
++                                if (x && IN_SET(*x, '\0', '='))
++                                        goto found;
++                        }
++
++                        *t = *s;
++                        t++;
++                        continue;
++                found:
++                        /* Keep the last occurence found */
++                        n = name;
++                        if (value) {
++                                free(v);
++                                if (*x == '\0')
++                                        v = NULL;
++                                else {
++                                        assert(*x == '=');
++                                        x++;
++                                        v = strdup(x);
++                                        if (!v)
++                                                return -ENOMEM;
++                                }
++                        }
++                }
++                *t = NULL;
++        }
++
++answer:
++        if (namefound)
++                *namefound = n;
++        if (filtered) {
++                char *f;
++
++                f = strv_join(strv, ",");
++                if (!f)
++                        return -ENOMEM;
++
++                *filtered = f;
++        }
++        if (value) {
++                *value = v;
++                v = NULL;
++        }
++
++        return !!n;
++}
++
++int fstab_find_pri(const char *options, int *ret) {
++        _cleanup_free_ char *opt = NULL;
++        int r;
++        unsigned pri;
++
++        assert(ret);
++
++        r = fstab_filter_options(options, "pri\0", NULL, &opt, NULL);
++        if (r <= 0)
++                return r;
++
++        r = safe_atou(opt, &pri);
++        if (r < 0)
++                return r;
++
++        *ret = (int) r;
++        return 1;
++}
+diff --git a/src/shared/fstab-util.h b/src/shared/fstab-util.h
+new file mode 100644
+index 0000000000..39ddb71ef4
+--- /dev/null
++++ b/src/shared/fstab-util.h
+@@ -0,0 +1,34 @@
++/*-*- Mode: C; c-basic-offset: 8; indent-tabs-mode: nil -*-*/
++
++#pragma once
++
++/***
++  This file is part of systemd.
++
++  Copyright 2015 Zbigniew Jędrzejewski-Szmek
++
++  systemd is free software; you can redistribute it and/or modify it
++  under the terms of the GNU Lesser General Public License as published by
++  the Free Software Foundation; either version 2.1 of the License, or
++  (at your option) any later version.
++
++  systemd is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  Lesser General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with systemd; If not, see <http://www.gnu.org/licenses/>.
++***/
++
++#include <stdbool.h>
++#include <stddef.h>
++
++int fstab_filter_options(const char *opts, const char *names,
++                         const char **namefound, char **value, char **filtered);
++
++static inline bool fstab_test_option(const char *opts, const char *names) {
++        return !!fstab_filter_options(opts, names, NULL, NULL, NULL);
++}
++
++int fstab_find_pri(const char *options, int *ret);
+diff --git a/src/shared/generator.c b/src/shared/generator.c
+index 414470be1c..868101cd38 100644
+--- a/src/shared/generator.c
++++ b/src/shared/generator.c
+@@ -28,6 +28,7 @@
+ #include "unit-name.h"
+ #include "generator.h"
+ #include "path-util.h"
++#include "fstab-util.h"
+ #include "dropin.h"
+ 
+ int generator_write_fsck_deps(
+@@ -96,42 +97,16 @@ int generator_write_timeouts(const char *dir, const char *what, const char *wher
+          * endless device timeouts for devices that show up only after
+          * user input, like crypto devices. */
+ 
+-        _cleanup_free_ char *node = NULL, *unit = NULL, *t = NULL;
+-        char *start, *timeout;
++        _cleanup_free_ char *node = NULL, *unit = NULL, *timeout = NULL;
+         usec_t u;
+         int r;
+-        size_t len;
+-
+-        if ((start = mount_test_option(opts, "comment=systemd.device-timeout")))
+-                timeout = start + 31;
+-        else if ((start = mount_test_option(opts, "x-systemd.device-timeout")))
+-                timeout = start + 25;
+-        else {
+-                if (filtered) {
+-                        *filtered = strdup(opts ?: "");
+-                        if (!*filtered)
+-                                return log_oom();
+-                }
+-
+-                return 0;
+-        }
+-
+-        len = strcspn(timeout, ",;" WHITESPACE);
+-        t = strndup(timeout, len);
+-        if (!t)
+-                return -ENOMEM;
+ 
+-        if (filtered) {
+-                char *prefix, *postfix;
++        r = fstab_filter_options(opts, "comment=systemd.device-timeout\0" "x-systemd.device-timeout\0",
++                                 NULL, &timeout, filtered);
++        if (r <= 0)
++                return r;
+ 
+-                prefix = strndupa(opts, start - opts - (start != opts));
+-                postfix = timeout + len + (start == opts && timeout[len] != '\0');
+-                *filtered = strjoin(prefix, *postfix ? postfix : NULL, NULL);
+-                if (!*filtered)
+-                        return log_oom();
+-        }
+-
+-        r = parse_sec(t, &u);
++        r = parse_sec(timeout, &u);
+         if (r < 0) {
+                 log_warning("Failed to parse timeout for %s, ignoring: %s",
+                             where, timeout);
+@@ -144,7 +119,7 @@ int generator_write_timeouts(const char *dir, const char *what, const char *wher
+ 
+         unit = unit_name_from_path(node, ".device");
+         if (!unit)
+-                return -ENOMEM;
++                return log_oom();
+ 
+         return write_drop_in_format(dir, unit, 50, "device-timeout",
+                                     "# Automatically generated by %s\n\n"
+diff --git a/src/shared/util.c b/src/shared/util.c
+index 956649eab9..688aa8bc13 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -6533,23 +6533,6 @@ uint64_t physical_memory(void) {
+         return (uint64_t) mem * (uint64_t) page_size();
+ }
+ 
+-char* mount_test_option(const char *haystack, const char *needle) {
+-
+-        struct mntent me = {
+-                .mnt_opts = (char*) haystack
+-        };
+-
+-        assert(needle);
+-
+-        /* Like glibc's hasmntopt(), but works on a string, not a
+-         * struct mntent */
+-
+-        if (!haystack)
+-                return NULL;
+-
+-        return hasmntopt(&me, needle);
+-}
+-
+ void hexdump(FILE *f, const void *p, size_t s) {
+         const uint8_t *b = p;
+         unsigned n = 0;
+diff --git a/src/shared/util.h b/src/shared/util.h
+index 20712c7fdb..6b595d51ea 100644
+--- a/src/shared/util.h
++++ b/src/shared/util.h
+@@ -966,8 +966,6 @@ const char *personality_to_string(unsigned long);
+ 
+ uint64_t physical_memory(void);
+ 
+-char* mount_test_option(const char *haystack, const char *needle);
+-
+ void hexdump(FILE *f, const void *p, size_t s);
+ 
+ union file_handle_union {
+diff --git a/src/test/test-fstab-util.c b/src/test/test-fstab-util.c
+new file mode 100644
+index 0000000000..ddf965dde5
+--- /dev/null
++++ b/src/test/test-fstab-util.c
+@@ -0,0 +1,112 @@
++/*-*- Mode: C; c-basic-offset: 8; indent-tabs-mode: nil -*-*/
++
++/***
++  This file is part of systemd.
++
++  Copyright 2015 Zbigniew Jędrzejewski-Szmek
++
++  systemd is free software; you can redistribute it and/or modify it
++  under the terms of the GNU Lesser General Public License as published by
++  the Free Software Foundation; either version 2.1 of the License, or
++  (at your option) any later version.
++
++  systemd is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++  Lesser General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public License
++  along with systemd; If not, see <http://www.gnu.org/licenses/>.
++***/
++
++#include "fstab-util.h"
++#include "util.h"
++#include "log.h"
++
++/*
++int fstab_filter_options(const char *opts, const char *names,
++                         const char **namefound, char **value, char **filtered);
++*/
++
++static void do_fstab_filter_options(const char *opts,
++                                      const char *remove,
++                                      int r_expected,
++                                      const char *name_expected,
++                                      const char *value_expected,
++                                      const char *filtered_expected) {
++
++        int r;
++        const char *name;
++        _cleanup_free_ char *value, *filtered;
++
++        r = fstab_filter_options(opts, remove, &name, &value, &filtered);
++        log_info("\"%s\" → %d, \"%s\", \"%s\", \"%s\", expected %d, \"%s\", \"%s\", \"%s\"",
++                 opts, r, name, value, filtered,
++                 r_expected, name_expected, value_expected, filtered_expected ?: opts);
++        assert_se(r == r_expected);
++        assert_se(streq_ptr(name, name_expected));
++        assert_se(streq_ptr(value, value_expected));
++        assert_se(streq_ptr(filtered, filtered_expected ?: opts));
++
++        /* also test the malloc-less mode */
++        r = fstab_filter_options(opts, remove, &name, NULL, NULL);
++        log_info("\"%s\" → %d, \"%s\", expected %d, \"%s\"",
++                 opts, r, name,
++                 r_expected, name_expected);
++        assert_se(r == r_expected);
++        assert_se(streq_ptr(name, name_expected));
++}
++
++static void test_fstab_filter_options(void) {
++        do_fstab_filter_options("opt=0", "opt\0x-opt\0", 1, "opt", "0", "");
++        do_fstab_filter_options("opt=0", "x-opt\0opt\0", 1, "opt", "0", "");
++        do_fstab_filter_options("opt", "opt\0x-opt\0", 1, "opt", NULL, "");
++        do_fstab_filter_options("opt", "x-opt\0opt\0", 1, "opt", NULL, "");
++        do_fstab_filter_options("x-opt", "x-opt\0opt\0", 1, "x-opt", NULL, "");
++
++        do_fstab_filter_options("opt=0,other", "opt\0x-opt\0", 1, "opt", "0", "other");
++        do_fstab_filter_options("opt=0,other", "x-opt\0opt\0", 1, "opt", "0", "other");
++        do_fstab_filter_options("opt,other", "opt\0x-opt\0", 1, "opt", NULL, "other");
++        do_fstab_filter_options("opt,other", "x-opt\0opt\0", 1, "opt", NULL, "other");
++        do_fstab_filter_options("x-opt,other", "opt\0x-opt\0", 1, "x-opt", NULL, "other");
++
++        do_fstab_filter_options("opto=0,other", "opt\0x-opt\0", 0, NULL, NULL, NULL);
++        do_fstab_filter_options("opto,other", "opt\0x-opt\0", 0, NULL, NULL, NULL);
++        do_fstab_filter_options("x-opto,other", "opt\0x-opt\0", 0, NULL, NULL, NULL);
++
++        do_fstab_filter_options("first,opt=0", "opt\0x-opt\0", 1, "opt", "0", "first");
++        do_fstab_filter_options("first=1,opt=0", "opt\0x-opt\0", 1, "opt", "0", "first=1");
++        do_fstab_filter_options("first,opt=", "opt\0x-opt\0", 1, "opt", "", "first");
++        do_fstab_filter_options("first=1,opt", "opt\0x-opt\0", 1, "opt", NULL, "first=1");
++        do_fstab_filter_options("first=1,x-opt", "opt\0x-opt\0", 1, "x-opt", NULL, "first=1");
++
++        do_fstab_filter_options("first,opt=0,last=1", "opt\0x-opt\0", 1, "opt", "0", "first,last=1");
++        do_fstab_filter_options("first=1,opt=0,last=2", "x-opt\0opt\0", 1, "opt", "0", "first=1,last=2");
++        do_fstab_filter_options("first,opt,last", "opt\0", 1, "opt", NULL, "first,last");
++        do_fstab_filter_options("first=1,opt,last", "x-opt\0opt\0", 1, "opt", NULL, "first=1,last");
++        do_fstab_filter_options("first=,opt,last", "opt\0noopt\0", 1, "opt", NULL, "first=,last");
++
++        /* check repeated options */
++        do_fstab_filter_options("first,opt=0,noopt=1,last=1", "opt\0noopt\0", 1, "noopt", "1", "first,last=1");
++        do_fstab_filter_options("first=1,opt=0,last=2,opt=1", "opt\0", 1, "opt", "1", "first=1,last=2");
++        do_fstab_filter_options("x-opt=0,x-opt=1", "opt\0x-opt\0", 1, "x-opt", "1", "");
++        do_fstab_filter_options("opt=0,x-opt=1", "opt\0x-opt\0", 1, "x-opt", "1", "");
++
++        /* check that semicolons are not misinterpreted */
++        do_fstab_filter_options("opt=0;", "opt\0", 1, "opt", "0;", "");
++        do_fstab_filter_options("opt;=0", "x-opt\0opt\0noopt\0x-noopt\0", 0, NULL, NULL, NULL);
++        do_fstab_filter_options("opt;", "opt\0x-opt\0", 0, NULL, NULL, NULL);
++
++        /* check that spaces are not misinterpreted */
++        do_fstab_filter_options("opt=0 ", "opt\0", 1, "opt", "0 ", "");
++        do_fstab_filter_options("opt =0", "x-opt\0opt\0noopt\0x-noopt\0", 0, NULL, NULL, NULL);
++        do_fstab_filter_options(" opt ", "opt\0x-opt\0", 0, NULL, NULL, NULL);
++
++        /* check function will NULL args */
++        do_fstab_filter_options(NULL, "opt\0", 0, NULL, NULL, "");
++        do_fstab_filter_options("", "opt\0", 0, NULL, NULL, "");
++}
++
++int main(void) {
++        test_fstab_filter_options();
++}

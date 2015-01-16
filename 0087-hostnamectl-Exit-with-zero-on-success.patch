@@ -1,0 +1,25 @@
+From 73257f8e61eb4059cb587722699b609946837c8e Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martin.pitt@ubuntu.com>
+Date: Fri, 28 Nov 2014 15:38:05 +0100
+Subject: [PATCH] hostnamectl: Exit with zero on success
+
+In show_all_names(), bus_map_all_properties() returns 1 on success which is
+then used as the return code of show_all_names() and eventually main(). Exit
+with zero in main() on all nonnegative results to guard against similar errors.
+
+(cherry picked from commit 5567fafbc9d83a1391f23ecdbe698a3c03929370)
+---
+ src/hostname/hostnamectl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/hostname/hostnamectl.c b/src/hostname/hostnamectl.c
+index e48736920f..ff4e9c9d39 100644
+--- a/src/hostname/hostnamectl.c
++++ b/src/hostname/hostnamectl.c
+@@ -536,5 +536,5 @@ int main(int argc, char *argv[]) {
+         r = hostnamectl_main(bus, argc, argv);
+ 
+ finish:
+-        return r < 0 ? EXIT_FAILURE : r;
++        return r < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
+ }

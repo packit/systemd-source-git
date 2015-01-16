@@ -1,0 +1,48 @@
+From 3628c38b5c73d667d38a19c19ab5a1c22535ba17 Mon Sep 17 00:00:00 2001
+From: Dave Reisner <dreisner@archlinux.org>
+Date: Wed, 7 Jan 2015 21:54:45 -0500
+Subject: [PATCH] doc: fix stale references to systemd-verify
+
+This was subsumed into systemd-analyze back in 142c4ecaa98.
+
+(cherry picked from commit ee9c4ff4c89584ecf4e64f330fba627df099f4ad)
+---
+ man/systemd-analyze.xml | 4 ++--
+ man/systemd.unit.xml    | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/man/systemd-analyze.xml b/man/systemd-analyze.xml
+index 073e807b41..ecfc7af2af 100644
+--- a/man/systemd-analyze.xml
++++ b/man/systemd-analyze.xml
+@@ -352,7 +352,7 @@ Requires=different.service
+ [Service]
+ Desription=x
+ 
+-$ systemd-verify ./user.slice
++$ systemd-analyze verify ./user.slice
+ [./user.slice:9] Unknown lvalue 'WhatIsThis' in section 'Unit'
+ [./user.slice:13] Unknown section 'Service'. Ignoring.
+ Error: org.freedesktop.systemd1.LoadFailed:
+@@ -376,7 +376,7 @@ ListenStream=100
+ ListenStream=100
+ Accept=yes
+ 
+-$ systemd-verify ./a.socket ./b.socket
++$ systemd-analyze verify ./a.socket ./b.socket
+ Service a.service not loaded, a.socket cannot be started.
+ Service b@0.service not loaded, b.socket cannot be started.
+                         </programlisting>
+diff --git a/man/systemd.unit.xml b/man/systemd.unit.xml
+index e20851f6c9..5c5513b162 100644
+--- a/man/systemd.unit.xml
++++ b/man/systemd.unit.xml
+@@ -1560,7 +1560,7 @@
+                         <citerefentry><refentrytitle>systemd.scope</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemd.slice</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemd.time</refentrytitle><manvolnum>7</manvolnum></citerefentry>,
+-                        <citerefentry><refentrytitle>systemd-verify</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
++                        <citerefentry><refentrytitle>systemd-analyze</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                         <citerefentry project='man-pages'><refentrytitle>capabilities</refentrytitle><manvolnum>7</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemd.directives</refentrytitle><manvolnum>7</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>uname</refentrytitle><manvolnum>1</manvolnum></citerefentry>

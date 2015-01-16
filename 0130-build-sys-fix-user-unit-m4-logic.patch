@@ -1,0 +1,23 @@
+From 510af450975261f3fdeeb5560796cea1004679fe Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 11 Dec 2014 14:56:33 +0100
+Subject: [PATCH] build-sys: fix user unit m4 logic
+
+(cherry picked from commit 1ed09c449185941fe145b66a0ea7be7df6a07058)
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 6d869c12ad..d88a27ea65 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -5892,7 +5892,7 @@ units/%: units/%.m4
+ 	$(AM_V_at)$(MKDIR_P) $(dir $@)
+ 	$(AM_V_M4)$(M4) -P $(M4_DEFINES) -DFOR_SYSTEM=1 < $< > $@
+ 
+-units/user/%: units/%.m4
++units/user/%: units/user/%.m4
+ 	$(AM_V_at)$(MKDIR_P) $(dir $@)
+ 	$(AM_V_M4)$(M4) -P $(M4_DEFINES) -DFOR_USER=1 < $< > $@
+ 

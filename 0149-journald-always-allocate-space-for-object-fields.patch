@@ -1,0 +1,26 @@
+From 1b525705c0dfb713aaef65ab9f1920e5cfd60d94 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 26 Dec 2014 09:02:01 -0500
+Subject: [PATCH] journald: always allocate space for object fields
+
+If OBJECT_PID= came as the last field, we would not reallocate the iovec to bigger size,
+and fail the assertion later on in dispatch_message_real().
+
+(cherry picked from commit 92ee6447b1deef7c79962a8121fdf8e58acb3a83)
+---
+ src/journal/journald-native.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/journal/journald-native.c b/src/journal/journald-native.c
+index 6d75ba6949..655e2dd9f7 100644
+--- a/src/journal/journald-native.c
++++ b/src/journal/journald-native.c
+@@ -133,7 +133,7 @@ void server_process_native_message(
+                 /* A property follows */
+ 
+                 /* n existing properties, 1 new, +1 for _TRANSPORT */
+-                if (!GREEDY_REALLOC(iovec, m, n + 2 + N_IOVEC_META_FIELDS + !!object_pid * N_IOVEC_OBJECT_FIELDS)) {
++                if (!GREEDY_REALLOC(iovec, m, n + 2 + N_IOVEC_META_FIELDS + N_IOVEC_OBJECT_FIELDS)) {
+                         log_oom();
+                         break;
+                 }

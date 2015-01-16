@@ -1,0 +1,23 @@
+From 16bf8f4096a15468e612b6cd8f6d3e5fd59ef7da Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Mon, 5 Jan 2015 19:03:08 -0500
+Subject: [PATCH] cgroup: memory limits on / are not supported
+
+(cherry picked from commit 75399049653f2d5e22032da70cf96f20d7b4d9a6)
+---
+ src/core/cgroup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/cgroup.c b/src/core/cgroup.c
+index 5f3d9907b7..37db3d5289 100644
+--- a/src/core/cgroup.c
++++ b/src/core/cgroup.c
+@@ -382,7 +382,7 @@ void cgroup_context_apply(CGroupContext *c, CGroupControllerMask mask, const cha
+                 }
+         }
+ 
+-        if (mask & CGROUP_MEMORY) {
++        if ((mask & CGROUP_MEMORY) & !is_root) {
+                 if (c->memory_limit != (uint64_t) -1) {
+                         char buf[DECIMAL_STR_MAX(uint64_t) + 1];
+ 

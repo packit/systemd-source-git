@@ -1,0 +1,45 @@
+From 0ae29bfc8b5567361a2c6468b45a1e00a7c7ecaf Mon Sep 17 00:00:00 2001
+From: Andrej Manduch <amanduch@gmail.com>
+Date: Tue, 25 Nov 2014 20:47:49 +0100
+Subject: [PATCH] journalctl: print all possible lines immediately with
+ --follow + --since
+
+When I tryed to run journalctl with --follow and --since arguments it
+behaved very strangely.
+First It prints logs from what I specified in --since argument, then
+printed 10 lines (as is default in --follow) and when app put something
+new in to log journalctl printed everithing from the last printed line.
+
+How to reproduce:
+1. run: journalctl -m --since 14:00 --follow
+Then you'll see 10 lines of logs since 14:00. After that wait until some
+app add something in the journal or just run `systemd-cat echo test`
+2. After that journalctl will print every single line since 14:00 and will
+follow as expected.
+
+As long as --since and --follow will eventually print all relevant
+lines, I seen no reason why not to print them right away and not after
+first new message in journal.
+
+Relevant bugzillas:
+        https://bugs.freedesktop.org/show_bug.cgi?id=71546
+        https://bugs.freedesktop.org/show_bug.cgi?id=64291
+
+(cherry picked from commit 70af7b8ada43d15edcd16f1f5157c447c388933c)
+---
+ src/journal/journalctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index f50faf42ad..03579fde09 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -682,7 +682,7 @@ static int parse_argv(int argc, char *argv[]) {
+                         assert_not_reached("Unhandled option");
+                 }
+ 
+-        if (arg_follow && !arg_no_tail && arg_lines == ARG_LINES_DEFAULT)
++        if (arg_follow && !arg_no_tail && !arg_since && arg_lines == ARG_LINES_DEFAULT)
+                 arg_lines = 10;
+ 
+         if (!!arg_directory + !!arg_file + !!arg_machine > 1) {

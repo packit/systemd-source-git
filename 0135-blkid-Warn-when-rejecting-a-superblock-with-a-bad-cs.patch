@@ -1,0 +1,79 @@
+From f60acf162de92bb0b1c3f4c041d89ea6231368c4 Mon Sep 17 00:00:00 2001
+From: Gabriel de Perthuis <g2p.code@gmail.com>
+Date: Sat, 13 Dec 2014 01:56:56 +0100
+Subject: [PATCH] blkid: Warn when rejecting a superblock with a bad csum
+
+Bump libblkid requirement from 2.20 to 2.24.
+util-linux 2.25 is actually required since fdbbad981cc5da8bb4ed7e9b6646e7a114745ec5
+
+(cherry picked from commit d47f6ca5f9b7a0b400d8bdb050151a0284fb4bdb)
+---
+ README                        |  2 +-
+ configure.ac                  |  2 +-
+ src/udev/udev-builtin-blkid.c | 13 ++++++++++++-
+ 3 files changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/README b/README
+index 99b66a8396..ddc7e8ad39 100644
+--- a/README
++++ b/README
+@@ -108,7 +108,7 @@ REQUIREMENTS:
+         glibc >= 2.14
+         libcap
+         libseccomp >= 1.0.0 (optional)
+-        libblkid >= 2.20 (from util-linux) (optional)
++        libblkid >= 2.24 (from util-linux) (optional)
+         libkmod >= 15 (optional)
+         PAM >= 1.1.2 (optional)
+         libcryptsetup (optional)
+diff --git a/configure.ac b/configure.ac
+index cf98c418ca..fcbb9e5d79 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -417,7 +417,7 @@ AM_CONDITIONAL(HAVE_KMOD, [test "$have_kmod" = "yes"])
+ have_blkid=no
+ AC_ARG_ENABLE(blkid, AS_HELP_STRING([--disable-blkid], [disable blkid support]))
+ if test "x$enable_blkid" != "xno"; then
+-        PKG_CHECK_MODULES(BLKID, [ blkid >= 2.20 ],
++        PKG_CHECK_MODULES(BLKID, [ blkid >= 2.24 ],
+                 [AC_DEFINE(HAVE_BLKID, 1, [Define if blkid is available]) have_blkid=yes], have_blkid=no)
+         if test "x$have_blkid" = xno -a "x$enable_blkid" = xyes; then
+                 AC_MSG_ERROR([*** blkid support requested but libraries not found])
+diff --git a/src/udev/udev-builtin-blkid.c b/src/udev/udev-builtin-blkid.c
+index 810f27d1d0..83bd8c40fb 100644
+--- a/src/udev/udev-builtin-blkid.c
++++ b/src/udev/udev-builtin-blkid.c
+@@ -221,6 +221,7 @@ static int builtin_blkid(struct udev_device *dev, int argc, char *argv[], bool t
+         blkid_probe pr;
+         const char *data;
+         const char *name;
++        const char *prtype = NULL;
+         int nvals;
+         int i;
+         int err = 0;
+@@ -256,7 +257,8 @@ static int builtin_blkid(struct udev_device *dev, int argc, char *argv[], bool t
+         blkid_probe_set_superblocks_flags(pr,
+                 BLKID_SUBLKS_LABEL | BLKID_SUBLKS_UUID |
+                 BLKID_SUBLKS_TYPE | BLKID_SUBLKS_SECTYPE |
+-                BLKID_SUBLKS_USAGE | BLKID_SUBLKS_VERSION);
++                BLKID_SUBLKS_USAGE | BLKID_SUBLKS_VERSION |
++                BLKID_SUBLKS_BADCSUM);
+ 
+         if (noraid)
+                 blkid_probe_filter_superblocks_usage(pr, BLKID_FLTR_NOTIN, BLKID_USAGE_RAID);
+@@ -278,6 +280,15 @@ static int builtin_blkid(struct udev_device *dev, int argc, char *argv[], bool t
+         err = probe_superblocks(pr);
+         if (err < 0)
+                 goto out;
++        if (blkid_probe_has_value(pr, "SBBADCSUM")) {
++                if (!blkid_probe_lookup_value(pr, "TYPE", &prtype, NULL))
++                        log_warning("incorrect %s checksum on %s",
++                                    prtype, udev_device_get_devnode(dev));
++                else
++                        log_warning("incorrect checksum on %s",
++                                    udev_device_get_devnode(dev));
++                goto out;
++        }
+ 
+         /* If we are a partition then our parent passed on the root
+          * partition UUID to us */

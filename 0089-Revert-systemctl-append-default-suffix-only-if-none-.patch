@@ -1,0 +1,31 @@
+From 6d1f501b82031150dfdc74c186e7f7aed3b431ea Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 28 Nov 2014 12:25:09 -0500
+Subject: [PATCH] Revert "systemctl: append default suffix only if none
+ present"
+
+This reverts a chunk out of commit 5e03c6e3b517286bbd65b48d88f60e5b83721894
+which was trying to pass NULL to the the '.service' default. Anyway,
+it seems better to be explicit.
+
+(cherry picked from commit e80733be33e52d8ab2f1ae845326d39c600f5612)
+---
+ src/systemctl/systemctl.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 70b92db017..409693e8f7 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -2700,7 +2700,10 @@ static int expand_names(sd_bus *bus, char **names, const char* suffix, char ***r
+         STRV_FOREACH(name, names) {
+                 char *t;
+ 
+-                t = unit_name_mangle_with_suffix(*name, MANGLE_GLOB, suffix);
++                if (suffix)
++                        t = unit_name_mangle_with_suffix(*name, MANGLE_GLOB, suffix);
++                else
++                        t = unit_name_mangle(*name, MANGLE_GLOB);
+                 if (!t)
+                         return log_oom();
+ 

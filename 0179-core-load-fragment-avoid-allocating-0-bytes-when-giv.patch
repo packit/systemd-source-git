@@ -1,0 +1,32 @@
+From 3fff351c881b7c83066d8aa16addc59a0194451f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 11 Jan 2015 16:57:02 -0500
+Subject: [PATCH] core/load-fragment: avoid allocating 0 bytes when given an
+ invalid command
+
+With a command line like "@/something" we would allocate an array with
+0 elements. Avoid that, and add a test too.
+
+(cherry picked from commit e01ff428993f0c126f010b5625002e6a0a8aff4a)
+
+Conflicts:
+	src/core/load-fragment.c
+	src/test/test-unit-file.c
+---
+ src/core/load-fragment.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
+index e31263ec75..8e785db619 100644
+--- a/src/core/load-fragment.c
++++ b/src/core/load-fragment.c
+@@ -581,7 +581,8 @@ int config_parse_exec(const char *unit,
+                 }
+ 
+         found:
+-                n = new(char*, k + !honour_argv0);
++                /* If seperate_argv0, we'll move first element to path variable */
++                n = new(char*, MAX(k + !honour_argv0, 1u));
+                 if (!n)
+                         return log_oom();
+ 

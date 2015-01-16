@@ -1,0 +1,27 @@
+From 920f8f0326fe06aeb7b4ce9cc416479be4589850 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 23 Nov 2014 20:01:40 -0500
+Subject: [PATCH] gpt-auto-generator: properly ignore value
+
+A negative return code was treated as a true value.
+
+(cherry picked from commit 8086ffacdb1bfec5ec115d24626538bda6cc372e)
+---
+ src/gpt-auto-generator/gpt-auto-generator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/gpt-auto-generator/gpt-auto-generator.c b/src/gpt-auto-generator/gpt-auto-generator.c
+index 25d868aa87..0f14ea18c0 100644
+--- a/src/gpt-auto-generator/gpt-auto-generator.c
++++ b/src/gpt-auto-generator/gpt-auto-generator.c
+@@ -681,8 +681,8 @@ static int parse_proc_cmdline_item(const char *key, const char *value) {
+                 r = parse_boolean(value);
+                 if (r < 0)
+                         log_warning("Failed to parse gpt-auto switch %s. Ignoring.", value);
+-
+-                arg_enabled = r;
++                else
++                        arg_enabled = r;
+ 
+         } else if (streq(key, "root") && value) {
+ 

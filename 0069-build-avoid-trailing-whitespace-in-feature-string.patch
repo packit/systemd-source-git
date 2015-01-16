@@ -1,0 +1,20 @@
+From f1bf35a835cddcb38d73dbb5f9ee50fa148bb0a5 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 20 Nov 2014 20:58:02 +0100
+Subject: [PATCH] build: avoid trailing whitespace in feature string
+
+(cherry picked from commit 609c3029076da1ba423673161e5d0fc82ccca6b6)
+---
+ src/core/build.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/build.h b/src/core/build.h
+index d5e55506cf..24873ab9d7 100644
+--- a/src/core/build.h
++++ b/src/core/build.h
+@@ -154,4 +154,4 @@
+         _BLKID_FEATURE_ " "                                             \
+         _ELFUTILS_FEATURE_ " "                                          \
+         _KMOD_FEATURE_ " "                                              \
+-        _IDN_FEATURE_ " "
++        _IDN_FEATURE_

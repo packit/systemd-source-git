@@ -1,0 +1,37 @@
+From 75f1c0b023cc460fabdbb3f64734ba7bd1febd0e Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 12 Nov 2014 23:30:46 +0100
+Subject: [PATCH] keymap: Add support for IBM ThinkPad X41 Tablet
+
+Scancode taken from:
+http://www.thinkwiki.org/wiki/Tablet_Hardware_Buttons#Linux_Support
+
+William Jon McCann provided the DMI match. IBM seems to have
+swapped the version and model of the system:
+        Manufacturer: IBM
+        Product Name: 18666TU
+        Version: ThinkPad X41 Tablet
+
+(cherry picked from commit 71ed2d38711e345f22e2200bc7bb156aed98972a)
+---
+ hwdb/60-keyboard.hwdb | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/hwdb/60-keyboard.hwdb b/hwdb/60-keyboard.hwdb
+index d2ca965c90..56a4009a2c 100644
+--- a/hwdb/60-keyboard.hwdb
++++ b/hwdb/60-keyboard.hwdb
+@@ -594,6 +594,13 @@ keyboard:dmi:bvn*:bvr*:bd*:svnLENOVO*:pnThinkPad*X6*:pvr*
+  KEYBOARD_KEY_6f=down                                   # down on d-pad
+  KEYBOARD_KEY_69=enter                                  # enter on d-pad
+ 
++# ThinkPad X41 Tablet
++keyboard:dmi:bvn*:bvr*:bd*:svnIBM*:pn18666TU:pvr*
++ KEYBOARD_KEY_6c=direction                              # rotate
++ KEYBOARD_KEY_68=f13                                    # toolbox
++ KEYBOARD_KEY_6b=esc                                    # escape
++ KEYBOARD_KEY_69=enter                                  # enter on d-pad
++
+ # IdeaPad
+ keyboard:name:Ideapad extra buttons:dmi:bvn*:bvr*:bd*:svnLENOVO*:pn*
+  KEYBOARD_KEY_42=f23

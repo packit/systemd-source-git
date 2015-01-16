@@ -1,0 +1,24 @@
+From fc6081306564f88c34fe6fd6e03dad7e47d1e66d Mon Sep 17 00:00:00 2001
+From: Thomas Haller <thaller@redhat.com>
+Date: Wed, 19 Nov 2014 13:57:08 +0100
+Subject: [PATCH] sd-dhcp-lease: fix copy-paste error asserting wrong function
+ argument
+
+(cherry picked from commit 1c6eb4e36bf88015d0bbe8fae417622e6132b864)
+---
+ src/libsystemd-network/sd-dhcp-lease.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/libsystemd-network/sd-dhcp-lease.c b/src/libsystemd-network/sd-dhcp-lease.c
+index 4fb01c0729..b7c9a07154 100644
+--- a/src/libsystemd-network/sd-dhcp-lease.c
++++ b/src/libsystemd-network/sd-dhcp-lease.c
+@@ -50,7 +50,7 @@ int sd_dhcp_lease_get_address(sd_dhcp_lease *lease, struct in_addr *addr) {
+ 
+ int sd_dhcp_lease_get_lifetime(sd_dhcp_lease *lease, uint32_t *lifetime) {
+         assert_return(lease, -EINVAL);
+-        assert_return(lease, -EINVAL);
++        assert_return(lifetime, -EINVAL);
+ 
+         *lifetime = lease->lifetime;
+ 

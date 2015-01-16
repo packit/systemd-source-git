@@ -1,0 +1,24 @@
+From 9ba7cef373cb1738832787691fb0d68865515822 Mon Sep 17 00:00:00 2001
+From: Manuel Mendez <mmendez534@gmail.com>
+Date: Thu, 25 Dec 2014 11:59:08 -0500
+Subject: [PATCH] man: typo in sd_watchdog_enabled notes
+
+https://bugs.freedesktop.org/show_bug.cgi?id=87642
+(cherry picked from commit 7275929790d32784895993429f3607562cc1284e)
+---
+ man/sd_watchdog_enabled.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/sd_watchdog_enabled.xml b/man/sd_watchdog_enabled.xml
+index 462d7c6617..297878d814 100644
+--- a/man/sd_watchdog_enabled.xml
++++ b/man/sd_watchdog_enabled.xml
+@@ -129,7 +129,7 @@
+                 <varname>$WATCHDOG_PID</varname> and
+                 <varname>$WATCHDOG_USEC</varname> environment
+                 variable. The call will ignore these variables if
+-                <varname>$WATCHDOG_PID</varname> does containe the PID
++                <varname>$WATCHDOG_PID</varname> does not contain the PID
+                 of the current process, under the assumption that in
+                 that case, the variables were set for a different
+                 process further up the process tree.</para>

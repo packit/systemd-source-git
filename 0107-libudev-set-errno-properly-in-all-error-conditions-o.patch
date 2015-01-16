@@ -1,0 +1,30 @@
+From 8a791603cbb74dc799311f48c2722cc5d6b1a42b Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 3 Dec 2014 01:59:42 +0100
+Subject: [PATCH] libudev: set errno properly in all error conditions of
+ udev_device_new_from_syspath()
+
+(cherry picked from commit 154e6f233af028cf76608d49a3b7ed8de61373d8)
+---
+ src/libudev/libudev-device.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/libudev/libudev-device.c b/src/libudev/libudev-device.c
+index 2699374072..e2afcb83ed 100644
+--- a/src/libudev/libudev-device.c
++++ b/src/libudev/libudev-device.c
+@@ -730,8 +730,13 @@ _public_ struct udev_device *udev_device_new_from_syspath(struct udev *udev, con
+                         return NULL;
+         } else {
+                 /* everything else just needs to be a directory */
+-                if (stat(path, &statbuf) != 0 || !S_ISDIR(statbuf.st_mode))
++                if (stat(path, &statbuf) != 0)
+                         return NULL;
++
++                if (!S_ISDIR(statbuf.st_mode)) {
++                        errno = EISDIR;
++                        return NULL;
++                }
+         }
+ 
+         udev_device = udev_device_new(udev);

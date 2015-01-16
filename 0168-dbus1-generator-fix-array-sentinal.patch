@@ -1,0 +1,25 @@
+From 6da53516fe7ff2bddb8c1f36d2347e4c437b8ade Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Thu, 8 Jan 2015 16:13:39 +0100
+Subject: [PATCH] dbus1-generator: fix array sentinal
+
+Add a {} sentinal entry so the config-iterator can properly iterate all
+array elements. Fixes a segfault in the dbus1-generator.
+
+(cherry picked from commit 34a317e1ccb0053d49383eb5e2f73dec97affc4c)
+---
+ src/dbus1-generator/dbus1-generator.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/dbus1-generator/dbus1-generator.c b/src/dbus1-generator/dbus1-generator.c
+index 3c4522b589..af6bb0392f 100644
+--- a/src/dbus1-generator/dbus1-generator.c
++++ b/src/dbus1-generator/dbus1-generator.c
+@@ -165,6 +165,7 @@ static int add_dbus(const char *path, const char *fname, const char *type) {
+                 { "D-BUS Service", "Exec", config_parse_string, 0, &exec },
+                 { "D-BUS Service", "User", config_parse_string, 0, &user },
+                 { "D-BUS Service", "SystemdService", config_parse_string, 0, &service },
++                { },
+         };
+ 
+         char *p;

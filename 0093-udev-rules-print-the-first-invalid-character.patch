@@ -1,0 +1,46 @@
+From 4169b5e4ec7353eb2dfc5dd1f437f6f7b44124ce Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Fri, 28 Nov 2014 21:46:34 +0100
+Subject: [PATCH] udev: rules - print the first invalid character
+
+The current code would print the character following the first invalid
+character.
+
+Given an udev rules-file without a trailing newline we would otherwise print
+garbage:
+
+  invalid key/value pair in file /usr/lib/udev/rules.d/40-usb-media-players.rules
+  on line 26, starting at character 25 ('m')
+
+This is now changed to print
+
+  invalid key/value pair in file /usr/lib/udev/rules.d/40-usb-media-players.rules
+  on line 26, starting at character 25 ('')
+
+(still not very good as printing \0 just gives the empty string)
+
+(cherry picked from commit 6501b52d358aa2c7fe28e477f9d5acf0a2991d32)
+---
+ src/udev/udev-rules.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/udev/udev-rules.c b/src/udev/udev-rules.c
+index ff4066c8dc..086519aae4 100644
+--- a/src/udev/udev-rules.c
++++ b/src/udev/udev-rules.c
+@@ -1068,13 +1068,13 @@ static int add_rule(struct udev_rules *rules, char *line,
+                         /* If we aren't at the end of the line, this is a parsing error.
+                          * Make a best effort to describe where the problem is. */
+                         if (*linepos != '\n') {
+-                                char buf[2] = {linepos[1]};
++                                char buf[2] = {*linepos};
+                                 _cleanup_free_ char *tmp;
+ 
+                                 tmp = cescape(buf);
+                                 log_error("invalid key/value pair in file %s on line %u, starting at character %tu ('%s')\n",
+                                           filename, lineno, linepos - line + 1, tmp);
+-                                if (linepos[1] == '#')
++                                if (*linepos == '#')
+                                         log_error("hint: comments can only start at beginning of line");
+                         }
+                         break;

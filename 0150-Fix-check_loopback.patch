@@ -1,0 +1,26 @@
+From 7a77659e57f987e7b331b083f4c91981e4047985 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>
+Date: Sat, 27 Dec 2014 19:17:39 +0100
+Subject: [PATCH] Fix check_loopback()
+
+Add missing htonl() so that check_loopback() actually tests for 127.0.0.1
+instead of 1.0.0.127 on little-endian machines.
+
+(cherry picked from commit 58a489c2b3628f3003d3901537bec8b5e6c1b7bd)
+---
+ src/core/loopback-setup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/loopback-setup.c b/src/core/loopback-setup.c
+index 6ac1fffd75..65f1368730 100644
+--- a/src/core/loopback-setup.c
++++ b/src/core/loopback-setup.c
+@@ -64,7 +64,7 @@ static int check_loopback(void) {
+                 struct sockaddr_in in;
+         } sa = {
+                 .in.sin_family = AF_INET,
+-                .in.sin_addr.s_addr = INADDR_LOOPBACK,
++                .in.sin_addr.s_addr = htonl(INADDR_LOOPBACK),
+         };
+ 
+         /* If we failed to set up the loop back device, check whether

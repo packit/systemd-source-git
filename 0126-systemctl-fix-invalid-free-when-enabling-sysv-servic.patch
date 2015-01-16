@@ -1,0 +1,79 @@
+From ac54c4077cd9b09d66f904cfb885453919bbd602 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 9 Dec 2014 14:41:24 -0500
+Subject: [PATCH] systemctl: fix invalid free when enabling sysv services fails
+
+The error was introduced in v215-343-g60731f32f1 'systemctl: do not
+bother to mutate state on error', by causing strv_free to attempt to
+free a static string. Simplify the whole thing by always keeping the
+array in valid state.
+
+(cherry picked from commit a644abed54bd4a42ebe2c99af5cc621ffbaf6c55)
+---
+ src/systemctl/systemctl.c | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 409693e8f7..86b923b170 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -5098,7 +5098,7 @@ static int enable_sysv_units(const char *verb, char **args) {
+         int r = 0;
+ 
+ #if defined(HAVE_SYSV_COMPAT) && defined(HAVE_CHKCONFIG)
+-        unsigned f = 1, t = 1;
++        unsigned f = 0;
+         _cleanup_lookup_paths_free_ LookupPaths paths = {};
+ 
+         if (arg_scope != UNIT_FILE_SYSTEM)
+@@ -5117,7 +5117,7 @@ static int enable_sysv_units(const char *verb, char **args) {
+                 return r;
+ 
+         r = 0;
+-        for (f = 0; args[f]; f++) {
++        while (args[f]) {
+                 const char *name;
+                 _cleanup_free_ char *p = NULL, *q = NULL, *l = NULL;
+                 bool found_native = false, found_sysv;
+@@ -5128,7 +5128,7 @@ static int enable_sysv_units(const char *verb, char **args) {
+                 pid_t pid;
+                 siginfo_t status;
+ 
+-                name = args[f];
++                name = args[f++];
+ 
+                 if (!endswith(name, ".service"))
+                         continue;
+@@ -5160,9 +5160,6 @@ static int enable_sysv_units(const char *verb, char **args) {
+                 if (!found_sysv)
+                         continue;
+ 
+-                /* Mark this entry, so that we don't try enabling it as native unit */
+-                args[f] = (char*) "";
+-
+                 log_info("%s is not a native service, redirecting to /sbin/chkconfig.", name);
+ 
+                 if (!isempty(arg_root))
+@@ -5212,19 +5209,12 @@ static int enable_sysv_units(const char *verb, char **args) {
+                                 return -EINVAL;
+                 } else
+                         return -EPROTO;
+-        }
+-
+-        /* Drop all SysV units */
+-        for (f = 0, t = 0; args[f]; f++) {
+ 
+-                if (isempty(args[f]))
+-                        continue;
+-
+-                args[t++] = args[f];
++                /* Remove this entry, so that we don't try enabling it as native unit */
++                assert(f > 0 && streq(args[f-1], name));
++                assert_se(strv_remove(args + f - 1, name));
+         }
+ 
+-        args[t] = NULL;
+-
+ #endif
+         return r;
+ }

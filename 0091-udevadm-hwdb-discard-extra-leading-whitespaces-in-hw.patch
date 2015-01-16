@@ -1,0 +1,36 @@
+From 701afaabe7e9e92e36ed458e08691784c0501901 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Thu, 27 Nov 2014 15:19:44 +1000
+Subject: [PATCH] udevadm hwdb: discard extra leading whitespaces in hwdb
+
+Currently a property in the form of
+  FOO=bar
+is stored as " FOO=bar", i.e. the property name contains a leading space.
+That's quite hard to spot.
+
+This patch discards all extra whitespaces but the first one which is required
+by libudev's hwdb_add_property.
+
+[zj: modify the check a bit]
+
+https://bugs.freedesktop.org/show_bug.cgi?id=82311
+(cherry picked from commit 36afca67b67984520c5c9a6ce14af51a68c7c8cf)
+---
+ src/udev/udevadm-hwdb.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/udev/udevadm-hwdb.c b/src/udev/udevadm-hwdb.c
+index 3ca755e2ed..56779e3200 100644
+--- a/src/udev/udevadm-hwdb.c
++++ b/src/udev/udevadm-hwdb.c
+@@ -428,6 +428,10 @@ static int insert_data(struct trie *trie, struct udev_list *match_list,
+         value[0] = '\0';
+         value++;
+ 
++        /* libudev requires properties to start with a space */
++        while (isblank(line[0]) && isblank(line[1]))
++                line++;
++
+         if (line[0] == '\0' || value[0] == '\0') {
+                 log_error("Error, empty key or value '%s' in '%s':", line, filename);
+                 return -EINVAL;

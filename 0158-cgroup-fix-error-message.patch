@@ -1,0 +1,26 @@
+From f11dbe2f409c293a1565cfcebbbb703c73e897b3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Mon, 5 Jan 2015 19:03:23 -0500
+Subject: [PATCH] cgroup: fix error message
+
+systemd[1]: Failed to set memory.limit_in_bytes on : Invalid argument
+
+(cherry picked from commit 6da139137eb4b0ee68ca4aa4ddfdab02e8a5cf98)
+---
+ src/core/cgroup.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/core/cgroup.c b/src/core/cgroup.c
+index 6b3b9541b5..5f3d9907b7 100644
+--- a/src/core/cgroup.c
++++ b/src/core/cgroup.c
+@@ -297,6 +297,9 @@ void cgroup_context_apply(CGroupContext *c, CGroupControllerMask mask, const cha
+         /* Some cgroup attributes are not support on the root cgroup,
+          * hence silently ignore */
+         is_root = isempty(path) || path_equal(path, "/");
++        if (is_root)
++                /* Make sure we don't try to display messages with an empty path. */
++                path = "/";
+ 
+         /* We generally ignore errors caused by read-only mounted
+          * cgroup trees (assuming we are running in a container then),

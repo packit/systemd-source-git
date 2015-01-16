@@ -1,0 +1,48 @@
+From 24f984a1476ee66c90b336cf29ddb03e75273089 Mon Sep 17 00:00:00 2001
+From: Michael Biebl <biebl@debian.org>
+Date: Fri, 28 Nov 2014 06:04:48 +0100
+Subject: [PATCH] sysv-generator: initialize units before use to ensure correct
+ ordering
+
+The original loop called fix_order() on each service immediately after
+loading it, but fix_order() would reference other units which were not
+loaded yet.
+This resulted in bogus and unnecessary orderings based on the static
+start priorities.
+
+Therefore call load_sysv() for every init script when traversing them in
+enumerate_sysv(). This ensures that all units are loaded when
+fix_order() is called.
+
+Bug-Debian: https://bugs.debian.org/771118
+(cherry picked from commit 1ed0c19f81fd13cdf283c6def0168ce122a853a9)
+---
+ src/sysv-generator/sysv-generator.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/sysv-generator/sysv-generator.c b/src/sysv-generator/sysv-generator.c
+index 9488d76cc2..101dfddc38 100644
+--- a/src/sysv-generator/sysv-generator.c
++++ b/src/sysv-generator/sysv-generator.c
+@@ -760,6 +760,10 @@ static int enumerate_sysv(LookupPaths lp, Hashmap *all_services) {
+                         service->name = name;
+                         service->path = fpath;
+ 
++                        r = load_sysv(service);
++                        if (r < 0)
++                                continue;
++
+                         r = hashmap_put(all_services, service->name, service);
+                         if (r < 0)
+                                 return log_oom();
+@@ -944,10 +948,6 @@ int main(int argc, char *argv[]) {
+         }
+ 
+         HASHMAP_FOREACH(service, all_services, j) {
+-                q = load_sysv(service);
+-                if (q < 0)
+-                        continue;
+-
+                 q = fix_order(service, all_services);
+                 if (q < 0)
+                         continue;

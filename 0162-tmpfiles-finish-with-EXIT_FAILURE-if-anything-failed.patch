@@ -1,0 +1,80 @@
+From 9db605a4db983e032bff509571c54c8ea3bcea9a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 6 Jan 2015 09:53:12 -0500
+Subject: [PATCH] tmpfiles: finish with EXIT_FAILURE if anything failed
+
+Return value is successful only if everything succeeded.
+
+(cherry picked from commit 1db50423ba427565f92c05f3aaeab351860e30bc)
+---
+ src/tmpfiles/tmpfiles.c | 36 ++++++++++++++++++++++--------------
+ 1 file changed, 22 insertions(+), 14 deletions(-)
+
+diff --git a/src/tmpfiles/tmpfiles.c b/src/tmpfiles/tmpfiles.c
+index 1e4675f87e..02e439e699 100644
+--- a/src/tmpfiles/tmpfiles.c
++++ b/src/tmpfiles/tmpfiles.c
+@@ -1063,7 +1063,7 @@ static int clean_item(Item *i) {
+ }
+ 
+ static int process_item(Item *i) {
+-        int r, q, p;
++        int r, q, p, s, t = 0;
+         _cleanup_free_ char *prefix = NULL;
+ 
+         assert(i);
+@@ -1081,21 +1081,23 @@ static int process_item(Item *i) {
+                 Item *j;
+ 
+                 j = hashmap_get(items, prefix);
+-                if (j)
+-                        process_item(j);
++                if (j) {
++                        int s;
++
++                        s = process_item(j);
++                        if (s < 0 && t == 0)
++                                t = s;
++                }
+         }
+ 
+         r = arg_create ? create_item(i) : 0;
+         q = arg_remove ? remove_item(i) : 0;
+         p = arg_clean ? clean_item(i) : 0;
+ 
+-        if (r < 0)
+-                return r;
+-
+-        if (q < 0)
+-                return q;
+-
+-        return p;
++        return t < 0 ? t :
++                r < 0 ? r :
++                q < 0 ? q :
++                p;
+ }
+ 
+ static void item_free(Item *i) {
+@@ -1648,11 +1650,17 @@ int main(int argc, char *argv[]) {
+                 }
+         }
+ 
+-        HASHMAP_FOREACH(i, globs, iterator)
+-                process_item(i);
++        HASHMAP_FOREACH(i, globs, iterator) {
++                k = process_item(i);
++                if (k < 0 && r == 0)
++                        r = k;
++        }
+ 
+-        HASHMAP_FOREACH(i, items, iterator)
+-                process_item(i);
++        HASHMAP_FOREACH(i, items, iterator) {
++                k = process_item(i);
++                if (k < 0 && r == 0)
++                        r = k;
++        }
+ 
+ finish:
+         while ((i = hashmap_steal_first(items)))

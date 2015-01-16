@@ -1,0 +1,27 @@
+From 51affe24d576bdbaa9b5f3708dbd0b88adedd8b9 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 19 Nov 2014 16:43:03 +0100
+Subject: [PATCH] set: make set_consume() actually free the allocated string if
+ the string already is in the set
+
+(cherry picked from commit 575ccc1b6900f1f8e5c32da71f42f4d855659622)
+
+Conflicts:
+	src/shared/hashmap.c
+---
+ src/shared/set.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/shared/set.c b/src/shared/set.c
+index 84ab82a701..af9cdb5dd5 100644
+--- a/src/shared/set.c
++++ b/src/shared/set.c
+@@ -54,7 +54,7 @@ int set_consume(Set *s, void *value) {
+         int r;
+ 
+         r = set_put(s, value);
+-        if (r < 0)
++        if (r <= 0)
+                 free(value);
+ 
+         return r;

@@ -1,0 +1,54 @@
+From 3ea7797a7c7d5cb849e1b4e0e1fb07d981d09684 Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Mon, 12 Jan 2015 20:43:14 +0100
+Subject: [PATCH] doc: add cross-references between systemd.{link, netdev,
+ network}
+
+(cherry picked from commit bd763d350c7e8bf8b934bd45bc34ac35cdba2a63)
+---
+ man/systemd.link.xml    | 6 ++++++
+ man/systemd.netdev.xml  | 1 +
+ man/systemd.network.xml | 1 +
+ 3 files changed, 8 insertions(+)
+
+diff --git a/man/systemd.link.xml b/man/systemd.link.xml
+index 6075b39b79..2de36e77c9 100644
+--- a/man/systemd.link.xml
++++ b/man/systemd.link.xml
+@@ -395,6 +395,12 @@ MACAddress=cb:a9:87:65:43:21</programlisting>
+                         </citerefentry>,
+                         <citerefentry>
+                                 <refentrytitle>udevadm</refentrytitle><manvolnum>8</manvolnum>
++                        </citerefentry>,
++                        <citerefentry>
++                                <refentrytitle>systemd.netdev</refentrytitle><manvolnum>5</manvolnum>
++                        </citerefentry>,
++                        <citerefentry>
++                                <refentrytitle>systemd.network</refentrytitle><manvolnum>5</manvolnum>
+                         </citerefentry>
+                 </para>
+         </refsect1>
+diff --git a/man/systemd.netdev.xml b/man/systemd.netdev.xml
+index 275ee528a0..60e3377d95 100644
+--- a/man/systemd.netdev.xml
++++ b/man/systemd.netdev.xml
+@@ -588,6 +588,7 @@ MACAddress=12:34:56:78:9a:bc</programlisting>
+                 <para>
+                         <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemd-networkd</refentrytitle><manvolnum>8</manvolnum></citerefentry>,
++                        <citerefentry><refentrytitle>systemd.link</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemd.network</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+                 </para>
+         </refsect1>
+diff --git a/man/systemd.network.xml b/man/systemd.network.xml
+index 4cc13b2afc..55bc51548f 100644
+--- a/man/systemd.network.xml
++++ b/man/systemd.network.xml
+@@ -594,6 +594,7 @@ Tunnel=vti-tun</programlisting>
+                 <para>
+                         <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemd-networkd</refentrytitle><manvolnum>8</manvolnum></citerefentry>,
++                        <citerefentry><refentrytitle>systemd.link</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemd.netdev</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+                 </para>
+         </refsect1>

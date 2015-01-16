@@ -1,0 +1,104 @@
+From a6bd1d811dc9d7ac43b57377f70bf9814b350df0 Mon Sep 17 00:00:00 2001
+From: Ronny Chevalier <chevalier.ronny@gmail.com>
+Date: Sun, 30 Nov 2014 20:12:13 +0100
+Subject: [PATCH] man: document equivalence between Limit directives and ulimit
+
+See https://bugs.freedesktop.org/show_bug.cgi?id=80341
+
+(cherry picked from commit b8825fff7bf153ea9f17c46a40278df2e780829d)
+---
+ man/systemd.exec.xml | 81 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 81 insertions(+)
+
+diff --git a/man/systemd.exec.xml b/man/systemd.exec.xml
+index e9af4abd6d..179130e4aa 100644
+--- a/man/systemd.exec.xml
++++ b/man/systemd.exec.xml
+@@ -716,6 +716,87 @@
+                                 <varname>infinity</varname> to
+                                 configure no limit on a specific
+                                 resource.</para></listitem>
++
++                                <table>
++                                        <title>Limit directives and their equivalent with ulimit</title>
++
++                                        <tgroup cols='2'>
++                                                <colspec colname='directive' />
++                                                <colspec colname='equivalent' />
++                                                <thead>
++                                                        <row>
++                                                                <entry>Directive</entry>
++                                                                <entry>ulimit equivalent</entry>
++                                                        </row>
++                                                </thead>
++                                                <tbody>
++                                                        <row>
++                                                                <entry>LimitCPU</entry>
++                                                                <entry>ulimit -t</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitFSIZE</entry>
++                                                                <entry>ulimit -f</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitDATA</entry>
++                                                                <entry>ulimit -d</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitSTACK</entry>
++                                                                <entry>ulimit -s</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitCORE</entry>
++                                                                <entry>ulimit -c</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitRSS</entry>
++                                                                <entry>ulimit -m</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitNOFILE</entry>
++                                                                <entry>ulimit -n</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitAS</entry>
++                                                                <entry>ulimit -v</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitNPROC</entry>
++                                                                <entry>ulimit -u</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitMEMLOCK</entry>
++                                                                <entry>ulimit -l</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitLOCKS</entry>
++                                                                <entry>ulimit -x</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitSIGPENDING</entry>
++                                                                <entry>ulimit -i</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitMSGQUEUE</entry>
++                                                                <entry>ulimit -q</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitNICE</entry>
++                                                                <entry>ulimit -e</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitRTPRIO</entry>
++                                                                <entry>ulimit -r</entry>
++                                                        </row>
++                                                        <row>
++                                                                <entry>LimitRTTIME</entry>
++                                                                <entry>No equivalent</entry>
++                                                        </row>
++                                                </tbody>
++                                        </tgroup>
++                                </table>
+                         </varlistentry>
+ 
+                         <varlistentry>

@@ -1,0 +1,71 @@
+From 5304ec638fc00b1bb277fdfe806e758126fd1bb8 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 14 Jan 2015 22:37:56 +0100
+Subject: [PATCH] sysv-generator: always use fstatat() if we can
+
+(cherry picked from commit 805e5dda0a01c99d231824e1a9c4a208418bf342)
+---
+ src/sysv-generator/sysv-generator.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/src/sysv-generator/sysv-generator.c b/src/sysv-generator/sysv-generator.c
+index 6f87f63b72..bf49b24195 100644
+--- a/src/sysv-generator/sysv-generator.c
++++ b/src/sysv-generator/sysv-generator.c
+@@ -727,28 +727,34 @@ static int enumerate_sysv(LookupPaths lp, Hashmap *all_services) {
+                 }
+ 
+                 while ((de = readdir(d))) {
+-                        SysvStub *service;
+-                        struct stat st;
+                         _cleanup_free_ char *fpath = NULL, *name = NULL;
++                        _cleanup_free_ SysvStub *service = NULL;
++                        struct stat st;
+                         int r;
+ 
+                         if (ignore_file(de->d_name))
+                                 continue;
+ 
+-                        fpath = strjoin(*path, "/", de->d_name, NULL);
+-                        if (!fpath)
+-                                return log_oom();
+-
+-                        if (stat(fpath, &st) < 0)
++                        if (fstatat(dirfd(d), de->d_name, &st, 0) < 0) {
++                                log_warning("stat() failed on %s/%s: %s",
++                                            *path, de->d_name, strerror(-r));
+                                 continue;
++                        }
+ 
+                         if (!(st.st_mode & S_IXUSR))
+                                 continue;
+ 
++                        if (!S_ISREG(st.st_mode))
++                                continue;
++
+                         name = sysv_translate_name(de->d_name);
+                         if (!name)
+                                 return log_oom();
+ 
++                        fpath = strjoin(*path, "/", de->d_name, NULL);
++                        if (!fpath)
++                                return log_oom();
++
+                         if (hashmap_contains(all_services, name))
+                                 continue;
+ 
+@@ -761,12 +767,11 @@ static int enumerate_sysv(LookupPaths lp, Hashmap *all_services) {
+                         service->path = fpath;
+ 
+                         r = hashmap_put(all_services, service->name, service);
+-                        if (r < 0) {
+-                                free(service);
++                        if (r < 0)
+                                 return log_oom();
+-                        }
+ 
+                         name = fpath = NULL;
++                        service = NULL;
+                 }
+         }
+ 

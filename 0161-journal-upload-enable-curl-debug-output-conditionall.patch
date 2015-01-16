@@ -1,0 +1,27 @@
+From b6a844bde54792d21b1a8d552d3b6073ebb80a32 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 6 Jan 2015 00:26:26 -0500
+Subject: [PATCH] journal-upload: enable curl debug output conditionally
+
+https://bugs.freedesktop.org/show_bug.cgi?id=86464
+(cherry picked from commit 5dabb1e04e4521abf040e77a8322b70e7acdc7b0)
+---
+ src/journal-remote/journal-upload.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/journal-remote/journal-upload.c b/src/journal-remote/journal-upload.c
+index 9f13ffdbfe..02d0cb2083 100644
+--- a/src/journal-remote/journal-upload.c
++++ b/src/journal-remote/journal-upload.c
+@@ -243,8 +243,9 @@ int start_upload(Uploader *u,
+                 easy_setopt(curl, CURLOPT_HTTPHEADER, u->header,
+                             LOG_ERR, return -EXFULL);
+ 
+-                /* enable verbose for easier tracing */
+-                easy_setopt(curl, CURLOPT_VERBOSE, 1L, LOG_WARNING, );
++                if (_unlikely_(log_get_max_level() >= LOG_DEBUG))
++                        /* enable verbose for easier tracing */
++                        easy_setopt(curl, CURLOPT_VERBOSE, 1L, LOG_WARNING, );
+ 
+                 easy_setopt(curl, CURLOPT_USERAGENT,
+                             "systemd-journal-upload " PACKAGE_STRING,

@@ -1,0 +1,65 @@
+From ab755c9e982eada014a906c7dac0c3a5bae5f853 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 11 Jan 2015 23:40:46 -0500
+Subject: [PATCH] fstab-util: fix priority parsing and add test
+
+(cherry picked from commit a75f4e2a02e287294b21ae9e5b1f28b2f8faea39)
+
+Conflicts:
+	src/shared/fstab-util.c
+	src/test/test-fstab-util.c
+---
+ src/shared/fstab-util.c    |  6 ++++--
+ src/test/test-fstab-util.c | 17 +++++++++++++++++
+ 2 files changed, 21 insertions(+), 2 deletions(-)
+
+diff --git a/src/shared/fstab-util.c b/src/shared/fstab-util.c
+index 546c81b80f..db3769966b 100644
+--- a/src/shared/fstab-util.c
++++ b/src/shared/fstab-util.c
+@@ -133,13 +133,15 @@ int fstab_find_pri(const char *options, int *ret) {
+         assert(ret);
+ 
+         r = fstab_filter_options(options, "pri\0", NULL, &opt, NULL);
+-        if (r <= 0)
++        if (r < 0)
+                 return r;
++        if (r == 0 || !opt)
++                return 0;
+ 
+         r = safe_atou(opt, &pri);
+         if (r < 0)
+                 return r;
+ 
+-        *ret = (int) r;
++        *ret = (int) pri;
+         return 1;
+ }
+diff --git a/src/test/test-fstab-util.c b/src/test/test-fstab-util.c
+index ddf965dde5..7a4fa04c8a 100644
+--- a/src/test/test-fstab-util.c
++++ b/src/test/test-fstab-util.c
+@@ -107,6 +107,23 @@ static void test_fstab_filter_options(void) {
+         do_fstab_filter_options("", "opt\0", 0, NULL, NULL, "");
+ }
+ 
++static void test_fstab_find_pri(void) {
++        int pri = -1;
++
++        assert_se(fstab_find_pri("pri", &pri) == 0);
++        assert_se(pri == -1);
++
++        assert_se(fstab_find_pri("pri=11", &pri) == 1);
++        assert_se(pri == 11);
++
++        assert_se(fstab_find_pri("opt,pri=12,opt", &pri) == 1);
++        assert_se(pri == 12);
++
++        assert_se(fstab_find_pri("opt,opt,pri=12,pri=13", &pri) == 1);
++        assert_se(pri == 13);
++}
++
+ int main(void) {
+         test_fstab_filter_options();
++        test_fstab_find_pri();
+ }

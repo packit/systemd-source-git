@@ -16,7 +16,7 @@
 Name:           systemd
 Url:            http://www.freedesktop.org/wiki/Software/systemd
 Version:        216
-Release:        14%{?gitcommit:.git%{gitcommit}}%{?dist}
+Release:        15%{?gitcommit:.git%{gitcommit}}%{?dist}
 # For a breakdown of the licensing, see README
 License:        LGPLv2+ and MIT and GPLv2+
 Summary:        A System and Service Manager
@@ -38,7 +38,7 @@ Source4:        yum-protect-systemd.conf
 Source5:        inittab
 Source6:        sysctl.conf.README
 
-# Patch series is available from http://cgit.freedesktop.org/systemd/systemd-stable/log/?h=v215-stable
+# Patch series is available from http://cgit.freedesktop.org/systemd/systemd-stable/log/?h=v216-stable
 # GIT_DIR=~/src/systemd/.git git format-patch-ab -M -N --no-signature v217..v216-stable
 # i=1; for p in 0*patch;do printf "Patch%04d:      %s\n" $i $p; ((i++));done
 Patch0001:      0001-Revert-readahead-wipe-out-readahead.patch
@@ -87,13 +87,155 @@ Patch0043:      0043-udev-hwdb-Change-error-message-regarding-missing-hwd.patch
 Patch0044:      0044-systemctl-when-invokes-as-reboot-f-sync.patch
 Patch0045:      0045-shared-create-files-even-if-the-SELinux-policy-has-n.patch
 Patch0046:      0046-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
-Patch0047:      0047-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
-Patch0048:      0048-systemctl-fix-argument-handling-when-invoked-as-shut.patch
-Patch0049:      0049-nspawn-fix-invocation-of-the-raw-clone-system-call-o.patch
-Patch0050:      0050-manager-print-fatal-errors-on-the-console-too.patch
+Patch0047:      0047-Revert-build-sys-bump-version-number-in-preparation-.patch
+Patch0048:      0048-Accept-StartTimeout-options-for-compatibility.patch
+Patch0049:      0049-timer-reenable-TIMER_ACTIVE-timers-when-restarted.patch
+Patch0050:      0050-man-update-bootup-7-for-asynchronous-timers.target.patch
+Patch0051:      0051-utf8-when-looking-at-the-next-unichar-honour-the-siz.patch
+Patch0052:      0052-manager-cast-mkdir-result-to-void-to-make-sure-cover.patch
+Patch0053:      0053-core-unify-how-we-create-the-notify-and-private-dbus.patch
+Patch0054:      0054-sysusers-be-nice-and-print-a-warning-if-futimens-fai.patch
+Patch0055:      0055-network-fix-typo.patch
+Patch0056:      0056-man-document-failed.patch
+Patch0057:      0057-man-don-t-document-systemctl-failed.patch
+Patch0058:      0058-man-don-t-refer-to-undocumented-option-failed.patch
+Patch0059:      0059-inhibit-allow-filtering-list-by-mode.patch
+Patch0060:      0060-bus-when-dumping-string-property-values-escape-the-c.patch
+Patch0061:      0061-man-fix-typo.patch
+Patch0062:      0062-keymap-Add-support-for-IBM-ThinkPad-X41-Tablet.patch
+Patch0063:      0063-keymap-Fix-special-keys-on-ThinkPad-X60-X61-Tablet.patch
+Patch0064:      0064-man-hostnamectl-understands-M-too.patch
+Patch0065:      0065-sd-dhcp-client-fix-REBOOT-state-handling.patch
+Patch0066:      0066-set-make-set_consume-actually-free-the-allocated-str.patch
+Patch0067:      0067-core-watchdog-bus-properties-cannot-be-both-writable.patch
+Patch0068:      0068-sd-dhcp-lease-fix-copy-paste-error-asserting-wrong-f.patch
+Patch0069:      0069-build-avoid-trailing-whitespace-in-feature-string.patch
+Patch0070:      0070-sd-bus-create-clean-error-when-a-property-Set-call-w.patch
+Patch0071:      0071-selinux-access-fix-broken-ternary-operator.patch
+Patch0072:      0072-Do-not-check-for-existence-of-remote-binaries.patch
+Patch0073:      0073-man-logind.conf.xml-make-consistent-with-default-log.patch
+Patch0074:      0074-nspawn-ignore-EEXIST-when-mounting-tmpfs.patch
+Patch0075:      0075-systemctl-show-BindsTo-BoundBy-in-list-dependencies.patch
+Patch0076:      0076-man-reword-list-dependencies-description.patch
+Patch0077:      0077-dbus-return-non-zero-return-value-in-the-case-that-p.patch
+Patch0078:      0078-manager-only-issue-overmount-warning-when-the-check-.patch
+Patch0079:      0079-gpt-auto-generator-properly-ignore-value.patch
+Patch0080:      0080-resolved-fix-typo-in-sd_notify-call.patch
+Patch0081:      0081-core-fix-assertion-failure-in-checking-a-transaction.patch
+Patch0082:      0082-swap-restore-support-for-nofail.patch
+Patch0083:      0083-journalctl-print-all-possible-lines-immediately-with.patch
+Patch0084:      0084-unit-name-fix-escaping-logic-in-unit_name_mangle_wit.patch
+Patch0085:      0085-man-add-systemd-sysv-generator-8.patch
+Patch0086:      0086-sysv-generator-advertise-the-man-page.patch
+Patch0087:      0087-hostnamectl-Exit-with-zero-on-success.patch
+Patch0088:      0088-systemctl-append-default-suffix-only-if-none-present.patch
+Patch0089:      0089-Revert-systemctl-append-default-suffix-only-if-none-.patch
+Patch0090:      0090-core-fix-return-value-in-error-path-after-sd_event_a.patch
+Patch0091:      0091-udevadm-hwdb-discard-extra-leading-whitespaces-in-hw.patch
+Patch0092:      0092-udev-rules-modernise-add_rule-a-bit.patch
+Patch0093:      0093-udev-rules-print-the-first-invalid-character.patch
+Patch0094:      0094-udev-rules-ignore-the-lack-of-trailing-newline.patch
+Patch0095:      0095-shared-time-dst-ensure-nulstr-is-null-terminated.patch
+Patch0096:      0096-shared-install-report-error-if-mask-symlink-can-not-.patch
+Patch0097:      0097-delta-diff-returns-1-when-files-differ-ignore-this.patch
+Patch0098:      0098-man-update-description-of-default-extension-for-isol.patch
+Patch0099:      0099-delta-Fix-broken-separator-support.patch
+Patch0100:      0100-man-fix-link-to-systemd-networkd-wait-online.service.patch
+Patch0101:      0101-man-document-equivalence-between-Limit-directives-an.patch
+Patch0102:      0102-man-fix-typos.patch
+Patch0103:      0103-man-document-that-we-set-both-soft-and-hard-limits-f.patch
+Patch0104:      0104-cgroup-util-Don-t-send-SIGCONT-after-SIGKILL.patch
+Patch0105:      0105-man-delete-ZX-as-sole-compression-Compress-as-boolea.patch
+Patch0106:      0106-man-BusName-is-not-optional-for-Type-bus.patch
+Patch0107:      0107-libudev-set-errno-properly-in-all-error-conditions-o.patch
+Patch0108:      0108-nspawn-correct-EEXIST-check-when-creating-directory-.patch
+Patch0109:      0109-units-skip-mounting-dev-hugepages-if-we-don-t-have-C.patch
+Patch0110:      0110-selinux-figure-out-selinux-context-applied-on-exec-b.patch
+Patch0111:      0111-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0112:      0112-man-there-s-actually-no-fail-fstab-option-but-only-n.patch
+Patch0113:      0113-man-fix-reference-to-obsolete-command-systemctl-dump.patch
+Patch0114:      0114-sd-rtnl-fix-bogus-warning-about-dropping-20-bytes-fr.patch
+Patch0115:      0115-journal-Fix-navigating-backwards-missing-entries.patch
+Patch0116:      0116-units-make-sure-container-getty-.service-stops-resta.patch
+Patch0117:      0117-fstab-generator-Allow-mount.usr-without-mount.usrfla.patch
+Patch0118:      0118-cgroup-Handle-error-when-destroying-cgroup.patch
+Patch0119:      0119-journalctl-respect-after-cursor-semantics-with-follo.patch
+Patch0120:      0120-libsystemd-network-fix-writing-of-routes-in-dhcp-lea.patch
+Patch0121:      0121-unit-update-unit-dropin-paths-and-time-when-dropin-f.patch
+Patch0122:      0122-journal-optimize-iteration-skip-whole-files-behind-c.patch
+Patch0123:      0123-journal-optimize-iteration-skip-files-that-cannot-im.patch
+Patch0124:      0124-hwdb-update-PCI-USB-OUI-databases.patch
+Patch0125:      0125-catalog-fix-typos-in-the-French-translation.patch
+Patch0126:      0126-systemctl-fix-invalid-free-when-enabling-sysv-servic.patch
+Patch0127:      0127-virt-when-detecting-containers-and-run-systemd-conta.patch
+Patch0128:      0128-man-improve-docs-for-systemd-modules-load.service.patch
+Patch0129:      0129-zsh-completion-remove-duplicate-function.patch
+Patch0130:      0130-build-sys-fix-user-unit-m4-logic.patch
+Patch0131:      0131-use-correct-format-types.patch
+Patch0132:      0132-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0133:      0133-journal-fix-dangling-else-ambiguity.patch
+Patch0134:      0134-man-fedora-21-has-been-release-suggest-21-as-fedora-.patch
+Patch0135:      0135-blkid-Warn-when-rejecting-a-superblock-with-a-bad-cs.patch
+Patch0136:      0136-systemctl-fix-argument-handling-when-invoked-as-shut.patch
+Patch0137:      0137-shared-path-util-memory-leak.patch
+Patch0138:      0138-path-follow-symbolic-link-for-parent-path.patch
+Patch0139:      0139-hwdb-add-Lenovo-3000-N200-special-key.patch
+Patch0140:      0140-nspawn-fix-invocation-of-the-raw-clone-system-call-o.patch
+Patch0141:      0141-path-follow-symbolic-link-for-parent-path-2.patch
+Patch0142:      0142-load-fragment-properly-unescape.patch
+Patch0143:      0143-test-strv-use-STRV_MAKE.patch
+Patch0144:      0144-Treat-a-trailing-backslash-as-an-error.patch
+Patch0145:      0145-doc-os-release-mention-all-shell-characters-that-mus.patch
+Patch0146:      0146-man-add-a-note-why-U-h-s-are-mostly-useless.patch
+Patch0147:      0147-man-typo-in-sd_watchdog_enabled-notes.patch
+Patch0148:      0148-journald-fix-off-by-one-in-native-transport.patch
+Patch0149:      0149-journald-always-allocate-space-for-object-fields.patch
+Patch0150:      0150-Fix-check_loopback.patch
+Patch0151:      0151-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch0152:      0152-man-Fix-spelling.patch
+Patch0153:      0153-accelerometer-drop-unused-x-option.patch
+Patch0154:      0154-cgroup-downgrade-log-messages-when-we-cannot-write-t.patch
+Patch0155:      0155-core-fix-typo-in-log-message.patch
+Patch0156:      0156-Steal-UID-GID-MODE-_INVALID-definitions.patch
+Patch0157:      0157-journal-call-connect-with-dropped-privileges.patch
+Patch0158:      0158-cgroup-fix-error-message.patch
+Patch0159:      0159-cgroup-memory-limits-on-are-not-supported.patch
+Patch0160:      0160-man-clarify-path-escaping-and-reference-systemd-esca.patch
+Patch0161:      0161-journal-upload-enable-curl-debug-output-conditionall.patch
+Patch0162:      0162-tmpfiles-finish-with-EXIT_FAILURE-if-anything-failed.patch
+Patch0163:      0163-tmpfiles-make-gcc-shut-up.patch
+Patch0164:      0164-sysv-generator-handle-Provides-for-non-virtual-facil.patch
+Patch0165:      0165-sysv-generator-initialize-units-before-use-to-ensure.patch
+Patch0166:      0166-udevadm-don-t-hit-an-assert-when-obsolete-parameters.patch
+Patch0167:      0167-journal-bump-RLIMIT_NOFILE-when-journal-files-to-16K.patch
+Patch0168:      0168-dbus1-generator-fix-array-sentinal.patch
+Patch0169:      0169-path-util-plug-leak.patch
+Patch0170:      0170-doc-fix-stale-references-to-systemd-verify.patch
+Patch0171:      0171-man-remove-references-to-systemadm-from-systemctl-ma.patch
+Patch0172:      0172-shell-completion-add-missing-output-modes.patch
+Patch0173:      0173-systemctl-add-missing-output-modes-to-help-message.patch
+Patch0174:      0174-journal-do-not-check-for-number-of-files.patch
+Patch0175:      0175-man-document-that-loginctl-activate-only-takes-a-sin.patch
+Patch0176:      0176-Add-new-function-to-filter-fstab-options.patch
+Patch0177:      0177-.gitignore-add-new-tests-and-sort-tests-alphabetical.patch
+Patch0178:      0178-core-mount-filter-out-noauto-auto-nofail-fail-option.patch
+Patch0179:      0179-core-load-fragment-avoid-allocating-0-bytes-when-giv.patch
+Patch0180:      0180-fstab-util-fix-priority-parsing-and-add-test.patch
+Patch0181:      0181-core-mount-remove-fail-again.patch
+Patch0182:      0182-zsh-completion-add-missing-completions-for-coredumpc.patch
+Patch0183:      0183-zsh-completion-add-missing-M-completion-for-timedate.patch
+Patch0184:      0184-zsh-completion-add-missing-completions-for-systemd-a.patch
+Patch0185:      0185-zsh-completion-add-missing-completions-for-systemd-t.patch
+Patch0186:      0186-doc-add-cross-references-between-systemd.-link-netde.patch
+Patch0187:      0187-man-remove-nofail-from-systemd.swap-5.patch
+Patch0188:      0188-sysv-generator-fix-memory-leak-on-failure.patch
+Patch0189:      0189-sysv-generator-always-use-fstatat-if-we-can.patch
+Patch0190:      0190-fix-zsh-completion-typo.patch
+Patch0191:      0191-udev-fix-NULL-ptr-deref.patch
+Patch0192:      0192-manager-print-fatal-errors-on-the-console-too.patch
+Patch0193:      0193-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
 
 
-Patch0996:      Accept-StartTimeout-options-for-compatibility.patch
 Patch0997:      units-remove-dev-log-to-always-create-symlink.patch
 Patch0998:      fedora-disable-resolv.conf-symlink.patch
 Patch0999:      fedora-add-bridge-sysctl-configuration.patch
@@ -881,6 +1023,18 @@ getent passwd systemd-journal-upload >/dev/null 2>&1 || useradd -r -l -g systemd
 %{_datadir}/systemd/gatewayd
 
 %changelog
+* Fri Jan 16 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 216-15
+- Many documentation and shell completion updates
+- Hardware database update
+- Fixes for errors reported upstream and in Debian
+- Restore reported version to 216 (#1179495)
+- journald crash (#1177184)
+- journald part of the fix for issues with too many files (#1179980)
+- annoying message (#1174863)
+- invalid _UID= and _GID= fields in the journal
+- udevadm crash on obsolete parameters (#1178051)
+- do not pass "nofail"/"noauto"/"auto" to /bin/mount (#1177823)
+
 * Tue Jan  6 2015 Jan Synáček <jsynacek@redhat.com> - 216-14
 - systemd does not properly report errors when booting fails because it cannot load selinux policy (#1155468)
 

@@ -1,0 +1,26 @@
+From de399a2fd3b6e06dedd17ee9671ed8f175a45797 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 26 Dec 2014 08:34:18 -0500
+Subject: [PATCH] journald: fix off by one in native transport
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1177184
+(cherry picked from commit 12a717f8347f3daf0ae46a2b71c7d011d9c12fea)
+---
+ src/journal/journald-native.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/journal/journald-native.c b/src/journal/journald-native.c
+index a6352022dd..6d75ba6949 100644
+--- a/src/journal/journald-native.c
++++ b/src/journal/journald-native.c
+@@ -132,8 +132,8 @@ void server_process_native_message(
+ 
+                 /* A property follows */
+ 
+-                /* n received properties, +1 for _TRANSPORT */
+-                if (!GREEDY_REALLOC(iovec, m, n + 1 + N_IOVEC_META_FIELDS + !!object_pid * N_IOVEC_OBJECT_FIELDS)) {
++                /* n existing properties, 1 new, +1 for _TRANSPORT */
++                if (!GREEDY_REALLOC(iovec, m, n + 2 + N_IOVEC_META_FIELDS + !!object_pid * N_IOVEC_OBJECT_FIELDS)) {
+                         log_oom();
+                         break;
+                 }

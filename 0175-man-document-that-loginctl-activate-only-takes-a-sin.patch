@@ -1,0 +1,37 @@
+From 4b7a19e5b2b6f54bbf67feebef82fdb3ead5e404 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 9 Jan 2015 01:47:03 +0100
+Subject: [PATCH] man: document that 'loginctl activate' only takes a single
+ argument
+
+(cherry picked from commit 3909ba34ec9b2c63d9938b6ba37af54a214fcff3)
+---
+ man/loginctl.xml | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/man/loginctl.xml b/man/loginctl.xml
+index 749db92ed1..6a67371bda 100644
+--- a/man/loginctl.xml
++++ b/man/loginctl.xml
+@@ -211,14 +211,13 @@
+                         </varlistentry>
+ 
+                         <varlistentry>
+-                                <term><command>activate</command> <replaceable>ID</replaceable>...</term>
+-
+-                                <listitem><para>Activate one or more
+-                                sessions. This brings one or more
+-                                sessions into the foreground, if
+-                                another session is currently in the
+-                                foreground on the respective
+-                                seat.</para></listitem>
++                                <term><command>activate</command> <replaceable>ID</replaceable></term>
++
++                                <listitem><para>Activate a
++                                session. This brings a session into
++                                the foreground, if another session is
++                                currently in the foreground on the
++                                respective seat.</para></listitem>
+                         </varlistentry>
+ 
+                         <varlistentry>

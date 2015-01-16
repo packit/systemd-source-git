@@ -1,0 +1,51 @@
+From b121fb135c86af7dab2b0725abb19969fef4674d Mon Sep 17 00:00:00 2001
+From: Susant Sahani <susant@redhat.com>
+Date: Tue, 30 Dec 2014 22:11:38 +0530
+Subject: [PATCH] man: Fix spelling
+
+(cherry picked from commit 922d948b9f9dc4b90ac70d729d87fe505a58481f)
+---
+ man/sd_event_add_child.xml  | 2 +-
+ man/sd_event_add_signal.xml | 2 +-
+ man/systemctl.xml           | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/man/sd_event_add_child.xml b/man/sd_event_add_child.xml
+index 012fdb6a1a..f0640104b0 100644
+--- a/man/sd_event_add_child.xml
++++ b/man/sd_event_add_child.xml
+@@ -100,7 +100,7 @@ along with systemd; If not, see <http://www.gnu.org/licenses/>.
+     being stopped by a signal), and <constant>WCONTINUED</constant>
+     (watch for the child being resumed by a signal). See
+     <citerefentry><refentrytitle>waitid</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+-    for futher information.</para>
++    for further information.</para>
+ 
+     <para>Only a single handler may be installed for a specific
+     child. The handler is enabled
+diff --git a/man/sd_event_add_signal.xml b/man/sd_event_add_signal.xml
+index 6584268818..fa87e42a5c 100644
+--- a/man/sd_event_add_signal.xml
++++ b/man/sd_event_add_signal.xml
+@@ -95,7 +95,7 @@ along with systemd; If not, see <http://www.gnu.org/licenses/>.
+     <structname>const struct signalfd_siginfo</structname> containing
+     the information about the received signal. See
+     <citerefentry><refentrytitle>signalfd</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+-    for futher information.</para>
++    for further information.</para>
+ 
+     <para>Only a single handler may be installed for a specific
+     signal. The signal will be unblocked, and must be
+diff --git a/man/systemctl.xml b/man/systemctl.xml
+index 9b44537667..7d643d796e 100644
+--- a/man/systemctl.xml
++++ b/man/systemctl.xml
+@@ -173,7 +173,7 @@ along with systemd; If not, see <http://www.gnu.org/licenses/>.
+           <para>Note that any <varname>After=</varname> dependency is
+           automatically mirrored to create a
+           <varname>Before=</varname> dependency. Temporal dependencies
+-          may be specified explictly, but are also created implicitly
++          may be specified explicitly, but are also created implicitly
+           for units which are <varname>WantedBy=</varname> targets
+           (see
+           <citerefentry><refentrytitle>systemd.target</refentrytitle><manvolnum>5</manvolnum></citerefentry>),

@@ -1,0 +1,22 @@
+From d08997553cb948774815268af8df482344d755f4 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 14 Nov 2014 12:55:18 +0100
+Subject: [PATCH] man: hostnamectl understands -M too
+
+(cherry picked from commit 34b950a8d8b83b3c101beba479a9ddae8c2ebb93)
+---
+ man/hostnamectl.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/man/hostnamectl.xml b/man/hostnamectl.xml
+index 128d92f576..e5988461be 100644
+--- a/man/hostnamectl.xml
++++ b/man/hostnamectl.xml
+@@ -129,6 +129,7 @@
+                         </varlistentry>
+ 
+                         <xi:include href="user-system-options.xml" xpointer="host" />
++                        <xi:include href="user-system-options.xml" xpointer="machine" />
+ 
+                         <xi:include href="standard-options.xml" xpointer="help" />
+                         <xi:include href="standard-options.xml" xpointer="version" />

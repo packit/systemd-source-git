@@ -1,0 +1,24 @@
+From abed503bfebf2ea985cb250da77c84364bb9f1a0 Mon Sep 17 00:00:00 2001
+From: Chris Mayo <aklhfex@gmail.com>
+Date: Sun, 30 Nov 2014 14:44:25 +0000
+Subject: [PATCH] man: fix link to systemd-networkd-wait-online.service in
+ systemd-networkd.service(8)
+
+(cherry picked from commit da80c219d7283ae89d67f8e54addc9db1f2d421f)
+---
+ man/systemd-networkd.service.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/systemd-networkd.service.xml b/man/systemd-networkd.service.xml
+index 0570798878..7c20fa45b4 100644
+--- a/man/systemd-networkd.service.xml
++++ b/man/systemd-networkd.service.xml
+@@ -95,7 +95,7 @@
+                         <citerefentry><refentrytitle>systemd.link</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemd.network</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
+                         <citerefentry><refentrytitle>systemd.netdev</refentrytitle><manvolnum>5</manvolnum></citerefentry>,
+-                        <citerefentry><refentrytitle>systemd-network-wait-online.service</refentrytitle><manvolnum>8</manvolnum></citerefentry>
++                        <citerefentry><refentrytitle>systemd-networkd-wait-online.service</refentrytitle><manvolnum>8</manvolnum></citerefentry>
+                 </para>
+         </refsect1>
+ 

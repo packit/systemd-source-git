@@ -1,0 +1,26 @@
+From 5e0ee52aac53e6d7f94d503e6ee479e0d41119de Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 7 Nov 2014 16:34:37 +0100
+Subject: [PATCH] sysusers: be nice and print a warning if futimens() fails
+
+CID# 1251163
+
+(cherry picked from commit f06863bde5de49a503cb8028e89d4b30790f2cbf)
+---
+ src/sysusers/sysusers.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/sysusers/sysusers.c b/src/sysusers/sysusers.c
+index c133dc5f10..5f5b49dc77 100644
+--- a/src/sysusers/sysusers.c
++++ b/src/sysusers/sysusers.c
+@@ -241,7 +241,8 @@ static int make_backup(const char *target, const char *x) {
+ 
+         ts[0] = st.st_atim;
+         ts[1] = st.st_mtim;
+-        futimens(fileno(dst), ts);
++        if (futimens(fileno(dst), ts) < 0)
++                log_warning("Failed to fix access and modification time of %s: %m", backup);
+ 
+         if (rename(temp, backup) < 0)
+                 goto fail;

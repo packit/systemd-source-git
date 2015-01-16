@@ -1,6 +1,6 @@
-From 66b8a5665a964e05ab9b365ffceb840351990c03 Mon Sep 17 00:00:00 2001
-From: Fedora systemd team <systemd-maint@redhat.com>
-Date: Tue, 6 Jan 2015 12:22:52 +0100
+From 3d5ae9c8bb683bd6aa66d6a93e79b2e797083ae8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 16 Jan 2015 00:45:24 -0500
 Subject: [PATCH] manager: print fatal errors on the console too
 
 When booting in quiet mode, fatal messages would not be shown at all to the user.
@@ -15,7 +15,7 @@ https://bugzilla.redhat.com/show_bug.cgi?id=1155468
  3 files changed, 54 insertions(+), 16 deletions(-)
 
 diff --git a/src/core/main.c b/src/core/main.c
-index a9ca34d..2f856c0 100644
+index 912b3ff761..face753f87 100644
 --- a/src/core/main.c
 +++ b/src/core/main.c
 @@ -1245,6 +1245,7 @@ int main(int argc, char *argv[]) {
@@ -223,10 +223,10 @@ index a9ca34d..2f856c0 100644
          return retval;
  }
 diff --git a/src/core/manager.c b/src/core/manager.c
-index 47e23ba..b50df23 100644
+index b89399026e..97f0b14336 100644
 --- a/src/core/manager.c
 +++ b/src/core/manager.c
-@@ -2984,12 +2984,14 @@ void manager_set_first_boot(Manager *m, bool b) {
+@@ -2969,12 +2969,14 @@ void manager_set_first_boot(Manager *m, bool b) {
  void manager_status_printf(Manager *m, StatusType type, const char *status, const char *format, ...) {
          va_list ap;
  
@@ -244,7 +244,7 @@ index 47e23ba..b50df23 100644
  
          va_start(ap, format);
 diff --git a/src/core/selinux-setup.c b/src/core/selinux-setup.c
-index 25e22b6..cf3c145 100644
+index 25e22b6c77..cf3c14528d 100644
 --- a/src/core/selinux-setup.c
 +++ b/src/core/selinux-setup.c
 @@ -113,7 +113,7 @@ int mac_selinux_setup(bool *loaded_policy) {
@@ -256,6 +256,3 @@ index 25e22b6..cf3c145 100644
                                  return -EIO;
                          }
  
--- 
-2.2.0
-

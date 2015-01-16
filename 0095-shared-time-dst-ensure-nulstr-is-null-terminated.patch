@@ -1,0 +1,25 @@
+From 97bcebda33c649fac859c82ec70ce90e119d8946 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Sat, 29 Nov 2014 10:40:21 +0100
+Subject: [PATCH] shared: time-dst - ensure nulstr is null terminated
+
+Fixes CID #1237772.
+
+(cherry picked from commit 681f9718ce322da95578e20ed975dfb34e7edd23)
+---
+ src/shared/time-dst.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/shared/time-dst.c b/src/shared/time-dst.c
+index 6195b11017..926d22b94b 100644
+--- a/src/shared/time-dst.c
++++ b/src/shared/time-dst.c
+@@ -244,6 +244,8 @@ read_again:
+         if (fread(zone_names, 1, chars, f) != chars)
+                 return -EINVAL;
+ 
++        zone_names[chars] = '\0';
++
+         for (i = 0; i < num_isstd; ++i) {
+                 int c = getc(f);
+                 if (c == EOF)

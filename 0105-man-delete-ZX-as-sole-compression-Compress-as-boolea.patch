@@ -1,0 +1,29 @@
+From ffd2960a66a47c7c3f47c0c0ee6ca46a36c7be37 Mon Sep 17 00:00:00 2001
+From: Chris Atkinson <cwa@pipeline.com>
+Date: Sun, 30 Nov 2014 22:13:06 -0500
+Subject: [PATCH] man: delete ZX as sole compression; "Compress=" as boolean
+
+In man journald.conf, removes reference to XZ as sole form of
+compression. See commit d89c8fdf48c7bad5816b9f2e77e8361721f22517.
+
+In man coredump.conf, clarifies that "Compression=" controls existence,
+not type, of compression.
+
+(cherry picked from commit 442f7f155358a7396a350d3c47ea42e86bee4024)
+---
+ man/coredump.conf.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/coredump.conf.xml b/man/coredump.conf.xml
+index 0c9160e2cc..17c9651a3d 100644
+--- a/man/coredump.conf.xml
++++ b/man/coredump.conf.xml
+@@ -90,7 +90,7 @@
+       <varlistentry>
+         <term><varname>Compress=</varname></term>
+ 
+-        <listitem><para>Controls the type of compression for external
++        <listitem><para>Controls compression for external
+         storage. Takes a boolean argument, defaults to
+         <literal>yes</literal>.</para>
+         </listitem>

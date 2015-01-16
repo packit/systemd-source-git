@@ -1,0 +1,31 @@
+From 335ceb0b2dc61f838577e3dccb81ea95fc3c50fa Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 7 Nov 2014 18:11:53 -0500
+Subject: [PATCH] man: document --failed
+
+https://bugs.debian.org/767267
+(cherry picked from commit 599b6322f19ec619ddc294d0e7880b669040cf66)
+---
+ man/systemctl.xml | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/man/systemctl.xml b/man/systemctl.xml
+index 7cbaa6ccb0..ebee2bf9e9 100644
+--- a/man/systemctl.xml
++++ b/man/systemctl.xml
+@@ -322,6 +322,15 @@ along with systemd; If not, see <http://www.gnu.org/licenses/>.
+       <xi:include href="user-system-options.xml" xpointer="system" />
+ 
+       <varlistentry>
++        <term><option>--failed</option></term>
++
++        <listitem>
++          <para>List units in failed state. This is equivalent to
++          <option>--state=failed</option>.</para>
++        </listitem>
++      </varlistentry>
++
++      <varlistentry>
+         <term><option>--no-wall</option></term>
+ 
+         <listitem>

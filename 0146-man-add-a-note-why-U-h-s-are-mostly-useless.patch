@@ -1,0 +1,35 @@
+From 7911a6dda82ef240d5726eea64767c6d1735a567 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 25 Dec 2014 11:12:54 -0500
+Subject: [PATCH] man: add a note why %U,%h,%s are mostly useless
+
+The reasons were already given in the description of %U, but the
+are easy to overlook, and it's better to be explicit to avoid
+confusion.
+
+(cherry picked from commit b7a4d8de9273fab20e1e32e4846b6a866884e07a)
+---
+ man/systemd.unit.xml | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/man/systemd.unit.xml b/man/systemd.unit.xml
+index 803eff24aa..f1867ae831 100644
+--- a/man/systemd.unit.xml
++++ b/man/systemd.unit.xml
+@@ -1524,6 +1524,16 @@
+                     </tbody>
+                   </tgroup>
+                 </table>
++
++		<para>Please note that specifiers
++		<literal>%U</literal>, <literal>%h</literal>,
++		<literal>%s</literal> are mostly useless when systemd
++		is running in system mode.  PID 1 cannot query the
++		user account database for information, so the
++		specifiers only work as shortcuts for things which are
++		already specified in a different way in the unit
++		file. They are fully functional when systemd is
++		running in <option>--user</option> mode.</para>
+         </refsect1>
+ 
+         <refsect1>

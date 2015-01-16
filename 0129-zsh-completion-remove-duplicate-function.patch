@@ -1,0 +1,23 @@
+From 2659ab42022f2e3d154c85adc5b89a6549ca48d3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 10 Dec 2014 17:34:41 -0500
+Subject: [PATCH] zsh-completion: remove duplicate function
+
+https://bugs.archlinux.org/task/43069
+(cherry picked from commit 820aced6f6067a6b7c57b7d36e44f64378870cbf)
+---
+ shell-completion/zsh/_systemctl.in | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/shell-completion/zsh/_systemctl.in b/shell-completion/zsh/_systemctl.in
+index 7eefe53aec..0ee4856fa3 100644
+--- a/shell-completion/zsh/_systemctl.in
++++ b/shell-completion/zsh/_systemctl.in
+@@ -141,7 +141,6 @@ _filter_units_by_property() {
+   done
+ }
+ 
+-_systemctl_all_units() { { __systemctl list-unit-files; __systemctl list-units --all; } | { while read -r a b; do [[ $a =~ @\. ]] || echo -E - " $a"; done; } }
+ _systemctl_get_template_names() { __systemctl list-unit-files | { while read -r a b; do  [[ $a =~ @\. ]] && echo -E - " ${a%%@.*}@"; done; } }
+ 
+ 

@@ -1,0 +1,54 @@
+From 82c0579d83e1a4c1795c2304d7f001be334d53ed Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 5 Nov 2014 22:39:13 -0500
+Subject: [PATCH] manager: only issue overmount warning when the check
+ succeeded
+
+If for any reason the check failed (selinux?), we would still issue
+the warning. Check the return status.
+
+(cherry picked from commit 056edeb9102c5ba455e1a54af70f282b6138ca33)
+---
+ src/core/mount.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
+
+diff --git a/src/core/mount.c b/src/core/mount.c
+index e284357c6f..95d22a6575 100644
+--- a/src/core/mount.c
++++ b/src/core/mount.c
+@@ -812,19 +812,26 @@ fail:
+ }
+ 
+ void warn_if_dir_nonempty(const char *unit, const char* where) {
++        int r;
++
+         assert(unit);
+         assert(where);
+ 
+-        if (dir_is_empty(where) > 0)
++        r = dir_is_empty(where);
++        if (r > 0)
+                 return;
+-
+-        log_struct_unit(LOG_NOTICE,
+-                   unit,
+-                   "MESSAGE=%s: Directory %s to mount over is not empty, mounting anyway.",
+-                   unit, where,
+-                   "WHERE=%s", where,
+-                   MESSAGE_ID(SD_MESSAGE_OVERMOUNTING),
+-                   NULL);
++        else if (r == 0)
++                log_struct_unit(LOG_NOTICE,
++                                unit,
++                                "MESSAGE=%s: Directory %s to mount over is not empty, mounting anyway.",
++                                unit, where,
++                                "WHERE=%s", where,
++                                MESSAGE_ID(SD_MESSAGE_OVERMOUNTING),
++                                NULL);
++        else
++                log_warning_unit(unit,
++                                 "MESSAGE=Failed to check directory %s: %s",
++                                 where, strerror(-r));
+ }
+ 
+ static int fail_if_symlink(const char *unit, const char* where) {

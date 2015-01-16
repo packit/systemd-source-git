@@ -1,0 +1,37 @@
+From 259513092491da54112757e72c4cfd3d7c1fe9a8 Mon Sep 17 00:00:00 2001
+From: Chris Atkinson <cwa@pipeline.com>
+Date: Fri, 28 Nov 2014 15:27:56 -0500
+Subject: [PATCH] man: update description of default extension for isolate
+
+(cherry picked from commit 507e28d844e335fe9fc84b549577fcce398f3a5d)
+---
+ man/systemctl.xml | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/man/systemctl.xml b/man/systemctl.xml
+index 2dcd44f98a..9b44537667 100644
+--- a/man/systemctl.xml
++++ b/man/systemctl.xml
+@@ -705,7 +705,9 @@ kobject-uevent 1 systemd-udevd-kernel.socket systemd-udevd.service
+ 
+           <listitem>
+             <para>Start the unit specified on the command line and its
+-            dependencies and stop all others.</para>
++            dependencies and stop all others. If a unit name with no
++            extension is given, an extension of
++            <literal>.target</literal> will be assumed.</para>
+ 
+             <para>This is similar to changing the runlevel in a
+             traditional init system. The <command>isolate</command>
+@@ -1592,9 +1594,9 @@ kobject-uevent 1 systemd-udevd-kernel.socket systemd-udevd.service
+       <programlisting># systemctl start sshd</programlisting> and
+       <programlisting># systemctl start sshd.service</programlisting>
+       are equivalent, as are
+-      <programlisting># systemctl isolate snapshot-11</programlisting>
++      <programlisting># systemctl isolate default</programlisting>
+       and
+-      <programlisting># systemctl isolate snapshot-11.snapshot</programlisting>
++      <programlisting># systemctl isolate default.target</programlisting>
+       Note that (absolute) paths to device nodes are automatically
+       converted to device unit names, and other (absolute) paths to
+       mount unit names.

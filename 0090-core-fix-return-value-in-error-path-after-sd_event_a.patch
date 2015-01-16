@@ -1,0 +1,31 @@
+From f4b75dd0e481ed2fe40eb056e0db5c90481c5263 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Fri, 28 Nov 2014 19:20:59 +0100
+Subject: [PATCH] core: fix return value in error path after sd_event_add_io()
+ failure
+
+sd_event_add_io() does not set errno, it returns negative errno.
+
+Noticed during log_*_errno conversions.
+
+(cherry picked from commit 895b3a7b44fe7ca2f260986be2a877ff56a72718)
+
+Conflicts:
+	src/core/manager.c
+---
+ src/core/manager.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/manager.c b/src/core/manager.c
+index a48ad63178..b89399026e 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -704,7 +704,7 @@ static int manager_setup_notify(Manager *m) {
+                 r = sd_event_add_io(m->event, &m->notify_event_source, m->notify_fd, EPOLLIN, manager_dispatch_notify_fd, m);
+                 if (r < 0) {
+                         log_error("Failed to allocate notify event source: %s", strerror(-r));
+-                        return -errno;
++                        return r;
+                 }
+ 
+                 /* Process signals a bit earlier than SIGCHLD, so that we can

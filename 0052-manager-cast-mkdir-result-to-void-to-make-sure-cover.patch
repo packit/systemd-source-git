@@ -1,0 +1,47 @@
+From 8d88fbe8abcaabd9a699c421b3bc7c3d25ba6954 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 7 Nov 2014 02:05:50 +0100
+Subject: [PATCH] manager: cast mkdir() result to (void) to make sure coverity
+ is quiet
+
+Also simplify the code a bit by moving mkdir to the common path.
+
+(cherry picked from commit 498e87d6b7ef025fef2e089931f355b5cd3c7dad)
+---
+ src/core/manager.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/src/core/manager.c b/src/core/manager.c
+index 47e23ba80e..31f9ed54a7 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -662,11 +662,9 @@ static int manager_setup_notify(Manager *m) {
+                         return -errno;
+                 }
+ 
+-                if (m->running_as == SYSTEMD_SYSTEM) {
++                if (m->running_as == SYSTEMD_SYSTEM)
+                         m->notify_socket = strdup("/run/systemd/notify");
+-                        if (!m->notify_socket)
+-                                return log_oom();
+-                } else {
++                else {
+                         const char *e;
+ 
+                         e = getenv("XDG_RUNTIME_DIR");
+@@ -676,11 +674,11 @@ static int manager_setup_notify(Manager *m) {
+                         }
+ 
+                         m->notify_socket = strappend(e, "/systemd/notify");
+-                        if (!m->notify_socket)
+-                                return log_oom();
+-
+-                        mkdir_parents_label(m->notify_socket, 0755);
+                 }
++                if (!m->notify_socket)
++                        return log_oom();
++
++                (void) mkdir_parents_label(m->notify_socket, 0755);
+ 
+                 strncpy(sa.un.sun_path, m->notify_socket, sizeof(sa.un.sun_path)-1);
+                 r = bind(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + strlen(sa.un.sun_path));

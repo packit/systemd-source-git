@@ -1,0 +1,47 @@
+From 91b84855f270af0a1b1edd44ea1dd86bb8b8e25d Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 14 Jan 2015 22:31:03 +0100
+Subject: [PATCH] sysv-generator: fix memory leak on failure
+
+This fixes a memory leak introduced by
+1ed0c19f81fd13cdf283c6def0168ce122a853a9
+
+(cherry picked from commit b3fae863ef548add2d01c3956ce7720f4eeeca7e)
+---
+ src/sysv-generator/sysv-generator.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/src/sysv-generator/sysv-generator.c b/src/sysv-generator/sysv-generator.c
+index 101dfddc38..6f87f63b72 100644
+--- a/src/sysv-generator/sysv-generator.c
++++ b/src/sysv-generator/sysv-generator.c
+@@ -760,13 +760,11 @@ static int enumerate_sysv(LookupPaths lp, Hashmap *all_services) {
+                         service->name = name;
+                         service->path = fpath;
+ 
+-                        r = load_sysv(service);
+-                        if (r < 0)
+-                                continue;
+-
+                         r = hashmap_put(all_services, service->name, service);
+-                        if (r < 0)
++                        if (r < 0) {
++                                free(service);
+                                 return log_oom();
++                        }
+ 
+                         name = fpath = NULL;
+                 }
+@@ -948,6 +946,12 @@ int main(int argc, char *argv[]) {
+         }
+ 
+         HASHMAP_FOREACH(service, all_services, j) {
++                q = load_sysv(service);
++                if (q < 0)
++                        continue;
++        }
++
++        HASHMAP_FOREACH(service, all_services, j) {
+                 q = fix_order(service, all_services);
+                 if (q < 0)
+                         continue;

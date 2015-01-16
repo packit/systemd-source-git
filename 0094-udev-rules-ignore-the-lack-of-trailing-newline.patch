@@ -1,0 +1,30 @@
+From 12dce8292ad9dc0abb80b420e41421ee4e3b44b4 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Fri, 28 Nov 2014 21:51:45 +0100
+Subject: [PATCH] udev: rules - ignore the lack of trailing newline
+
+Also accept '\r' as newline character.
+
+This dropps warnings of the type:
+
+  invalid key/value pair in file /usr/lib/udev/rules.d/40-usb-media-players.rules
+  on line 26, starting at character 25 ('')
+
+(cherry picked from commit 9f5ecdb0b11557be41c065f460bb22ab52bb0034)
+---
+ src/udev/udev-rules.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/udev/udev-rules.c b/src/udev/udev-rules.c
+index 086519aae4..ba798f4967 100644
+--- a/src/udev/udev-rules.c
++++ b/src/udev/udev-rules.c
+@@ -1067,7 +1067,7 @@ static int add_rule(struct udev_rules *rules, char *line,
+ 
+                         /* If we aren't at the end of the line, this is a parsing error.
+                          * Make a best effort to describe where the problem is. */
+-                        if (*linepos != '\n') {
++                        if (!strchr(NEWLINE "\0", *linepos)) {
+                                 char buf[2] = {*linepos};
+                                 _cleanup_free_ char *tmp;
+ 

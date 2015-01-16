@@ -1,0 +1,30 @@
+From 05fcbfca91910d6b889fce4a70f75d2126bf1d88 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Fri, 28 Nov 2014 21:44:31 +0100
+Subject: [PATCH] udev: rules - modernise add_rule a bit
+
+(cherry picked from commit 84198c1892cce2cb27d22bfa816da5d43c05add0)
+---
+ src/udev/udev-rules.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/udev/udev-rules.c b/src/udev/udev-rules.c
+index 3bc25f7c26..ff4066c8dc 100644
+--- a/src/udev/udev-rules.c
++++ b/src/udev/udev-rules.c
+@@ -1042,11 +1042,11 @@ static int add_rule(struct udev_rules *rules, char *line,
+                     const char *filename, unsigned int filename_off, unsigned int lineno) {
+         char *linepos;
+         const char *attr;
+-        struct rule_tmp rule_tmp;
++        struct rule_tmp rule_tmp = {
++                .rules = rules,
++                .rule.type = TK_RULE,
++        };
+ 
+-        memzero(&rule_tmp, sizeof(struct rule_tmp));
+-        rule_tmp.rules = rules;
+-        rule_tmp.rule.type = TK_RULE;
+         /* the offset in the rule is limited to unsigned short */
+         if (filename_off < USHRT_MAX)
+                 rule_tmp.rule.rule.filename_off = filename_off;

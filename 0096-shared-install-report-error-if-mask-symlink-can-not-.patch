@@ -1,0 +1,50 @@
+From da312d164e9c1f210640aa75d20be8bbed0427fb Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Sat, 29 Nov 2014 11:14:48 +0100
+Subject: [PATCH] shared: install - report error if mask symlink can not be
+ marked for removal
+
+(cherry picked from commit 56e73b34ce0b020ef54c0dc2aba16e50d4fea9f5)
+---
+ src/shared/install.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
+
+diff --git a/src/shared/install.c b/src/shared/install.c
+index cab93e8dc6..e60165bebf 100644
+--- a/src/shared/install.c
++++ b/src/shared/install.c
+@@ -662,7 +662,7 @@ int unit_file_unmask(
+                 goto finish;
+ 
+         STRV_FOREACH(i, files) {
+-                char *path;
++                _cleanup_free_ char *path = NULL;
+ 
+                 if (!unit_name_is_valid(*i, TEMPLATE_VALID)) {
+                         if (r == 0)
+@@ -678,21 +678,16 @@ int unit_file_unmask(
+ 
+                 q = null_or_empty_path(path);
+                 if (q > 0) {
+-                        if (unlink(path) >= 0) {
+-                                mark_symlink_for_removal(&remove_symlinks_to, path);
++                        if (unlink(path) < 0)
++                                q = -errno;
++                        else {
++                                q = mark_symlink_for_removal(&remove_symlinks_to, path);
+                                 add_file_change(changes, n_changes, UNIT_FILE_UNLINK, path, NULL);
+-
+-                                free(path);
+-                                continue;
+                         }
+-
+-                        q = -errno;
+                 }
+ 
+                 if (q != -ENOENT && r == 0)
+                         r = q;
+-
+-                free(path);
+         }
+ 
+ 

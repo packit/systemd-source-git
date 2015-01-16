@@ -1,0 +1,35 @@
+From 9b5eabf5fc53bbeb385fdd9e651d96f35faa3dfc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 6 Nov 2014 21:37:44 -0500
+Subject: [PATCH] man: update bootup(7) for asynchronous timers.target
+
+(cherry picked from commit d82ad85cd935f92d7b8357e4649fc6b55db54e1b)
+---
+ man/bootup.xml | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/man/bootup.xml b/man/bootup.xml
+index ac6e9f70f7..0854b6c316 100644
+--- a/man/bootup.xml
++++ b/man/bootup.xml
+@@ -145,7 +145,7 @@
+          v                  v                  |                    v              <emphasis>rescue.target</emphasis>
+    timers.target      paths.target             |             sockets.target
+          |                  |                  |                    |
+-         \__________________|_________________ | ___________________/
++         v                  |_________________ | ___________________/
+                                               \|/
+                                                v
+                                          basic.target
+@@ -174,6 +174,11 @@
+                 <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>)
+                 or by symlinking <filename>default.target</filename>
+                 to them.</para>
++
++                <para><filename>timers.target</filename> is pulled-in
++                by <filename>basic.target</filename> asynchronously.
++                This allows timers units to depend on services which
++                become only available later in boot.</para>
+         </refsect1>
+ 
+         <refsect1>

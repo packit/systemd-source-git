@@ -1,0 +1,29 @@
+From 3d42081b1ccc5c4fbfde7ccad992e9651c9b2d69 Mon Sep 17 00:00:00 2001
+From: Ronny Chevalier <chevalier.ronny@gmail.com>
+Date: Mon, 12 Jan 2015 22:19:34 +0100
+Subject: [PATCH] zsh-completion: add missing completions for systemd-tmpfiles
+
+(cherry picked from commit ee14023fd5720959d3ae22b23ed663efc42608fa)
+---
+ shell-completion/zsh/_systemd-tmpfiles | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/shell-completion/zsh/_systemd-tmpfiles b/shell-completion/zsh/_systemd-tmpfiles
+index 4913dedd2c..6ff02e5d98 100644
+--- a/shell-completion/zsh/_systemd-tmpfiles
++++ b/shell-completion/zsh/_systemd-tmpfiles
+@@ -1,10 +1,13 @@
+ #compdef systemd-tmpfiles
+ 
+ _arguments \
++    {-h,--help}'[Show help]' \
++    '--version[Show package version]' \
+     '--create[Create, set ownership/permissions based on the config files.]' \
+     '--clean[Clean up all files and directories with an age parameter configured.]' \
+     '--remove[All files and directories marked with r, R in the configuration files are removed.]' \
++    '--boot[Execute actions only safe at boot]' \
+     '--prefix=[Only apply rules that apply to paths with the specified prefix.]' \
+     '--exclude-prefix=[Ignore rules that apply to paths with the specified prefix.]' \
+-    '--help[Prints a short help text and exits.]' \
++    '--root=[Operate on an alternate filesystem root]:directory:_directories' \
+     '*::files:_files'

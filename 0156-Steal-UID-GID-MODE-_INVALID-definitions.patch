@@ -1,0 +1,23 @@
+From c1fc0cd8b4660d32c2c5364b82c279e3f3860555 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 15 Jan 2015 23:28:36 -0500
+Subject: [PATCH] Steal {UID,GID,MODE}_INVALID definitions
+
+Based on commit fed1e721fd0c81e60c77120539f34e16c2585634.
+---
+ src/shared/macro.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/shared/macro.h b/src/shared/macro.h
+index 9ee332c8df..abf0dc05e3 100644
+--- a/src/shared/macro.h
++++ b/src/shared/macro.h
+@@ -408,4 +408,8 @@ do {                                                                    \
+ #endif
+ #endif
+ 
++#define UID_INVALID ((uid_t) -1)
++#define GID_INVALID ((gid_t) -1)
++#define MODE_INVALID ((mode_t) -1)
++
+ #include "log.h"

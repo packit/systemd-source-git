@@ -1,20 +1,23 @@
-From e6ec314b4a905e0967b08202ebc6509753f2d518 Mon Sep 17 00:00:00 2001
-From: Fedora systemd team <systemd-maint@redhat.com>
-Date: Fri, 19 Dec 2014 08:06:15 +0100
+From 98963dfd60e4ae11cd4537e38cb6976da95abc9e Mon Sep 17 00:00:00 2001
+From: Ken Werner <ken@linux.vnet.ibm.com>
+Date: Tue, 16 Dec 2014 18:06:41 +0100
 Subject: [PATCH] nspawn: fix invocation of the raw clone() system call on s390
  and cris
 
 Since the order of the first and second arguments of the raw clone() system
 call is reversed on s390 and cris it needs to be invoked differently.
 
-(cherry-picked from 60e1651a31c9c0ed1caef1a63f5e3a87156b0b1e)
+(cherry picked from commit 60e1651a31c9c0ed1caef1a63f5e3a87156b0b1e)
+
+Conflicts:
+	src/shared/missing.h
 ---
  src/nspawn/nspawn.c  |  6 +++---
  src/shared/missing.h | 10 ++++++++++
  2 files changed, 13 insertions(+), 3 deletions(-)
 
 diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
-index f332ade..e7d36bb 100644
+index 27e533cd9b..ef6cf20e64 100644
 --- a/src/nspawn/nspawn.c
 +++ b/src/nspawn/nspawn.c
 @@ -3187,9 +3187,9 @@ int main(int argc, char *argv[]) {
@@ -31,7 +34,7 @@ index f332ade..e7d36bb 100644
                          if (errno == EINVAL)
                                  log_error("clone() failed, do you have namespace support enabled in your kernel? (You need UTS, IPC, PID and NET namespacing built in): %m");
 diff --git a/src/shared/missing.h b/src/shared/missing.h
-index c98d027..4b4c6df 100644
+index c98d0273a3..f6b78cae92 100644
 --- a/src/shared/missing.h
 +++ b/src/shared/missing.h
 @@ -595,3 +595,13 @@ static inline int setns(int fd, int nstype) {
@@ -48,6 +51,3 @@ index c98d027..4b4c6df 100644
 +        return syscall(__NR_clone, flags, child_stack);
 +#endif
 +}
--- 
-2.2.0
-

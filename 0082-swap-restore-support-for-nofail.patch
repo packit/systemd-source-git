@@ -1,0 +1,258 @@
+From 4828bc7a05d3349919a3b0c61def4024569a2253 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 26 Nov 2014 10:36:52 -0500
+Subject: [PATCH] swap: restore support for nofail
+
+systemd stops adding automatic dependencies on swap.target to swap
+units. If a dependency is required, it has to be added by unit
+configuration. fstab-generator did that already, except that now it is
+modified to create a Requires or Wants type dependency, depending on
+whether nofail is specified in /etc/fstab. This makes .swap units
+obey the nofail/noauto options more or less the same as .mount units.
+
+Documentation is extended to clarify that, and to make
+systemd.mount(5) and system.swap(5) more similar. The gist is not
+changed, because current behaviour actually matches existing
+documentation.
+
+https://bugs.freedesktop.org/show_bug.cgi?id=86488
+(cherry picked from commit 5607d856b8606ba75446a07ab5e9048753e1d7a6)
+---
+ man/systemd.mount.xml                 | 37 ++++++++++++++++----------------
+ man/systemd.swap.xml                  | 40 +++++++++++++++++++++++++++++------
+ src/core/swap.c                       | 16 +-------------
+ src/fstab-generator/fstab-generator.c | 27 +++++++++++++----------
+ 4 files changed, 70 insertions(+), 50 deletions(-)
+
+diff --git a/man/systemd.mount.xml b/man/systemd.mount.xml
+index ba841c3bab..6d8eae6a93 100644
+--- a/man/systemd.mount.xml
++++ b/man/systemd.mount.xml
+@@ -124,7 +124,7 @@
+         </refsect1>
+ 
+         <refsect1>
+-                <title><filename>/etc/fstab</filename></title>
++                <title><filename>fstab</filename></title>
+ 
+                 <para>Mount units may either be configured via unit
+                 files, or via <filename>/etc/fstab</filename> (see
+@@ -142,8 +142,7 @@
+                 <para>When reading <filename>/etc/fstab</filename> a
+                 few special mount options are understood by systemd
+                 which influence how dependencies are created for mount
+-                points from <filename>/etc/fstab</filename>. systemd
+-                will create a dependency of type
++                points. systemd will create a dependency of type
+                 <option>Wants</option> or <option>Requires</option>
+                 (see option <option>nofail</option> below), from
+                 either <filename>local-fs.target</filename> or
+@@ -181,26 +180,13 @@
+                   </varlistentry>
+ 
+                   <varlistentry>
+-                    <term><option>nofail</option></term>
+-                    <term><option>fail</option></term>
+-
+-                    <listitem><para>With <option>nofail</option> this
+-                    mount will be only wanted, not required, by the
+-                    <filename>local-fs.target</filename>. This means
+-                    that the boot will continue even if this mount
+-                    point is not mounted successfully. Option
+-                    <option>fail</option> has the opposite meaning and
+-                    is the default.</para>
+-                    </listitem>
+-                  </varlistentry>
+-
+-                  <varlistentry>
+                     <term><option>noauto</option></term>
+                     <term><option>auto</option></term>
+ 
+                     <listitem><para>With <option>noauto</option>, this
+                     mount will not be added as a dependency for
+-                    <filename>local-fs.target</filename>. This means
++                    <filename>local-fs.target</filename> or
++                    <filename>remote-fs.target</filename>. This means
+                     that it will not be mounted automatically during
+                     boot, unless it is pulled in by some other
+                     unit. Option <option>auto</option> has the
+@@ -209,6 +195,21 @@
+                   </varlistentry>
+ 
+                   <varlistentry>
++                    <term><option>nofail</option></term>
++                    <term><option>fail</option></term>
++
++                    <listitem><para>With <option>nofail</option> this
++                    mount will be only wanted, not required, by
++                    <filename>local-fs.target</filename> or
++                    <filename>remote-fs.target</filename>. This means
++                    that the boot will continue even if this mount
++                    point is not mounted successfully. Option
++                    <option>fail</option> has the opposite meaning and
++                    is the default.</para>
++                    </listitem>
++                  </varlistentry>
++
++                  <varlistentry>
+                     <term><option>x-initrd.mount</option></term>
+ 
+                     <listitem><para>An additional filesystem to be
+diff --git a/man/systemd.swap.xml b/man/systemd.swap.xml
+index 44c16e7bcc..1155758e28 100644
+--- a/man/systemd.swap.xml
++++ b/man/systemd.swap.xml
+@@ -117,12 +117,40 @@
+                 <filename>/etc/fstab</filename> and a unit file, the
+                 configuration in the latter takes precedence.</para>
+ 
+-                <para>Unless the <option>noauto</option> option is set
+-                for them all swap units configured in
+-                <filename>/etc/fstab</filename> are also added as
+-                requirements to <filename>swap.target</filename>, so
+-                that they are waited for and activated during
+-                boot.</para>
++                <para>When reading <filename>/etc/fstab</filename> a
++                few special options are understood by systemd which
++                influence how dependencies are created for swap
++                units.</para>
++
++                <variablelist class='fstab-options'>
++                  <varlistentry>
++                    <term><option>noauto</option></term>
++                    <term><option>auto</option></term>
++
++                    <listitem><para>With <option>noauto</option> the
++                    swap unit will not be added as a dependency for
++                    <filename>swap.target</filename>. This means that
++                    it will not be activated automatically during
++                    boot, unless it is pulled in by some other
++                    unit. Option <option>auto</option> has the
++                    opposite meaning and is the default.</para>
++                    </listitem>
++                  </varlistentry>
++
++                  <varlistentry>
++                    <term><option>nofail</option></term>
++                    <term><option>fail</option></term>
++
++                    <listitem><para>With <option>nofail</option> the
++                    swap unit will be only wanted, not required by
++                    <filename>swap.target</filename>. This means that
++                    the boot will continue even if this swap device is
++                    not activated successfully. Option
++                    <option>fail</option> has the opposite meaning and
++                    is the default.</para>
++                    </listitem>
++                  </varlistentry>
++                </variablelist>
+         </refsect1>
+ 
+         <refsect1>
+diff --git a/src/core/swap.c b/src/core/swap.c
+index 13e12ad67a..ecd96752b3 100644
+--- a/src/core/swap.c
++++ b/src/core/swap.c
+@@ -209,8 +209,6 @@ static int swap_add_device_links(Swap *s) {
+ }
+ 
+ static int swap_add_default_dependencies(Swap *s) {
+-        int r;
+-
+         assert(s);
+ 
+         if (UNIT(s)->manager->running_as != SYSTEMD_SYSTEM)
+@@ -219,19 +217,7 @@ static int swap_add_default_dependencies(Swap *s) {
+         if (detect_container(NULL) > 0)
+                 return 0;
+ 
+-        r = unit_add_two_dependencies_by_name(UNIT(s), UNIT_BEFORE, UNIT_CONFLICTS, SPECIAL_UMOUNT_TARGET, NULL, true);
+-        if (r < 0)
+-                return r;
+-
+-        if (!s->from_fragment)
+-                /* The swap unit can either be for an alternative device name, in which
+-                 * case we don't need to add the dependency on swap.target because this unit
+-                 * is following a different unit which will have this dependency added,
+-                 * or it can be derived from /proc/swaps, in which case it was started
+-                 * manually, and should not become a dependency of swap.target. */
+-                return 0;
+-
+-        return unit_add_two_dependencies_by_name_inverse(UNIT(s), UNIT_AFTER, UNIT_REQUIRES, SPECIAL_SWAP_TARGET, NULL, true);
++        return unit_add_two_dependencies_by_name(UNIT(s), UNIT_BEFORE, UNIT_CONFLICTS, SPECIAL_UMOUNT_TARGET, NULL, true);
+ }
+ 
+ static int swap_verify(Swap *s) {
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index e257c121e5..eba30090c9 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -74,11 +74,14 @@ static int mount_find_pri(struct mntent *me, int *ret) {
+         return 1;
+ }
+ 
+-static int add_swap(const char *what, struct mntent *me) {
++static int add_swap(
++                const char *what,
++                struct mntent *me,
++                bool noauto,
++                bool nofail) {
++
+         _cleanup_free_ char *name = NULL, *unit = NULL, *lnk = NULL;
+         _cleanup_fclose_ FILE *f = NULL;
+-
+-        bool noauto;
+         int r, pri = -1;
+ 
+         assert(what);
+@@ -95,8 +98,6 @@ static int add_swap(const char *what, struct mntent *me) {
+                 return r;
+         }
+ 
+-        noauto = !!hasmntopt(me, "noauto");
+-
+         name = unit_name_from_path(what, ".swap");
+         if (!name)
+                 return log_oom();
+@@ -143,7 +144,8 @@ static int add_swap(const char *what, struct mntent *me) {
+                 return r;
+ 
+         if (!noauto) {
+-                lnk = strjoin(arg_dest, "/" SPECIAL_SWAP_TARGET ".wants/", name, NULL);
++                lnk = strjoin(arg_dest, "/" SPECIAL_SWAP_TARGET,
++                              nofail ? ".wants/" : ".requires/", name, NULL);
+                 if (!lnk)
+                         return log_oom();
+ 
+@@ -357,6 +359,7 @@ static int parse_fstab(bool initrd) {
+ 
+         while ((me = getmntent(f))) {
+                 _cleanup_free_ char *where = NULL, *what = NULL;
++                bool noauto, nofail;
+                 int k;
+ 
+                 if (initrd && !mount_in_initrd(me))
+@@ -378,16 +381,18 @@ static int parse_fstab(bool initrd) {
+                 if (is_path(where))
+                         path_kill_slashes(where);
+ 
+-                log_debug("Found entry what=%s where=%s type=%s", what, where, me->mnt_type);
++                noauto = !!hasmntopt(me, "noauto");
++                nofail = !!hasmntopt(me, "nofail");
++                log_debug("Found entry what=%s where=%s type=%s nofail=%s noauto=%s",
++                          what, where, me->mnt_type,
++                          yes_no(noauto), yes_no(nofail));
+ 
+                 if (streq(me->mnt_type, "swap"))
+-                        k = add_swap(what, me);
++                        k = add_swap(what, me, noauto, nofail);
+                 else {
+-                        bool noauto, nofail, automount;
++                        bool automount;
+                         const char *post;
+ 
+-                        noauto = !!hasmntopt(me, "noauto");
+-                        nofail = !!hasmntopt(me, "nofail");
+                         automount =
+                                   hasmntopt(me, "comment=systemd.automount") ||
+                                   hasmntopt(me, "x-systemd.automount");

@@ -1,0 +1,23 @@
+From d76b52b66dc8db04f5df8f87e2ce737d7428f4d4 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 6 Jan 2015 20:33:46 +0100
+Subject: [PATCH] tmpfiles: make gcc shut up
+
+(cherry picked from commit 1e95893a89b87e4ed656910e30c430e583bc8133)
+---
+ src/tmpfiles/tmpfiles.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/tmpfiles/tmpfiles.c b/src/tmpfiles/tmpfiles.c
+index 02e439e699..29041388d3 100644
+--- a/src/tmpfiles/tmpfiles.c
++++ b/src/tmpfiles/tmpfiles.c
+@@ -1063,7 +1063,7 @@ static int clean_item(Item *i) {
+ }
+ 
+ static int process_item(Item *i) {
+-        int r, q, p, s, t = 0;
++        int r, q, p, t = 0;
+         _cleanup_free_ char *prefix = NULL;
+ 
+         assert(i);

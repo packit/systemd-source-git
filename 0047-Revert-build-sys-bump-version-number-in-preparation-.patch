@@ -1,0 +1,24 @@
+From cdb7cc6960a3fcfe91129d4eaf73a0809d26611b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 16 Jan 2015 00:55:53 -0500
+Subject: [PATCH] Revert "build-sys: bump version number in preparation for
+ release"
+
+This reverts commit 9a4f7f5ef7a0895962d5c9b9e0bc8579fd792aef.
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index c2f8f7a548..cf98c418ca 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -20,7 +20,7 @@
+ AC_PREREQ([2.64])
+ 
+ AC_INIT([systemd],
+-        [217],
++        [216],
+         [http://bugs.freedesktop.org/enter_bug.cgi?product=systemd],
+         [systemd],
+         [http://www.freedesktop.org/wiki/Software/systemd])
