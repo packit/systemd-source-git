@@ -1,4 +1,4 @@
-From 0e7221610c5fcd7687d31b5668cb0867bcd7e301 Mon Sep 17 00:00:00 2001
+From 5b9f8f0a472c96002360e65eec3e9c07a345a893 Mon Sep 17 00:00:00 2001
 From: Ray Strode <rstrode@redhat.com>
 Date: Wed, 5 Nov 2014 08:30:52 -0500
 Subject: [PATCH] login: rerun vconsole-setup when switching from vgacon to

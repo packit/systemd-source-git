@@ -1,4 +1,4 @@
-From db6e0dd4d2f8eaeec287219f1912a060f250f714 Mon Sep 17 00:00:00 2001
+From a5ef43743566428d7aa800f6d84ea16b2768b478 Mon Sep 17 00:00:00 2001
 From: Moez Bouhlel <bmoez.j@gmail.com>
 Date: Wed, 14 Jan 2015 14:33:32 +0000
 Subject: [PATCH] fix zsh completion typo

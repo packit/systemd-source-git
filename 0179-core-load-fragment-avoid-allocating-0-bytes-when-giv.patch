@@ -1,4 +1,4 @@
-From 3fff351c881b7c83066d8aa16addc59a0194451f Mon Sep 17 00:00:00 2001
+From ce4ad5de372ecc8b3f5c935c76c2771440e66b4a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 11 Jan 2015 16:57:02 -0500
 Subject: [PATCH] core/load-fragment: avoid allocating 0 bytes when given an

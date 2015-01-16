@@ -1,4 +1,4 @@
-From fe10c8346813546d076d91cefb60f03fe03ab266 Mon Sep 17 00:00:00 2001
+From 65fd39f8a222a3dadf53de50b15664d5c2f73bf2 Mon Sep 17 00:00:00 2001
 From: Ronny Chevalier <chevalier.ronny@gmail.com>
 Date: Mon, 12 Jan 2015 21:43:45 +0100
 Subject: [PATCH] zsh-completion: add missing completions for systemd-analyze

@@ -1,4 +1,4 @@
-From ab755c9e982eada014a906c7dac0c3a5bae5f853 Mon Sep 17 00:00:00 2001
+From ca542322933c2477b7a67da4eb123ac810de8512 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 11 Jan 2015 23:40:46 -0500
 Subject: [PATCH] fstab-util: fix priority parsing and add test

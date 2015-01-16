@@ -1,4 +1,4 @@
-From aeda35467fd4bbc45f595de1ffa41b2916f13b1a Mon Sep 17 00:00:00 2001
+From fab6d4c7aa4460f4a5016427d627c1a645a5d7f2 Mon Sep 17 00:00:00 2001
 From: Ronny Chevalier <chevalier.ronny@gmail.com>
 Date: Mon, 12 Jan 2015 21:31:45 +0100
 Subject: [PATCH] zsh-completion: add missing -M completion for timedatectl

@@ -1,4 +1,4 @@
-From b77ff3c5290d9177e216b994fb2e0a60568382ae Mon Sep 17 00:00:00 2001
+From 60c149882c1519679335ab2b82fc9e798570078d Mon Sep 17 00:00:00 2001
 From: Ronny Chevalier <chevalier.ronny@gmail.com>
 Date: Mon, 12 Jan 2015 21:26:27 +0100
 Subject: [PATCH] zsh-completion: add missing completions for coredumpctl

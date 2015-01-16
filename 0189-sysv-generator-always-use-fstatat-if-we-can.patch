@@ -1,4 +1,4 @@
-From 5304ec638fc00b1bb277fdfe806e758126fd1bb8 Mon Sep 17 00:00:00 2001
+From 46c3a085f0aa48e832be8ac78d77544e1dc0ca6b Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 14 Jan 2015 22:37:56 +0100
 Subject: [PATCH] sysv-generator: always use fstatat() if we can

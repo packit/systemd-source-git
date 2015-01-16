@@ -1,4 +1,4 @@
-From d75874557dad0059b9399e7350f2d4ee6606dfab Mon Sep 17 00:00:00 2001
+From 63bc82c30cebb7ed39649a45d91d48c109b70cba Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 12 Jan 2015 12:14:59 -0500
 Subject: [PATCH] core/mount: remove "fail" again
@@ -14,7 +14,7 @@ those three.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/core/mount.c b/src/core/mount.c
-index 5414572a66..8afa2e6dda 100644
+index 7c0527d6a1..f14599fc92 100644
 --- a/src/core/mount.c
 +++ b/src/core/mount.c
 @@ -901,7 +901,7 @@ static void mount_enter_mounting(Mount *m) {

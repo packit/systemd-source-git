@@ -1,4 +1,4 @@
-From 3d5ae9c8bb683bd6aa66d6a93e79b2e797083ae8 Mon Sep 17 00:00:00 2001
+From f14dd032d058427b90681846036f4ea5c353b8e4 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 16 Jan 2015 00:45:24 -0500
 Subject: [PATCH] manager: print fatal errors on the console too

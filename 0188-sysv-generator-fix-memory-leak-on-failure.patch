@@ -1,4 +1,4 @@
-From 91b84855f270af0a1b1edd44ea1dd86bb8b8e25d Mon Sep 17 00:00:00 2001
+From 7bc3b3007e7ebd04f88df6bc2c380a9f6d075190 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 14 Jan 2015 22:31:03 +0100
 Subject: [PATCH] sysv-generator: fix memory leak on failure

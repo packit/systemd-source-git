@@ -1,4 +1,4 @@
-From 3ea7797a7c7d5cb849e1b4e0e1fb07d981d09684 Mon Sep 17 00:00:00 2001
+From 9e69da8bdd2b0d9db274816ce9102682a7036cd5 Mon Sep 17 00:00:00 2001
 From: Jan Engelhardt <jengelh@inai.de>
 Date: Mon, 12 Jan 2015 20:43:14 +0100
 Subject: [PATCH] doc: add cross-references between systemd.{link, netdev,

@@ -1,4 +1,4 @@
-From 0486a437c223e965a07923f34e9fb8d72338b2f8 Mon Sep 17 00:00:00 2001
+From f3093590ab485c98943434812325fc7d87bf83e9 Mon Sep 17 00:00:00 2001
 From: David Herrmann <dh.herrmann@gmail.com>
 Date: Thu, 15 Jan 2015 12:38:57 +0100
 Subject: [PATCH] udev: fix NULL-ptr deref

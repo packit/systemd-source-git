@@ -1,4 +1,4 @@
-From 3828abe47c6367e05754eb48cca668e5b7de8407 Mon Sep 17 00:00:00 2001
+From 1b6db97fa2f5d537f3d2ee894b66df9751918247 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Tue, 13 Jan 2015 20:05:42 -0500
 Subject: [PATCH] man: remove "nofail" from systemd.swap(5)
