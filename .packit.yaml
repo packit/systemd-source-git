@@ -1,0 +1,6 @@
+---
+specfile_path: fedora/systemd.spec
+synced_files:
+  - fedora/
+  - .packit.yaml
+downstream_package_name: systemd
