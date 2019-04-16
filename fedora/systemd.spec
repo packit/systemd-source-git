@@ -50,10 +50,6 @@ i=1; for j in 00*patch; do printf "Patch%04d:      %s\n" $i $j; i=$((i+1));done|
 GIT_DIR=../../src/systemd/.git git diffab -M v233..master@{2017-06-15} -- hwdb/[67]* hwdb/parse_hwdb.py > hwdb.patch
 %endif
 
-Patch0001:      0001-Revert-journald-periodically-drop-cache-for-all-dead.patch
-
-Patch0998:      0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
-
 %ifarch %{ix86} x86_64 aarch64
 %global have_gnu_efi 1
 %endif
