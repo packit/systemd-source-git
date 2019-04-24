@@ -256,7 +256,7 @@ License:       LGPLv2+
 They can be useful to test systemd internals.
 
 %prep
-%autosetup %{?commit:-n %{name}%{?stable:-stable}-%{commit}} -p1 -Sgit
+%autosetup %{?commit:-n %{name}%{?stable:-stable}-%{commit}} -Sgit
 
 %build
 %define ntpvendor %(source /etc/os-release; echo ${ID})
