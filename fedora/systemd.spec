@@ -1,3 +1,5 @@
+# test
+
 %global commit 8bca4621fc003a148c70248c55aa877dfe61fd3f
 %{?commit:%global shortcommit %(c=%{commit}; echo ${c:0:7})}
 
