@@ -12,6 +12,5 @@ jobs:
   trigger: pull_request
   metadata:
     targets:
-    - fedora-rawhide-x86_64
-    - fedora-30-x86_64
+    - fedora-29-x86_64
 upstream_ref: 239.stable.feb.2019
