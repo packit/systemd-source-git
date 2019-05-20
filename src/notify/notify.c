@@ -28,7 +28,6 @@ static gid_t arg_gid = GID_INVALID;
 static void help(void) {
         printf("%s [OPTIONS...] [VARIABLE=VALUE...]\n\n"
                "Notify the init system about service status updates.\n\n"
-               "  -h --help            Show this help\n"
                "     --version         Show package version\n"
                "     --ready           Inform the init system about service start-up completion\n"
                "     --pid[=PID]       Set main PID of daemon\n"
